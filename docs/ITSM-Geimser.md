@@ -71,3 +71,16 @@ GEIMSER_ADMIN_PASSWORD='una-clave-segura' ./scripts/install_geimser.sh
 ## Nota de mantenimiento
 
 La personalizacion de nombre, empresa, idioma, zona horaria, logo y campo de ticket se aplica mediante configuracion de Zammad. Los colores se sirven como CSS externo desde Nginx para evitar modificar o recompilar los assets internos de Zammad. Si se actualiza o recrea la imagen, vuelve a ejecutar `./scripts/install_geimser.sh` para reaplicar la configuracion.
+
+## Deploy en AWS Lightsail
+
+Desde AWS CloudShell:
+
+```bash
+git clone https://github.com/hhdev2026/ITSM_geimser.git
+cd ITSM_geimser
+chmod +x aws/deploy-lightsail-geimser.sh
+REGION=us-east-1 BUNDLE_ID=large_3_0 ./aws/deploy-lightsail-geimser.sh
+```
+
+El script crea una instancia Lightsail Ubuntu 24.04, abre puertos 22/80/443/8080, asigna una IP estatica, instala Docker y levanta ITSM Geimser.
