@@ -12,7 +12,8 @@ if ! docker info >/dev/null 2>&1; then
   fi
 fi
 
-docker-compose pull
+docker-compose pull zammad-elasticsearch zammad-memcached zammad-postgresql zammad-redis
+docker-compose build zammad-backup zammad-init zammad-nginx zammad-railsserver zammad-scheduler zammad-websocket
 docker-compose up -d
 
 echo "Esperando a que Zammad quede saludable..."

@@ -43,7 +43,7 @@ PUBLIC_IP="$(curl -fsS http://169.254.169.254/latest/meta-data/public-ipv4 || tr
 sed -i 's/^NGINX_EXPOSE_PORT=.*/NGINX_EXPOSE_PORT=80/' .env
 sed -i 's/^NGINX_SERVER_NAME=.*/NGINX_SERVER_NAME=_/' .env
 sed -i "s/^ZAMMAD_FQDN=.*/ZAMMAD_FQDN=${PUBLIC_IP:-localhost}/" .env
-sed -i "s#platform: linux/arm64#platform: __DOCKER_PLATFORM__#g" docker-compose.override.yml
+sed -i 's#^DOCKER_PLATFORM=.*#DOCKER_PLATFORM=__DOCKER_PLATFORM__#' .env
 
 export GEIMSER_ADMIN_PASSWORD="__ADMIN_PASSWORD__"
 ./scripts/install_geimser.sh
