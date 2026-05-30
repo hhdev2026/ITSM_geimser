@@ -675,3 +675,100 @@ body,
 #app [class*="navigation"] .is-active a {
   color: #062a42 !important;
 }
+
+#app .content h1,
+#app .content h2,
+#app .content h3,
+#app .content h4,
+#app .content h5,
+#app .content h6,
+#app .main h1,
+#app .main h2,
+#app .main h3,
+#app .main h4,
+#app .main-content h1,
+#app .main-content h2,
+#app .main-content h3,
+#app .main-content h4,
+#app .page h1,
+#app .page h2,
+#app .page h3,
+#app .page h4,
+#app .settings h1,
+#app .settings h2,
+#app .settings h3,
+#app .settings h4,
+#app .admin h1,
+#app .admin h2,
+#app .admin h3,
+#app .admin h4 {
+  color: #1d1d1f !important;
+}
+
+#app .content label,
+#app .content legend,
+#app .content .label,
+#app .content .formGroup-label,
+#app .content [class*="Label"],
+#app .content [class*="label"],
+#app .settings label,
+#app .settings legend,
+#app .settings .label,
+#app .settings .formGroup-label,
+#app .admin label,
+#app .admin legend,
+#app .admin .label,
+#app .admin .formGroup-label {
+  color: #5f6672 !important;
+}
+
+#app .content p,
+#app .content li,
+#app .content td,
+#app .content th,
+#app .content span,
+#app .settings p,
+#app .settings li,
+#app .settings td,
+#app .settings th,
+#app .settings span,
+#app .admin p,
+#app .admin li,
+#app .admin td,
+#app .admin th,
+#app .admin span {
+  color: inherit;
+}
+
+#app .geimser-light-surface,
+#app .geimser-light-surface * {
+  color: #1d1d1f !important;
+}
+
+#app .geimser-light-surface label,
+#app .geimser-light-surface legend,
+#app .geimser-light-surface .label,
+#app .geimser-light-surface .formGroup-label,
+#app .geimser-light-surface [class*="Label"],
+#app .geimser-light-surface [class*="label"],
+#app .geimser-light-surface small,
+#app .geimser-light-surface .small,
+#app .geimser-light-surface [class*="muted"],
+#app .geimser-light-surface [class*="hint"] {
+  color: #5f6672 !important;
+}
+
+#app .geimser-light-surface a,
+#app .geimser-light-surface .link {
+  color: #004b8d !important;
+}
+
+#app .geimser-dark-surface,
+#app .geimser-dark-surface * {
+  color: #f3f7fb !important;
+}
+
+#app .geimser-dark-surface a,
+#app .geimser-dark-surface .link {
+  color: #8fd3ff !important;
+}

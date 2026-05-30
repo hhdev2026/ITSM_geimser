@@ -149,6 +149,91 @@
     });
   }
 
+  function parseRgb(value) {
+    var match = String(value || "").match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([.\d]+))?\)/i);
+    if (!match) return null;
+    var alpha = match[4] === undefined ? 1 : Number(match[4]);
+    if (alpha === 0) return null;
+    return {
+      r: Number(match[1]),
+      g: Number(match[2]),
+      b: Number(match[3]),
+      a: alpha
+    };
+  }
+
+  function luminance(rgb) {
+    function channel(value) {
+      var normalized = value / 255;
+      return normalized <= 0.03928 ? normalized / 12.92 : Math.pow((normalized + 0.055) / 1.055, 2.4);
+    }
+    return 0.2126 * channel(rgb.r) + 0.7152 * channel(rgb.g) + 0.0722 * channel(rgb.b);
+  }
+
+  function contrastRatio(foreground, background) {
+    var lighter = Math.max(luminance(foreground), luminance(background));
+    var darker = Math.min(luminance(foreground), luminance(background));
+    return (lighter + 0.05) / (darker + 0.05);
+  }
+
+  function effectiveBackground(el) {
+    var current = el;
+    while (current && current !== document.documentElement) {
+      var bg = parseRgb(window.getComputedStyle(current).backgroundColor);
+      if (bg) return bg;
+      current = current.parentElement;
+    }
+    return { r: 245, g: 247, b: 251, a: 1 };
+  }
+
+  function isInsideNavigation(el) {
+    return Boolean(el.closest(".navigation, .sidebar, .appSidebar, .mainNavigation, [class*='Navigation'], [class*='navigation'], .geimser-sidebar-footer, .geimser-sidebar-dock"));
+  }
+
+  function normalizeTextContrast() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var textSelectors = [
+      "h1", "h2", "h3", "h4", "h5", "h6",
+      "p", "label", "legend", "span", "small", "a",
+      "li", "td", "th", "button", ".btn", ".link",
+      "[class*='label']", "[class*='Label']", "[class*='title']", "[class*='Title']", "[class*='headline']", "[class*='Headline']"
+    ].join(",");
+
+    Array.from(app.querySelectorAll(textSelectors)).forEach(function (el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) return;
+      if (isInsideNavigation(el)) return;
+      if (!(el.textContent || "").trim()) return;
+
+      var style = window.getComputedStyle(el);
+      var fg = parseRgb(style.color);
+      var bg = effectiveBackground(el);
+      if (!fg || !bg) return;
+
+      var bgIsLight = luminance(bg) > 0.55;
+      var minRatio = /^(H[1-6]|LABEL|LEGEND|BUTTON)$/i.test(el.tagName) ? 4.5 : 4.0;
+      var weak = contrastRatio(fg, bg) < minRatio;
+
+      if (!weak && !/rgba?\(255,\s*255,\s*255/i.test(style.color)) return;
+
+      if (bgIsLight) {
+        if (el.matches("a, .link")) {
+          el.style.color = "#004b8d";
+        } else if (el.matches("label, legend, small, .small, [class*='label'], [class*='Label'], [class*='muted'], [class*='hint']")) {
+          el.style.color = "#5f6672";
+        } else {
+          el.style.color = "#1d1d1f";
+        }
+        el.closest(".panel, .box, .widget, .card, .table, section, article")?.classList.add("geimser-light-surface");
+      } else {
+        el.style.color = el.matches("a, .link") ? "#8fd3ff" : "#f3f7fb";
+        el.closest(".panel, .box, .widget, .card, .table, section, article")?.classList.add("geimser-dark-surface");
+      }
+    });
+  }
+
   function applyGeimserUi() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -156,6 +241,7 @@
     removeZammadBranding();
     normalizeSidebarFooter();
     styleSidebarDockControls();
+    normalizeTextContrast();
 
     var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;
     var panels = Array.from(document.querySelectorAll("#app div, #app section, #app article")).filter(function (el) {
