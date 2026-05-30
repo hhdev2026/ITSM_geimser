@@ -1,0 +1,41 @@
+---
+x-geimser-zammad-volumes: &geimser-zammad-volumes
+  - ./branding/geimser.css:/opt/zammad/app/assets/stylesheets/custom/geimser.css:ro
+  - ./branding/geimser.css:/opt/zammad/contrib/geimser/geimser.css:ro
+  - ./branding/geimser-logo.png:/opt/zammad/public/assets/images/geimser-logo.png:ro
+  - ./scripts/configure_geimser.rb:/opt/zammad/contrib/geimser/configure_geimser.rb:ro
+
+services:
+  zammad-backup:
+    platform: linux/arm64
+  zammad-elasticsearch:
+    platform: linux/arm64
+  zammad-init:
+    platform: linux/arm64
+    volumes: *geimser-zammad-volumes
+  zammad-memcached:
+    platform: linux/arm64
+  zammad-nginx:
+    platform: linux/arm64
+    volumes:
+      - ./branding/geimser.css:/opt/zammad/app/assets/stylesheets/custom/geimser.css:ro
+      - ./branding/geimser.css:/opt/zammad/contrib/geimser/geimser.css:ro
+      - ./branding/geimser-logo.png:/opt/zammad/public/assets/images/geimser-logo.png:ro
+      - ./scripts/configure_geimser.rb:/opt/zammad/contrib/geimser/configure_geimser.rb:ro
+      - ./branding/nginx-geimser.conf:/opt/zammad/contrib/nginx/zammad.conf:ro
+  zammad-postgresql:
+    platform: linux/arm64
+  zammad-railsserver:
+    platform: linux/arm64
+    healthcheck:
+      start_period: 600s
+      retries: 10
+    volumes: *geimser-zammad-volumes
+  zammad-redis:
+    platform: linux/arm64
+  zammad-scheduler:
+    platform: linux/arm64
+    volumes: *geimser-zammad-volumes
+  zammad-websocket:
+    platform: linux/arm64
+    volumes: *geimser-zammad-volumes
