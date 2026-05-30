@@ -15,6 +15,8 @@ fi
 docker-compose pull zammad-elasticsearch zammad-memcached zammad-postgresql zammad-redis meshcentral
 docker-compose build zammad-backup zammad-init zammad-nginx zammad-railsserver zammad-scheduler zammad-websocket
 docker-compose up -d
+./scripts/configure_meshcentral.sh
+docker-compose up -d --force-recreate meshcentral
 
 echo "Esperando a que Zammad quede saludable..."
 for _ in {1..90}; do

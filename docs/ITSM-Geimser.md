@@ -114,6 +114,7 @@ Para crear el primer administrador en una instalacion nueva:
 ```bash
 cd /opt/ITSM_geimser
 sudo sed -i 's/^MESH_ALLOW_NEW_ACCOUNTS=.*/MESH_ALLOW_NEW_ACCOUNTS=true/' .env
+sudo ./scripts/configure_meshcentral.sh
 sudo docker compose up -d --force-recreate meshcentral
 ```
 
@@ -122,6 +123,7 @@ Luego abre `https://IP_PUBLICA`, registra el primer usuario administrador, y vue
 ```bash
 cd /opt/ITSM_geimser
 sudo sed -i 's/^MESH_ALLOW_NEW_ACCOUNTS=.*/MESH_ALLOW_NEW_ACCOUNTS=false/' .env
+sudo ./scripts/configure_meshcentral.sh
 sudo docker compose up -d --force-recreate meshcentral
 ```
 
