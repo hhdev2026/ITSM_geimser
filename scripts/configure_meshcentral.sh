@@ -23,7 +23,6 @@ config.settings.cert = host;
 config.settings.port = 443;
 config.settings.aliasPort = 443;
 config.settings.allowFraming = true;
-config.settings.allowedOrigin = true;
 config.settings.webRTC = process.env.MESH_WEBRTC === 'true';
 config.settings.browserPing = 60;
 config.settings.browserPong = 60;
@@ -31,16 +30,6 @@ config.domains[''].allowedOrigin = true;
 config.domains[''].allowFraming = true;
 config.domains[''].newAccounts = process.env.MESH_ALLOW_NEW_ACCOUNTS === 'true';
 config.domains[''].title = 'ITSM Geimser Remote';
-
-config.domains[''].allowedOrigin = [
-  true,
-  'https://' + host,
-  'https://' + host + ':443',
-  'http://' + host,
-  'http://' + host + ':80',
-  'https://localhost',
-  'https://localhost:443'
-];
 
 fs.writeFileSync(path, JSON.stringify(config, null, 2));
 console.log('MeshCentral configurado para ' + host);
