@@ -13,7 +13,7 @@ DOCKER_PLATFORM="${DOCKER_PLATFORM:-linux/amd64}"
 
 USER_DATA="$(cat <<'EOF'
 #!/usr/bin/env bash
-set -euxo pipefail
+set -eux
 
 export DEBIAN_FRONTEND=noninteractive
 
