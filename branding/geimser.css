@@ -300,3 +300,210 @@ body:has(.hero-unit) .hero-unit ~ hr {
   width: 132px;
   margin-bottom: 24px;
 }
+
+html,
+html[data-theme="dark"],
+html[data-theme="light"],
+body,
+#app {
+  --background-primary: #f5f7fb;
+  --background-secondary: #ffffff;
+  --background-tertiary: #eef2f7;
+  --background-modifier-accent: rgba(0, 31, 61, 0.12);
+  --background-modifier-accent-light: rgba(0, 75, 141, 0.08);
+  --border: rgba(0, 31, 61, 0.12);
+  --text-normal: #1d1d1f;
+  --text-muted: #667085;
+  --text-light: #667085;
+  --text-link: #004b8d;
+  --text-inverted: #ffffff;
+  color-scheme: light !important;
+}
+
+#app,
+#app .content,
+#app .main,
+#app .main-content,
+#app .content.active,
+#app .page,
+#app .dashboard,
+#app .overview,
+#app .ticketZoom,
+#app .reporting,
+#app .settings,
+#app .admin,
+#app .knowledge-base {
+  background: #f5f7fb !important;
+  color: #1d1d1f !important;
+}
+
+#app .content .card,
+#app .content .panel,
+#app .content .widget,
+#app .content .box,
+#app .content .tile,
+#app .content .overviewItem,
+#app .content .dashboardWidget,
+#app .content .stat-widget,
+#app .content .reportProfileWidget,
+#app .content .chartWidget,
+#app .content [class*="widget"],
+#app .content [class*="Widget"],
+#app .content [class*="card"],
+#app .content [class*="Card"],
+#app .content [class*="panel"],
+#app .content [class*="Panel"],
+#app .content [class*="dashboard"],
+#app .content [class*="Dashboard"],
+#app .content table,
+#app .content .table,
+#app .modal,
+#app .modal-dialog,
+#app .modal-content {
+  background: #ffffff !important;
+  color: #1d1d1f !important;
+  border-color: rgba(0, 31, 61, 0.12) !important;
+  box-shadow: 0 8px 24px rgba(0, 31, 61, 0.08) !important;
+}
+
+#app .content .card *,
+#app .content .panel *,
+#app .content .widget *,
+#app .content .box *,
+#app .content .tile *,
+#app .content .overviewItem *,
+#app .content .dashboardWidget *,
+#app .content .stat-widget *,
+#app .content .reportProfileWidget *,
+#app .content .chartWidget *,
+#app .content [class*="widget"] *,
+#app .content [class*="Widget"] *,
+#app .content [class*="card"] *,
+#app .content [class*="Card"] *,
+#app .content [class*="panel"] *,
+#app .content [class*="Panel"] *,
+#app .content table *,
+#app .modal-content * {
+  color: #1d1d1f !important;
+}
+
+#app .content small,
+#app .content .small,
+#app .content .text-muted,
+#app .content .hint,
+#app .content .help-block,
+#app .content .meta,
+#app .content [class*="muted"],
+#app .content [class*="secondary"] {
+  color: #667085 !important;
+}
+
+#app .content a,
+#app .content .link,
+#app .modal-content a {
+  color: #004b8d !important;
+}
+
+#app .content a:hover,
+#app .content .link:hover,
+#app .modal-content a:hover {
+  color: #f5a623 !important;
+}
+
+#app .content input,
+#app .content textarea,
+#app .content select,
+#app .content .form-control,
+#app .modal-content input,
+#app .modal-content textarea,
+#app .modal-content select,
+#app .modal-content .form-control {
+  background: #ffffff !important;
+  color: #1d1d1f !important;
+  border-color: rgba(0, 31, 61, 0.16) !important;
+}
+
+#app .navigation,
+#app .sidebar,
+#app .appSidebar,
+#app .mainNavigation,
+#app [class*="Navigation"],
+#app [class*="navigation"] {
+  background: #20232b !important;
+  color: #d9e2ec !important;
+}
+
+#app .navigation *,
+#app .sidebar *,
+#app .appSidebar *,
+#app .mainNavigation *,
+#app [class*="Navigation"] *,
+#app [class*="navigation"] * {
+  color: #d9e2ec !important;
+}
+
+#app .navigation .is-active,
+#app .navigation .active,
+#app .sidebar .is-active,
+#app .sidebar .active,
+#app .appSidebar .is-active,
+#app .mainNavigation .is-active,
+#app [class*="Navigation"] .is-active,
+#app [class*="navigation"] .is-active {
+  background: #3da8e8 !important;
+  color: #062a42 !important;
+}
+
+#app .navigation .is-active *,
+#app .navigation .active *,
+#app .sidebar .is-active *,
+#app .sidebar .active *,
+#app .appSidebar .is-active *,
+#app .mainNavigation .is-active *,
+#app [class*="Navigation"] .is-active *,
+#app [class*="navigation"] .is-active * {
+  color: #062a42 !important;
+}
+
+#app .activity-stream,
+#app .activityStream,
+#app .activity-list,
+#app .activityList,
+#app [class*="Activity"],
+#app [class*="activity"] {
+  background: #1b3a6b !important;
+  color: #ffffff !important;
+}
+
+#app .activity-stream *,
+#app .activityStream *,
+#app .activity-list *,
+#app .activityList *,
+#app [class*="Activity"] *,
+#app [class*="activity"] * {
+  color: #ffffff !important;
+}
+
+#app .tabs,
+#app .tab,
+#app .nav-tabs,
+#app .btn,
+#app button {
+  color: #1d1d1f;
+}
+
+#app .tabs .is-active,
+#app .tab.is-active,
+#app .nav-tabs .active,
+#app .btn--primary,
+#app .button--primary,
+#app button[type="submit"] {
+  background: #004b8d !important;
+  border-color: #004b8d !important;
+  color: #ffffff !important;
+}
+
+#app svg,
+#app .icon {
+  fill: currentColor;
+}
