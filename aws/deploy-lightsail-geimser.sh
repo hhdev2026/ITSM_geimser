@@ -54,13 +54,32 @@ aws lightsail get-bundles --region "$REGION" --query "bundles[?bundleId=='${BUND
 aws lightsail get-blueprints --region "$REGION" --query "blueprints[?blueprintId=='${BLUEPRINT_ID}'].[blueprintId,name]" --output table
 
 echo "Creating Lightsail instance ${INSTANCE_NAME}..."
-aws lightsail create-instances \
-  --region "$REGION" \
-  --instance-names "$INSTANCE_NAME" \
-  --availability-zone "${REGION}a" \
-  --blueprint-id "$BLUEPRINT_ID" \
-  --bundle-id "$BUNDLE_ID" \
-  --user-data "$USER_DATA"
+if aws lightsail get-instance --region "$REGION" --instance-name "$INSTANCE_NAME" >/dev/null 2>&1; then
+  echo "Instance ${INSTANCE_NAME} already exists. Continuing with network setup..."
+else
+  aws lightsail create-instances \
+    --region "$REGION" \
+    --instance-names "$INSTANCE_NAME" \
+    --availability-zone "${REGION}a" \
+    --blueprint-id "$BLUEPRINT_ID" \
+    --bundle-id "$BUNDLE_ID" \
+    --user-data "$USER_DATA"
+fi
+
+echo "Waiting for ${INSTANCE_NAME} to leave pending state..."
+for _ in {1..60}; do
+  STATE="$(aws lightsail get-instance --region "$REGION" --instance-name "$INSTANCE_NAME" --query 'instance.state.name' --output text)"
+  echo "Current state: ${STATE}"
+  if [ "$STATE" = "running" ]; then
+    break
+  fi
+  sleep 10
+done
+
+if [ "${STATE:-unknown}" != "running" ]; then
+  echo "Instance did not reach running state in time. Re-run this script in a few minutes." >&2
+  exit 1
+fi
 
 echo "Opening ports 22, 80, 443 and 8080..."
 aws lightsail put-instance-public-ports \
