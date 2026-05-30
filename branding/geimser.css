@@ -612,3 +612,66 @@ body,
   background: #f28c18 !important;
   color: #ffffff !important;
 }
+
+#app .navigation a,
+#app .sidebar a,
+#app .appSidebar a,
+#app .mainNavigation a,
+#app [class*="Navigation"] a,
+#app [class*="navigation"] a,
+#app aside a,
+#app nav a,
+#app .settings a,
+#app .admin a,
+#app [class*="sidebar"] a,
+#app [class*="Sidebar"] a {
+  color: #8fd3ff !important;
+  font-weight: 520;
+}
+
+#app .navigation a:hover,
+#app .sidebar a:hover,
+#app .appSidebar a:hover,
+#app .mainNavigation a:hover,
+#app [class*="Navigation"] a:hover,
+#app [class*="navigation"] a:hover,
+#app aside a:hover,
+#app nav a:hover,
+#app .settings a:hover,
+#app .admin a:hover,
+#app [class*="sidebar"] a:hover,
+#app [class*="Sidebar"] a:hover {
+  color: #ffffff !important;
+}
+
+#app .navigation h1,
+#app .navigation h2,
+#app .navigation h3,
+#app .sidebar h1,
+#app .sidebar h2,
+#app .sidebar h3,
+#app .appSidebar h1,
+#app .appSidebar h2,
+#app .appSidebar h3,
+#app .mainNavigation h1,
+#app .mainNavigation h2,
+#app .mainNavigation h3,
+#app aside h1,
+#app aside h2,
+#app aside h3,
+#app nav h1,
+#app nav h2,
+#app nav h3 {
+  color: #f3f7fb !important;
+}
+
+#app .navigation .is-active a,
+#app .navigation .active a,
+#app .sidebar .is-active a,
+#app .sidebar .active a,
+#app .appSidebar .is-active a,
+#app .mainNavigation .is-active a,
+#app [class*="Navigation"] .is-active a,
+#app [class*="navigation"] .is-active a {
+  color: #062a42 !important;
+}
