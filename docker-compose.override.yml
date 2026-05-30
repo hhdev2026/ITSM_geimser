@@ -2,6 +2,7 @@
 x-geimser-zammad-volumes: &geimser-zammad-volumes
   - ./branding/geimser.css:/opt/zammad/app/assets/stylesheets/custom/geimser.css:ro
   - ./branding/geimser.css:/opt/zammad/contrib/geimser/geimser.css:ro
+  - ./branding/geimser.js:/opt/zammad/contrib/geimser/geimser.js:ro
   - ./branding/geimser-logo.png:/opt/zammad/public/assets/images/geimser-logo.png:ro
   - ./scripts/configure_geimser.rb:/opt/zammad/contrib/geimser/configure_geimser.rb:ro
 
@@ -20,6 +21,7 @@ services:
     volumes:
       - ./branding/geimser.css:/opt/zammad/app/assets/stylesheets/custom/geimser.css:ro
       - ./branding/geimser.css:/opt/zammad/contrib/geimser/geimser.css:ro
+      - ./branding/geimser.js:/opt/zammad/contrib/geimser/geimser.js:ro
       - ./branding/geimser-logo.png:/opt/zammad/public/assets/images/geimser-logo.png:ro
       - ./scripts/configure_geimser.rb:/opt/zammad/contrib/geimser/configure_geimser.rb:ro
       - ./branding/nginx-geimser.conf:/opt/zammad/contrib/nginx/zammad.conf:ro
