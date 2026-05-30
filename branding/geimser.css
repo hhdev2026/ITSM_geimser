@@ -15,6 +15,7 @@ body {
   color: var(--geimser-text);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Roboto", "Open Sans", "Lato", Arial, sans-serif;
   letter-spacing: 0;
+  overflow-x: hidden;
 }
 
 html,
@@ -127,19 +128,19 @@ input[type="submit"]:hover {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--geimser-line);
   border-radius: 8px;
-  box-shadow: var(--geimser-shadow);
+  box-shadow: 0 16px 44px rgba(0, 31, 61, 0.1);
   color: var(--geimser-text);
   color-scheme: light;
   backdrop-filter: blur(24px);
-  max-width: 640px;
-  width: calc(100vw - 48px);
-  margin: 22px auto 34px;
-  padding: 44px 52px;
+  max-width: 430px;
+  width: min(430px, calc(100vw - 40px));
+  margin: 20px auto 0;
+  padding: 28px 28px 24px;
 }
 
 .hero-unit .company-logo {
   display: block;
-  margin: 0 auto 42px;
+  margin: 0 auto 26px;
 }
 
 .hero-unit label,
@@ -158,7 +159,7 @@ input[type="submit"]:hover {
   appearance: none;
   -webkit-appearance: none;
   color-scheme: light;
-  min-height: 48px;
+  min-height: 46px;
   background: #fff !important;
   background-color: #fff !important;
   border: 1px solid rgba(0, 31, 61, 0.14) !important;
@@ -178,8 +179,8 @@ input[type="submit"]:hover {
 }
 
 .hero-unit button[type="submit"] {
-  min-height: 48px;
-  margin-top: 20px;
+  min-height: 46px;
+  margin-top: 18px;
   width: 100%;
 }
 
@@ -212,16 +213,16 @@ body:has(.hero-unit) {
 body:has(.hero-unit) .message,
 body:has(.hero-unit) [class*="message"],
 body:has(.hero-unit) [class*="alert"] {
-  max-width: 640px;
-  width: calc(100vw - 48px);
-  margin: 28px auto 20px;
-  padding: 18px 22px;
-  background: rgba(255, 255, 255, 0.86);
+  max-width: 430px;
+  width: min(430px, calc(100vw - 40px));
+  margin: 24px auto 14px;
+  padding: 15px 18px;
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(245, 166, 35, 0.38);
   border-radius: 8px;
-  box-shadow: 0 12px 32px rgba(0, 31, 61, 0.1);
+  box-shadow: 0 10px 28px rgba(0, 31, 61, 0.08);
   color: var(--geimser-text);
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 body:has(.hero-unit) .message strong,
@@ -236,15 +237,30 @@ body:has(.hero-unit) .separator {
   color: var(--geimser-muted);
 }
 
+body:has(.hero-unit) > p,
+body:has(.hero-unit) > hr,
+body:has(.hero-unit) > a[href="https://zammad.org"],
+body:has(.hero-unit) .poweredBy,
+body:has(.hero-unit) .separator,
+body:has(.hero-unit) a[href="https://zammad.org"] {
+  display: none !important;
+}
+
+body:has(.hero-unit) .hero-unit + p,
+body:has(.hero-unit) .hero-unit ~ p,
+body:has(.hero-unit) .hero-unit ~ hr {
+  display: none !important;
+}
+
 @media (max-width: 720px) {
   .hero-unit {
-    width: calc(100vw - 28px);
-    padding: 34px 24px;
+    width: calc(100vw - 32px);
+    padding: 26px 22px 22px;
   }
 
   body:has(.hero-unit) .message,
   body:has(.hero-unit) [class*="message"],
   body:has(.hero-unit) [class*="alert"] {
-    width: calc(100vw - 28px);
+    width: calc(100vw - 32px);
   }
 }
