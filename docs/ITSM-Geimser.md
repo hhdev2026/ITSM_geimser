@@ -41,6 +41,13 @@ Se crea el campo de ticket `Tipo de Servicio` con estas opciones:
 - Infraestructura
 - Otros
 
+Tambien se crean campos para soporte remoto:
+
+- `ID Equipo MeshCentral`
+- `Enlace Sesion Remota`
+
+Estos campos permiten asociar un ticket con el equipo o sesion remota correspondiente en MeshCentral.
+
 ## Uso
 
 Ejecuta:
@@ -84,3 +91,38 @@ REGION=us-east-1 BUNDLE_ID=large_3_0 ./aws/deploy-lightsail-geimser.sh
 ```
 
 El script crea una instancia Lightsail Ubuntu 24.04, abre puertos 22/80/443/8080, asigna una IP estatica, instala Docker y levanta ITSM Geimser.
+
+## MeshCentral
+
+MeshCentral queda integrado como servicio Docker adicional para toma remota de equipos.
+
+- Zammad: `http://IP_PUBLICA`
+- MeshCentral: `https://IP_PUBLICA`
+- Puerto publico MeshCentral: `443`
+- Datos persistentes: volumen `meshcentral-data`
+- Archivos persistentes: volumen `meshcentral-files`
+- Backups persistentes: volumen `meshcentral-backups`
+
+Por seguridad, el registro de usuarios queda cerrado por defecto:
+
+```env
+MESH_ALLOW_NEW_ACCOUNTS=false
+```
+
+Para crear el primer administrador en una instalacion nueva:
+
+```bash
+cd /opt/ITSM_geimser
+sudo sed -i 's/^MESH_ALLOW_NEW_ACCOUNTS=.*/MESH_ALLOW_NEW_ACCOUNTS=true/' .env
+sudo docker compose up -d --force-recreate meshcentral
+```
+
+Luego abre `https://IP_PUBLICA`, registra el primer usuario administrador, y vuelve a cerrar el registro:
+
+```bash
+cd /opt/ITSM_geimser
+sudo sed -i 's/^MESH_ALLOW_NEW_ACCOUNTS=.*/MESH_ALLOW_NEW_ACCOUNTS=false/' .env
+sudo docker compose up -d --force-recreate meshcentral
+```
+
+No uses `docker compose down -v`, porque eso borra volumenes persistentes.

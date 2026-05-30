@@ -37,3 +37,33 @@ services:
   zammad-websocket:
     <<: *geimser-zammad-build
     platform: ${DOCKER_PLATFORM:-linux/arm64}
+
+  meshcentral:
+    image: ghcr.io/ylianst/meshcentral:${MESH_VERSION:-latest}
+    restart: ${RESTART:-always}
+    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    environment:
+      HOSTNAME: ${MESH_HOSTNAME:-localhost}
+      PORT: 443
+      ALLOW_NEW_ACCOUNTS: ${MESH_ALLOW_NEW_ACCOUNTS:-false}
+      WEBRTC: ${MESH_WEBRTC:-false}
+      DYNAMIC_CONFIG: "false"
+      IFRAME: "false"
+      MINIFY: "true"
+    ports:
+      - "${MESH_EXPOSE_PORT:-443}:443"
+    volumes:
+      - meshcentral-data:/opt/meshcentral/meshcentral-data
+      - meshcentral-files:/opt/meshcentral/meshcentral-files
+      - meshcentral-web:/opt/meshcentral/meshcentral-web
+      - meshcentral-backups:/opt/meshcentral/meshcentral-backups
+
+volumes:
+  meshcentral-data:
+    driver: local
+  meshcentral-files:
+    driver: local
+  meshcentral-web:
+    driver: local
+  meshcentral-backups:
+    driver: local

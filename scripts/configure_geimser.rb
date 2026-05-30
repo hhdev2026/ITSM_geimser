@@ -66,6 +66,55 @@ if attribute.nil?
   ObjectManager::Attribute.migration_execute
 end
 
+remote_attributes = [
+  {
+    name: 'meshcentral_device_id',
+    display: 'ID Equipo MeshCentral',
+    position: 1560,
+  },
+  {
+    name: 'meshcentral_session_url',
+    display: 'Enlace Sesion Remota',
+    position: 1570,
+  },
+]
+
+remote_attributes.each do |remote_attribute|
+  next if ObjectManager::Attribute.get(object: 'Ticket', name: remote_attribute[:name])
+
+  ObjectManager::Attribute.add(
+    force: true,
+    object: 'Ticket',
+    name: remote_attribute[:name],
+    display: remote_attribute[:display],
+    data_type: 'input',
+    data_option: {
+      type: 'text',
+      maxlength: 255,
+      null: true,
+      item_class: 'column',
+    },
+    editable: true,
+    active: true,
+    screens: {
+      create_middle: {
+        'ticket.agent' => { null: true, item_class: 'column' },
+        'ticket.customer' => { null: true, item_class: 'column' },
+      },
+      edit: {
+        'ticket.agent' => { null: true },
+        'ticket.customer' => { null: true },
+      },
+      view: {
+        '-all-' => { shown: true },
+      },
+    },
+    position: remote_attribute[:position],
+  )
+end
+
+ObjectManager::Attribute.migration_execute
+
 admin_password = ENV.fetch('GEIMSER_ADMIN_PASSWORD', 'GeimserM1!2026')
 organization = Organization.create_if_not_exists(name: 'Geimser', active: true)
 admin = User.create_or_update(

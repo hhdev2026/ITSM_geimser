@@ -12,7 +12,7 @@ if ! docker info >/dev/null 2>&1; then
   fi
 fi
 
-docker-compose pull zammad-elasticsearch zammad-memcached zammad-postgresql zammad-redis
+docker-compose pull zammad-elasticsearch zammad-memcached zammad-postgresql zammad-redis meshcentral
 docker-compose build zammad-backup zammad-init zammad-nginx zammad-railsserver zammad-scheduler zammad-websocket
 docker-compose up -d
 
@@ -32,3 +32,4 @@ echo "Aplicando estilos personalizados Geimser..."
 docker-compose restart zammad-nginx zammad-railsserver zammad-websocket zammad-scheduler
 
 echo "ITSM Geimser disponible en http://localhost:8080"
+echo "MeshCentral disponible en https://localhost:${MESH_EXPOSE_PORT:-443}"

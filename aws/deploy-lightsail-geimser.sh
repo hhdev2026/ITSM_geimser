@@ -43,6 +43,8 @@ PUBLIC_IP="$(curl -fsS http://169.254.169.254/latest/meta-data/public-ipv4 || tr
 sed -i 's/^NGINX_EXPOSE_PORT=.*/NGINX_EXPOSE_PORT=80/' .env
 sed -i 's/^NGINX_SERVER_NAME=.*/NGINX_SERVER_NAME=_/' .env
 sed -i "s/^ZAMMAD_FQDN=.*/ZAMMAD_FQDN=${PUBLIC_IP:-localhost}/" .env
+sed -i "s/^MESH_HOSTNAME=.*/MESH_HOSTNAME=${PUBLIC_IP:-localhost}/" .env
+sed -i 's/^MESH_EXPOSE_PORT=.*/MESH_EXPOSE_PORT=443/' .env
 sed -i 's#^DOCKER_PLATFORM=.*#DOCKER_PLATFORM=__DOCKER_PLATFORM__#' .env
 
 export GEIMSER_ADMIN_PASSWORD="__ADMIN_PASSWORD__"
@@ -141,6 +143,7 @@ cat <<EOF
 Deploy iniciado.
 
 URL: http://${PUBLIC_IP}
+MeshCentral: https://${PUBLIC_IP}
 SSH/Logs:
   ssh -i ~/.ssh/${KEY_PAIR_NAME}.pem ubuntu@${PUBLIC_IP}
   sudo tail -f /var/log/cloud-init-output.log

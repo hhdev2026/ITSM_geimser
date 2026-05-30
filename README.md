@@ -40,3 +40,14 @@ Elasticsearch is an optional, but strongly recommended dependency for Zammad. Mo
 
 Elasticsearch is enabled by default in the example `docker-compose.yml` file. It is also by default required to run the "zammad-init" command. Disabling Elasticsearch is possible by setting a special environment variable: `ELASTICSEARCH_ENABLED=false` and loading
 the scenario [disable-elasticsearch-service.yml](scenarios/disable-elasticsearch-service.yml).
+
+## ITSM Geimser additions
+
+This fork adds Geimser branding, custom ticket fields, and an optional MeshCentral service for remote support.
+
+- Zammad: `http://localhost:8080`
+- MeshCentral: `https://localhost:443`
+- MeshCentral image: `ghcr.io/ylianst/meshcentral`
+- MeshCentral registration is disabled by default with `MESH_ALLOW_NEW_ACCOUNTS=false`.
+
+For first MeshCentral admin bootstrap, temporarily set `MESH_ALLOW_NEW_ACCOUNTS=true`, create the first admin account in the MeshCentral UI, then set it back to `false`.
