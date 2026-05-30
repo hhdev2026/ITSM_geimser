@@ -176,6 +176,16 @@
     return (lighter + 0.05) / (darker + 0.05);
   }
 
+  function colorSpread(rgb) {
+    return Math.max(rgb.r, rgb.g, rgb.b) - Math.min(rgb.r, rgb.g, rgb.b);
+  }
+
+  function isFilledControl(el, bg) {
+    if (!el.matches("a, button, .btn, .button, [role='button']")) return false;
+    if (luminance(bg) > 0.82 && colorSpread(bg) < 35) return false;
+    return colorSpread(bg) > 35 || luminance(bg) < 0.55;
+  }
+
   function effectiveBackground(el) {
     var current = el;
     while (current && current !== document.documentElement) {
@@ -218,6 +228,15 @@
 
       if (!weak && !/rgba?\(255,\s*255,\s*255/i.test(style.color)) return;
 
+      if (isFilledControl(el, bg)) {
+        el.classList.add("geimser-filled-control");
+        el.style.color = "#ffffff";
+        Array.from(el.querySelectorAll("*")).forEach(function (child) {
+          child.style.color = "#ffffff";
+        });
+        return;
+      }
+
       if (bgIsLight) {
         if (el.matches("a, .link")) {
           el.style.color = "#004b8d";
@@ -232,6 +251,50 @@
         el.closest(".panel, .box, .widget, .card, .table, section, article")?.classList.add("geimser-dark-surface");
       }
     });
+  }
+
+  function auditContrast() {
+    var app = document.querySelector("#app");
+    if (!app) return [];
+
+    var failures = [];
+    var textSelectors = [
+      "h1", "h2", "h3", "h4", "h5", "h6",
+      "p", "label", "legend", "span", "small", "a",
+      "li", "td", "th", "button", ".btn", ".link",
+      "[class*='label']", "[class*='Label']", "[class*='title']", "[class*='Title']"
+    ].join(",");
+
+    Array.from(app.querySelectorAll(textSelectors)).forEach(function (el) {
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (!text) return;
+
+      var rect = el.getBoundingClientRect();
+      if (rect.width < 3 || rect.height < 3) return;
+
+      var style = window.getComputedStyle(el);
+      var fg = parseRgb(style.color);
+      var bg = effectiveBackground(el);
+      if (!fg || !bg) return;
+
+      var ratio = contrastRatio(fg, bg);
+      var minRatio = /^(H[1-6]|LABEL|LEGEND|BUTTON)$/i.test(el.tagName) ? 4.5 : 4.0;
+      if (ratio < minRatio) {
+        failures.push({
+          text: text.slice(0, 80),
+          tag: el.tagName.toLowerCase(),
+          className: String(el.className || "").slice(0, 120),
+          ratio: Number(ratio.toFixed(2)),
+          required: minRatio,
+          color: style.color,
+          background: window.getComputedStyle(el.parentElement || el).backgroundColor,
+          x: Math.round(rect.left),
+          y: Math.round(rect.top)
+        });
+      }
+    });
+
+    return failures;
   }
 
   function applyGeimserUi() {
@@ -267,6 +330,8 @@
       el.style.color = "#1d1d1f";
     });
   }
+
+  window.GeimserContrastAudit = auditContrast;
 
   var attempts = 0;
   var interval = window.setInterval(function () {

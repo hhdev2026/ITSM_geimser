@@ -52,9 +52,7 @@ select:focus,
 }
 
 a,
-.link,
-.tabs .is-active,
-.navigation .is-active {
+.link {
   color: var(--geimser-blue);
 }
 
@@ -771,4 +769,91 @@ body,
 #app .geimser-dark-surface a,
 #app .geimser-dark-surface .link {
   color: #8fd3ff !important;
+}
+
+#app .btn,
+#app .button,
+#app button,
+#app a.btn,
+#app [role="button"] {
+  color: #1d1d1f !important;
+}
+
+#app .btn--primary,
+#app .button--primary,
+#app .btn-primary,
+#app button[type="submit"],
+#app input[type="submit"],
+#app .tabs .is-active,
+#app .tab.is-active,
+#app .nav-tabs .active,
+#app .nav-tabs .is-active,
+#app [role="tab"][aria-selected="true"] {
+  background: #004b8d !important;
+  background-color: #004b8d !important;
+  border-color: #004b8d !important;
+  color: #ffffff !important;
+}
+
+#app .btn--primary *,
+#app .button--primary *,
+#app .btn-primary *,
+#app button[type="submit"] *,
+#app input[type="submit"] *,
+#app .tabs .is-active *,
+#app .tab.is-active *,
+#app .nav-tabs .active *,
+#app .nav-tabs .is-active *,
+#app [role="tab"][aria-selected="true"] * {
+  color: #ffffff !important;
+}
+
+#app .btn-success,
+#app .button--success,
+#app .btn--success,
+#app button[class*="success"],
+#app a[class*="success"],
+#app .btn[class*="success"],
+#app .button[class*="success"] {
+  background: #2f9e61 !important;
+  background-color: #2f9e61 !important;
+  border-color: #2f9e61 !important;
+  color: #ffffff !important;
+}
+
+#app .btn-success *,
+#app .button--success *,
+#app .btn--success *,
+#app button[class*="success"] *,
+#app a[class*="success"] *,
+#app .btn[class*="success"] *,
+#app .button[class*="success"] * {
+  color: #ffffff !important;
+}
+
+#app .btn-warning,
+#app .button--warning,
+#app .btn--warning,
+#app button[class*="warning"],
+#app a[class*="warning"] {
+  background: #b86e00 !important;
+  background-color: #b86e00 !important;
+  border-color: #b86e00 !important;
+  color: #ffffff !important;
+}
+
+#app .btn-danger,
+#app .button--danger,
+#app .btn--danger,
+#app button[class*="danger"],
+#app a[class*="danger"] {
+  background: #b42318 !important;
+  background-color: #b42318 !important;
+  border-color: #b42318 !important;
+  color: #ffffff !important;
+}
+
+#app .geimser-filled-control,
+#app .geimser-filled-control * {
+  color: #ffffff !important;
 }
