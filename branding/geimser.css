@@ -962,6 +962,16 @@ body,
   font-weight: 750;
 }
 
+.geimser-remote-heading {
+  min-width: 220px;
+}
+
+.geimser-remote-subtitle {
+  margin-top: 2px;
+  color: #b9c7d5;
+  font-size: 12px;
+}
+
 .geimser-remote-actions {
   display: flex;
   gap: 8px;
@@ -991,4 +1001,47 @@ body,
   width: 100%;
   border: 0;
   background: #ffffff;
+}
+
+.geimser-remote-register-help {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #c7d3df;
+  background: #eaf4fc;
+  color: #16324a;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.geimser-remote-modal.show-register-help .geimser-remote-register-help {
+  display: flex;
+}
+
+.geimser-remote-help-close {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: #004b8d;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .geimser-remote-panel {
+    width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
+  }
+
+  .geimser-remote-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .geimser-remote-actions {
+    flex-wrap: wrap;
+  }
 }

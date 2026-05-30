@@ -311,11 +311,20 @@
     modal.innerHTML = [
       '<div class="geimser-remote-panel" role="dialog" aria-label="Toma remota">',
       '  <div class="geimser-remote-header">',
-      '    <div class="geimser-remote-title">Toma remota MeshCentral</div>',
+      '    <div class="geimser-remote-heading">',
+      '      <div class="geimser-remote-title">Centro remoto</div>',
+      '      <div class="geimser-remote-subtitle">Equipos, agentes y sesiones dentro de ITSM Geimser</div>',
+      '    </div>',
       '    <div class="geimser-remote-actions">',
+      '      <button type="button" class="geimser-remote-home">Equipos</button>',
+      '      <button type="button" class="geimser-remote-register">Registrar equipo</button>',
       '      <a class="geimser-remote-open" target="_blank" rel="noopener">Abrir completo</a>',
       '      <button type="button" class="geimser-remote-close">Cerrar</button>',
       '    </div>',
+      '  </div>',
+      '  <div class="geimser-remote-register-help" role="status">',
+      '    <strong>Registrar equipo:</strong> dentro de MeshCentral crea o abre un grupo de dispositivos y selecciona <strong>Agregar agente</strong>. Descarga el instalador para el equipo remoto y ejecútalo una sola vez.',
+      '    <button type="button" class="geimser-remote-help-close" aria-label="Cerrar ayuda">Cerrar</button>',
       '  </div>',
       '  <iframe class="geimser-remote-frame" title="MeshCentral"></iframe>',
       '</div>'
@@ -323,6 +332,20 @@
 
     modal.querySelector(".geimser-remote-close").addEventListener("click", function () {
       modal.classList.remove("is-open");
+    });
+
+    modal.querySelector(".geimser-remote-home").addEventListener("click", function () {
+      modal.classList.remove("show-register-help");
+      modal.querySelector(".geimser-remote-frame").src = meshUrl();
+    });
+
+    modal.querySelector(".geimser-remote-register").addEventListener("click", function () {
+      modal.classList.add("show-register-help");
+      modal.querySelector(".geimser-remote-frame").src = meshUrl();
+    });
+
+    modal.querySelector(".geimser-remote-help-close").addEventListener("click", function () {
+      modal.classList.remove("show-register-help");
     });
 
     modal.addEventListener("click", function (event) {
@@ -352,17 +375,15 @@
     var isTicketScreen = /^#ticket\/(create|zoom|edit)|^#ticket\//.test(window.location.hash || "");
     var existing = document.querySelector(".geimser-remote-button");
 
-    if (!isTicketScreen) {
-      if (existing) existing.remove();
+    if (existing) {
+      existing.textContent = isTicketScreen ? "Toma remota" : "Equipos remotos";
       return;
     }
-
-    if (existing) return;
 
     var button = document.createElement("button");
     button.type = "button";
     button.className = "geimser-remote-button";
-    button.textContent = "Toma remota";
+    button.textContent = isTicketScreen ? "Toma remota" : "Equipos remotos";
     button.addEventListener("click", openRemoteModal);
     document.body.appendChild(button);
   }
