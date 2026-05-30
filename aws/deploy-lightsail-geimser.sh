@@ -62,7 +62,12 @@ if ! aws lightsail get-key-pair --region "$REGION" --key-pair-name "$KEY_PAIR_NA
     --region "$REGION" \
     --key-pair-name "$KEY_PAIR_NAME" \
     --output json > "/tmp/${KEY_PAIR_NAME}.json"
-  jq -r '.privateKeyBase64' "/tmp/${KEY_PAIR_NAME}.json" | tr -d '\r\n"' | base64 --decode > "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
+  PRIVATE_KEY_VALUE="$(jq -r '.privateKeyBase64 // .privateKey // empty' "/tmp/${KEY_PAIR_NAME}.json")"
+  if printf '%s\n' "$PRIVATE_KEY_VALUE" | grep -q "BEGIN .*PRIVATE KEY"; then
+    printf '%s\n' "$PRIVATE_KEY_VALUE" > "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
+  else
+    printf '%s' "$PRIVATE_KEY_VALUE" | tr -d '\r\n"' | base64 --decode > "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
+  fi
   chmod 600 "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
 else
   echo "Lightsail SSH key pair ${KEY_PAIR_NAME} already exists."
