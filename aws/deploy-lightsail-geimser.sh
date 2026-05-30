@@ -124,10 +124,15 @@ echo "Allocating and attaching static IP..."
 if ! aws lightsail get-static-ip --region "$REGION" --static-ip-name "$STATIC_IP_NAME" >/dev/null 2>&1; then
   aws lightsail allocate-static-ip --region "$REGION" --static-ip-name "$STATIC_IP_NAME"
 fi
-aws lightsail attach-static-ip \
-  --region "$REGION" \
-  --static-ip-name "$STATIC_IP_NAME" \
-  --instance-name "$INSTANCE_NAME"
+ATTACHED_TO="$(aws lightsail get-static-ip --region "$REGION" --static-ip-name "$STATIC_IP_NAME" --query 'staticIp.attachedTo' --output text)"
+if [ "$ATTACHED_TO" = "$INSTANCE_NAME" ]; then
+  echo "Static IP ${STATIC_IP_NAME} is already attached to ${INSTANCE_NAME}."
+else
+  aws lightsail attach-static-ip \
+    --region "$REGION" \
+    --static-ip-name "$STATIC_IP_NAME" \
+    --instance-name "$INSTANCE_NAME"
+fi
 
 PUBLIC_IP="$(aws lightsail get-static-ip --region "$REGION" --static-ip-name "$STATIC_IP_NAME" --query 'staticIp.ipAddress' --output text)"
 
