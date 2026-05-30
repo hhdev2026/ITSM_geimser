@@ -61,11 +61,15 @@ if ! aws lightsail get-key-pair --region "$REGION" --key-pair-name "$KEY_PAIR_NA
   aws lightsail create-key-pair \
     --region "$REGION" \
     --key-pair-name "$KEY_PAIR_NAME" \
-    --query 'privateKeyBase64' \
-    --output text | base64 -d > "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
+    --output json > "/tmp/${KEY_PAIR_NAME}.json"
+  jq -r '.privateKeyBase64' "/tmp/${KEY_PAIR_NAME}.json" | tr -d '\r\n"' | base64 --decode > "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
   chmod 600 "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
 else
   echo "Lightsail SSH key pair ${KEY_PAIR_NAME} already exists."
+  if [ ! -s "$HOME/.ssh/${KEY_PAIR_NAME}.pem" ]; then
+    echo "Local private key $HOME/.ssh/${KEY_PAIR_NAME}.pem is missing. Delete the Lightsail key pair or choose a new KEY_PAIR_NAME." >&2
+    exit 1
+  fi
 fi
 
 echo "Checking Lightsail bundle and blueprint in ${REGION}..."
