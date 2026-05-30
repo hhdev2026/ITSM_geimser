@@ -898,3 +898,97 @@ body,
 #app table .active {
   color: #1d1d1f !important;
 }
+
+.geimser-remote-button {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 9000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #004b8d;
+  color: #ffffff;
+  box-shadow: 0 12px 28px rgba(0, 31, 61, 0.22);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.geimser-remote-button:hover {
+  background: #005daa;
+}
+
+.geimser-remote-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  background: rgba(12, 17, 29, 0.64);
+}
+
+.geimser-remote-modal.is-open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.geimser-remote-panel {
+  width: min(1180px, calc(100vw - 48px));
+  height: min(780px, calc(100vh - 48px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+}
+
+.geimser-remote-header {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 18px;
+  background: #20232b;
+  color: #f3f7fb;
+}
+
+.geimser-remote-title {
+  color: #f3f7fb;
+  font-weight: 750;
+}
+
+.geimser-remote-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.geimser-remote-actions a,
+.geimser-remote-actions button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: transparent;
+  color: #f3f7fb;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.geimser-remote-actions a:hover,
+.geimser-remote-actions button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.geimser-remote-frame {
+  flex: 1;
+  width: 100%;
+  border: 0;
+  background: #ffffff;
+}

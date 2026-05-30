@@ -297,6 +297,76 @@
     return failures;
   }
 
+  function meshUrl() {
+    var host = window.location.hostname || "localhost";
+    return "https://" + host;
+  }
+
+  function ensureRemoteModal() {
+    var existing = document.querySelector(".geimser-remote-modal");
+    if (existing) return existing;
+
+    var modal = document.createElement("div");
+    modal.className = "geimser-remote-modal";
+    modal.innerHTML = [
+      '<div class="geimser-remote-panel" role="dialog" aria-label="Toma remota">',
+      '  <div class="geimser-remote-header">',
+      '    <div class="geimser-remote-title">Toma remota MeshCentral</div>',
+      '    <div class="geimser-remote-actions">',
+      '      <a class="geimser-remote-open" target="_blank" rel="noopener">Abrir completo</a>',
+      '      <button type="button" class="geimser-remote-close">Cerrar</button>',
+      '    </div>',
+      '  </div>',
+      '  <iframe class="geimser-remote-frame" title="MeshCentral"></iframe>',
+      '</div>'
+    ].join("");
+
+    modal.querySelector(".geimser-remote-close").addEventListener("click", function () {
+      modal.classList.remove("is-open");
+    });
+
+    modal.addEventListener("click", function (event) {
+      if (event.target === modal) {
+        modal.classList.remove("is-open");
+      }
+    });
+
+    document.body.appendChild(modal);
+    return modal;
+  }
+
+  function openRemoteModal() {
+    var url = meshUrl();
+    var modal = ensureRemoteModal();
+    var frame = modal.querySelector(".geimser-remote-frame");
+    var openLink = modal.querySelector(".geimser-remote-open");
+    frame.src = url;
+    openLink.href = url;
+    modal.classList.add("is-open");
+  }
+
+  function ensureRemoteButton() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var isTicketScreen = /^#ticket\/(create|zoom|edit)|^#ticket\//.test(window.location.hash || "");
+    var existing = document.querySelector(".geimser-remote-button");
+
+    if (!isTicketScreen) {
+      if (existing) existing.remove();
+      return;
+    }
+
+    if (existing) return;
+
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "geimser-remote-button";
+    button.textContent = "Toma remota";
+    button.addEventListener("click", openRemoteModal);
+    document.body.appendChild(button);
+  }
+
   function applyGeimserUi() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -305,6 +375,7 @@
     normalizeSidebarFooter();
     styleSidebarDockControls();
     normalizeTextContrast();
+    ensureRemoteButton();
 
     var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;
     var panels = Array.from(document.querySelectorAll("#app div, #app section, #app article")).filter(function (el) {
