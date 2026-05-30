@@ -507,3 +507,64 @@ body,
 #app .icon {
   fill: currentColor;
 }
+
+#app .navigation img[src*="zammad"],
+#app .navigation img[src*="logo"],
+#app .sidebar img[src*="zammad"],
+#app .sidebar img[src*="logo"],
+#app .appSidebar img[src*="zammad"],
+#app .appSidebar img[src*="logo"],
+#app .mainNavigation img[src*="zammad"],
+#app .mainNavigation img[src*="logo"],
+#app [class*="navigation"] img[src*="zammad"],
+#app [class*="navigation"] img[src*="logo"],
+#app [class*="Navigation"] img[src*="zammad"],
+#app [class*="Navigation"] img[src*="logo"] {
+  display: none !important;
+}
+
+#app .geimser-hide-zammad-brand {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#app .navigation .geimser-sidebar-footer,
+#app .sidebar .geimser-sidebar-footer,
+#app .appSidebar .geimser-sidebar-footer,
+#app .mainNavigation .geimser-sidebar-footer,
+#app .geimser-sidebar-footer {
+  background: #181b22 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.16) !important;
+}
+
+#app .geimser-sidebar-footer,
+#app .geimser-sidebar-footer * {
+  color: #d9e2ec !important;
+}
+
+#app .geimser-sidebar-footer a,
+#app .geimser-sidebar-footer button,
+#app .geimser-sidebar-footer [role="button"],
+#app .geimser-sidebar-footer .btn {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: #d9e2ec !important;
+}
+
+#app .geimser-sidebar-footer a:hover,
+#app .geimser-sidebar-footer button:hover,
+#app .geimser-sidebar-footer [role="button"]:hover {
+  background: rgba(61, 168, 232, 0.14) !important;
+  color: #ffffff !important;
+}
+
+#app .geimser-sidebar-footer .avatar,
+#app .geimser-sidebar-footer [class*="avatar"],
+#app .geimser-sidebar-footer [class*="Avatar"] {
+  background: #f28c18 !important;
+  color: #ffffff !important;
+}

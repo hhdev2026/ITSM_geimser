@@ -42,31 +42,70 @@
     });
   }
 
+  function isInSidebarHeader(rect) {
+    return rect.left >= 0 && rect.left < 280 && rect.top >= 0 && rect.top < 58;
+  }
+
+  function isLikelyZammadBrand(el) {
+    var rect = el.getBoundingClientRect();
+    if (!isInSidebarHeader(rect)) return false;
+
+    var label = [
+      el.getAttribute("alt"),
+      el.getAttribute("title"),
+      el.getAttribute("aria-label"),
+      el.getAttribute("href"),
+      el.getAttribute("src"),
+      el.className && String(el.className),
+      el.id
+    ].join(" ");
+
+    return /zammad|logo|brand|organization|product/i.test(label) || rect.left > 170;
+  }
+
+  function removeZammadBranding() {
+    var candidates = document.querySelectorAll(
+      "#app img, #app svg, #app a, #app [class*='logo'], #app [class*='Logo'], #app [class*='brand'], #app [class*='Brand']"
+    );
+
+    candidates.forEach(function (el) {
+      if (isLikelyZammadBrand(el)) {
+        el.classList.add("geimser-hide-zammad-brand");
+        el.style.display = "none";
+        el.style.opacity = "0";
+        el.style.pointerEvents = "none";
+      }
+    });
+  }
+
+  function normalizeSidebarFooter() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var elements = Array.from(app.querySelectorAll("div, nav, aside, footer, section, ul"));
+    var footerCandidates = elements.filter(function (el) {
+      var rect = el.getBoundingClientRect();
+      return rect.left >= 0 &&
+        rect.left < 285 &&
+        rect.bottom >= window.innerHeight - 72 &&
+        rect.top < window.innerHeight - 18 &&
+        rect.width >= 120 &&
+        rect.width <= 285 &&
+        rect.height >= 42 &&
+        rect.height <= 90;
+    });
+
+    footerCandidates.forEach(function (el) {
+      el.classList.add("geimser-sidebar-footer");
+    });
+  }
+
   function applyGeimserUi() {
     var app = document.querySelector("#app");
     if (!app) return;
 
-    var logoCandidates = document.querySelectorAll(
-      ".navigation img, .sidebar img, .mainNavigation img, .appSidebar img, [class*='navigation'] img, [class*='Navigation'] img"
-    );
-    logoCandidates.forEach(function (img) {
-      img.src = "/assets/images/geimser-logo.png";
-      img.alt = "ITSM Geimser";
-      img.style.width = "108px";
-      img.style.height = "auto";
-      img.style.objectFit = "contain";
-    });
-
-    var logoLike = document.querySelectorAll(
-      ".navigation [class*='logo'], .sidebar [class*='logo'], .mainNavigation [class*='logo'], [class*='navigation'] [class*='logo']"
-    );
-    logoLike.forEach(function (el) {
-      if (el.tagName === "IMG") return;
-      el.style.backgroundImage = "url('/assets/images/geimser-logo.png')";
-      el.style.backgroundRepeat = "no-repeat";
-      el.style.backgroundPosition = "center";
-      el.style.backgroundSize = "108px auto";
-    });
+    removeZammadBranding();
+    normalizeSidebarFooter();
 
     var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;
     var panels = Array.from(document.querySelectorAll("#app div, #app section, #app article")).filter(function (el) {
