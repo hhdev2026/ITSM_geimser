@@ -8,6 +8,8 @@ BUNDLE_ID="${BUNDLE_ID:-large_3_0}"
 BLUEPRINT_ID="${BLUEPRINT_ID:-ubuntu_24_04}"
 REPO_URL="${REPO_URL:-https://github.com/hhdev2026/ITSM_geimser.git}"
 ADMIN_PASSWORD="${GEIMSER_ADMIN_PASSWORD:-GeimserM1!2026}"
+KEY_PAIR_NAME="${KEY_PAIR_NAME:-${INSTANCE_NAME}-key}"
+DOCKER_PLATFORM="${DOCKER_PLATFORM:-linux/amd64}"
 
 USER_DATA="$(cat <<'EOF'
 #!/usr/bin/env bash
@@ -41,6 +43,7 @@ PUBLIC_IP="$(curl -fsS http://169.254.169.254/latest/meta-data/public-ipv4 || tr
 sed -i 's/^NGINX_EXPOSE_PORT=.*/NGINX_EXPOSE_PORT=80/' .env
 sed -i 's/^NGINX_SERVER_NAME=.*/NGINX_SERVER_NAME=_/' .env
 sed -i "s/^ZAMMAD_FQDN=.*/ZAMMAD_FQDN=${PUBLIC_IP:-localhost}/" .env
+sed -i "s#platform: linux/arm64#platform: __DOCKER_PLATFORM__#g" docker-compose.override.yml
 
 export GEIMSER_ADMIN_PASSWORD="__ADMIN_PASSWORD__"
 ./scripts/install_geimser.sh
@@ -48,6 +51,22 @@ EOF
 )"
 
 USER_DATA="${USER_DATA/__ADMIN_PASSWORD__/$ADMIN_PASSWORD}"
+USER_DATA="${USER_DATA/__DOCKER_PLATFORM__/$DOCKER_PLATFORM}"
+
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+
+if ! aws lightsail get-key-pair --region "$REGION" --key-pair-name "$KEY_PAIR_NAME" >/dev/null 2>&1; then
+  echo "Creating Lightsail SSH key pair ${KEY_PAIR_NAME}..."
+  aws lightsail create-key-pair \
+    --region "$REGION" \
+    --key-pair-name "$KEY_PAIR_NAME" \
+    --query 'privateKeyBase64' \
+    --output text | base64 -d > "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
+  chmod 600 "$HOME/.ssh/${KEY_PAIR_NAME}.pem"
+else
+  echo "Lightsail SSH key pair ${KEY_PAIR_NAME} already exists."
+fi
 
 echo "Checking Lightsail bundle and blueprint in ${REGION}..."
 aws lightsail get-bundles --region "$REGION" --query "bundles[?bundleId=='${BUNDLE_ID}'].[bundleId,ramSizeInGb,price]" --output table
@@ -63,6 +82,7 @@ else
     --availability-zone "${REGION}a" \
     --blueprint-id "$BLUEPRINT_ID" \
     --bundle-id "$BUNDLE_ID" \
+    --key-pair-name "$KEY_PAIR_NAME" \
     --user-data "$USER_DATA"
 fi
 
@@ -108,8 +128,7 @@ Deploy iniciado.
 
 URL: http://${PUBLIC_IP}
 SSH/Logs:
-  aws lightsail get-instance-access-details --region ${REGION} --instance-name ${INSTANCE_NAME}
-  ssh ubuntu@${PUBLIC_IP}
+  ssh -i ~/.ssh/${KEY_PAIR_NAME}.pem ubuntu@${PUBLIC_IP}
   sudo tail -f /var/log/cloud-init-output.log
 
 Credenciales Zammad:
