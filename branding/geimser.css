@@ -815,9 +815,9 @@ body,
 #app a[class*="success"],
 #app .btn[class*="success"],
 #app .button[class*="success"] {
-  background: #2f9e61 !important;
-  background-color: #2f9e61 !important;
-  border-color: #2f9e61 !important;
+  background: #1f7a4d !important;
+  background-color: #1f7a4d !important;
+  border-color: #1f7a4d !important;
   color: #ffffff !important;
 }
 
@@ -856,4 +856,45 @@ body,
 #app .geimser-filled-control,
 #app .geimser-filled-control * {
   color: #ffffff !important;
+}
+
+#app .sidebar.NavBarAdmin,
+#app .sidebar.NavBarAdmin * {
+  color: #d9e2ec !important;
+}
+
+#app .sidebar.NavBarAdmin h1,
+#app .sidebar.NavBarAdmin h2,
+#app .sidebar.NavBarAdmin h3,
+#app .sidebar.NavBarAdmin h4 {
+  color: #f3f7fb !important;
+}
+
+#app .sidebar.NavBarAdmin a,
+#app .sidebar.NavBarAdmin .link {
+  color: #8fd3ff !important;
+}
+
+#app thead th,
+#app table thead th,
+#app .js-tableHead,
+#app .table-column-title,
+#app th .table-column-title,
+#app .table .js-tableHead,
+#app .table .table-column-title {
+  color: #f3f7fb !important;
+}
+
+#app thead th *,
+#app table thead th *,
+#app .js-tableHead *,
+#app .table-column-title * {
+  color: #f3f7fb !important;
+}
+
+#app .table .is-active,
+#app table .is-active,
+#app .table .active,
+#app table .active {
+  color: #1d1d1f !important;
 }
