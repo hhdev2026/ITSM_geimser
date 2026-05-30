@@ -100,12 +100,62 @@
     });
   }
 
+  function styleSidebarDockControls() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    var candidates = Array.from(app.querySelectorAll("a, button, [role='button'], li, div")).filter(function (el) {
+      var rect = el.getBoundingClientRect();
+      return rect.left >= -1 &&
+        rect.left < 350 &&
+        rect.bottom >= viewportHeight - 72 &&
+        rect.top >= viewportHeight - 96 &&
+        rect.width >= 38 &&
+        rect.width <= 96 &&
+        rect.height >= 38 &&
+        rect.height <= 72;
+    });
+
+    candidates.forEach(function (el) {
+      el.classList.add("geimser-sidebar-dock-item");
+      el.style.background = "#20232b";
+      el.style.backgroundColor = "#20232b";
+      el.style.borderColor = "rgba(255, 255, 255, 0.08)";
+      el.style.boxShadow = "none";
+      el.style.color = "#d9e2ec";
+
+      var parent = el.parentElement;
+      if (parent) {
+        var parentRect = parent.getBoundingClientRect();
+        if (parentRect.left >= -1 && parentRect.left < 350 && parentRect.bottom >= viewportHeight - 78) {
+          parent.classList.add("geimser-sidebar-dock");
+          parent.style.background = "#20232b";
+          parent.style.backgroundColor = "#20232b";
+          parent.style.borderTop = "1px solid rgba(255, 255, 255, 0.08)";
+        }
+      }
+
+      Array.from(el.querySelectorAll("svg, .icon, [class*='icon'], [class*='Icon']")).forEach(function (icon) {
+        icon.style.color = "#d9e2ec";
+        icon.style.fill = "#d9e2ec";
+      });
+
+      Array.from(el.querySelectorAll(".avatar, [class*='avatar'], [class*='Avatar']")).forEach(function (avatar) {
+        avatar.style.background = "#f28c18";
+        avatar.style.backgroundColor = "#f28c18";
+        avatar.style.color = "#ffffff";
+      });
+    });
+  }
+
   function applyGeimserUi() {
     var app = document.querySelector("#app");
     if (!app) return;
 
     removeZammadBranding();
     normalizeSidebarFooter();
+    styleSidebarDockControls();
 
     var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;
     var panels = Array.from(document.querySelectorAll("#app div, #app section, #app article")).filter(function (el) {

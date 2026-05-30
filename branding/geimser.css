@@ -568,3 +568,47 @@ body,
   background: #f28c18 !important;
   color: #ffffff !important;
 }
+
+#app .geimser-sidebar-dock,
+#app .geimser-sidebar-dock-item {
+  background: #20232b !important;
+  background-color: #20232b !important;
+  color: #d9e2ec !important;
+  box-shadow: none !important;
+}
+
+#app .geimser-sidebar-dock {
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+#app .geimser-sidebar-dock-item {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+#app .geimser-sidebar-dock-item *,
+#app .geimser-sidebar-dock-item svg,
+#app .geimser-sidebar-dock-item .icon {
+  color: #d9e2ec !important;
+  fill: #d9e2ec !important;
+}
+
+#app .geimser-sidebar-dock-item:hover {
+  background: #252936 !important;
+  background-color: #252936 !important;
+}
+
+#app .geimser-sidebar-dock-item.is-active,
+#app .geimser-sidebar-dock-item.active,
+#app .geimser-sidebar-dock-item:has(.avatar),
+#app .geimser-sidebar-dock-item:has([class*="avatar"]),
+#app .geimser-sidebar-dock-item:has([class*="Avatar"]) {
+  background: #181b22 !important;
+  background-color: #181b22 !important;
+}
+
+#app .geimser-sidebar-dock-item .avatar,
+#app .geimser-sidebar-dock-item [class*="avatar"],
+#app .geimser-sidebar-dock-item [class*="Avatar"] {
+  background: #f28c18 !important;
+  color: #ffffff !important;
+}
