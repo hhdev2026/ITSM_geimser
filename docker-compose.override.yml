@@ -51,7 +51,7 @@ services:
       DYNAMIC_CONFIG: "false"
       MINIFY: "true"
     ports:
-      - "${MESH_EXPOSE_PORT:-443}:443"
+      - "${MESH_EXPOSE_PORT:-127.0.0.1:8443}:443"
     volumes:
       - meshcentral-data:/opt/meshcentral/meshcentral-data
       - meshcentral-files:/opt/meshcentral/meshcentral-files
