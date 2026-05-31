@@ -3,14 +3,24 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-if [ -f .env ]; then
-  set -a
-  # shellcheck disable=SC1091
-  . ./.env
-  set +a
-fi
+load_env_value() {
+  local name="$1"
+  local value
+
+  value="$(grep -E "^${name}=" .env 2>/dev/null | tail -n 1 | cut -d= -f2- || true)"
+  value="${value%\"}"
+  value="${value#\"}"
+  value="${value%\'}"
+  value="${value#\'}"
+  printf '%s' "$value"
+}
+
+MESH_HOSTNAME="${MESH_HOSTNAME:-$(load_env_value MESH_HOSTNAME)}"
+MESH_ALLOW_NEW_ACCOUNTS="${MESH_ALLOW_NEW_ACCOUNTS:-$(load_env_value MESH_ALLOW_NEW_ACCOUNTS)}"
+MESH_WEBRTC="${MESH_WEBRTC:-$(load_env_value MESH_WEBRTC)}"
 
 MESH_HOSTNAME="${MESH_HOSTNAME:-3.227.213.30}"
+export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC
 
 docker-compose run --rm --entrypoint sh meshcentral -lc "
 node <<'NODE'
