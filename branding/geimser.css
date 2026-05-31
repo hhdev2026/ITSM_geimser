@@ -1003,10 +1003,8 @@ body,
   background: #ffffff;
 }
 
+.geimser-remote-first-use,
 .geimser-remote-register-help {
-  display: none;
-  align-items: center;
-  gap: 8px;
   padding: 10px 16px;
   border-bottom: 1px solid #c7d3df;
   background: #eaf4fc;
@@ -1015,12 +1013,22 @@ body,
   line-height: 1.45;
 }
 
+.geimser-remote-first-use {
+  background: #fff8e6;
+  border-bottom-color: #ead29a;
+}
+
+.geimser-remote-register-help {
+  display: none;
+}
+
 .geimser-remote-modal.show-register-help .geimser-remote-register-help {
-  display: flex;
+  display: block;
 }
 
 .geimser-remote-help-close {
-  margin-left: auto;
+  float: right;
+  margin: 0 0 4px 12px;
   border: 0;
   background: transparent;
   color: #004b8d;
@@ -1043,5 +1051,10 @@ body,
 
   .geimser-remote-actions {
     flex-wrap: wrap;
+  }
+
+  .geimser-remote-first-use,
+  .geimser-remote-register-help {
+    padding: 9px 12px;
   }
 }

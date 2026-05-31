@@ -10,38 +10,38 @@ x-geimser-zammad-build: &geimser-zammad-build
 services:
   zammad-backup:
     <<: *geimser-zammad-build
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-elasticsearch:
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-init:
     <<: *geimser-zammad-build
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-memcached:
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-nginx:
     <<: *geimser-zammad-build
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-postgresql:
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-railsserver:
     <<: *geimser-zammad-build
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
     healthcheck:
       start_period: 600s
       retries: 10
   zammad-redis:
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-scheduler:
     <<: *geimser-zammad-build
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-websocket:
     <<: *geimser-zammad-build
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
 
   meshcentral:
     image: ghcr.io/ylianst/meshcentral:${MESH_VERSION:-latest}
     restart: ${RESTART:-always}
-    platform: ${DOCKER_PLATFORM:-linux/arm64}
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
     environment:
       HOSTNAME: ${MESH_HOSTNAME:-localhost}
       PORT: 443
