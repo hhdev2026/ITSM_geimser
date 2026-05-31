@@ -27,11 +27,12 @@ config.settings.allowFraming = true;
 config.settings.webRTC = process.env.MESH_WEBRTC === 'true';
 config.settings.browserPing = 60;
 config.settings.browserPong = 60;
+if (/^[0-9a-f]{160}$/i.test(loginKey)) {
+  config.settings.loginCookieEncryptionKey = loginKey;
+}
 config.domains[''].allowedOrigin = true;
 config.domains[''].allowFraming = true;
-if (/^[0-9a-f]{160}$/i.test(loginKey)) {
-  config.domains[''].loginKey = [loginKey];
-}
+delete config.domains[''].loginKey;
 config.domains[''].newAccounts = process.env.MESH_ALLOW_NEW_ACCOUNTS === 'true';
 config.domains[''].title = 'ITSM Geimser Remote';
 config.domains[''].certUrl = 'https://' + host;

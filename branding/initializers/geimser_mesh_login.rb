@@ -12,8 +12,8 @@ class GeimserMeshLoginController < ApplicationController
     key = mesh_login_key
     return render plain: 'Remote access is not configured.', status: :service_unavailable if key.blank?
 
-    auth = mesh_auth_token(key)
-    target = mesh_target_url(auth)
+    login = mesh_login_token(key)
+    target = mesh_target_url(login)
 
     redirect_to target, allow_other_host: true
   end
@@ -27,11 +27,11 @@ class GeimserMeshLoginController < ApplicationController
     [key].pack('H*')
   end
 
-  def mesh_auth_token(key)
+  def mesh_login_token(key)
     payload = {
-      userid:   "user//#{ENV.fetch('MESH_LOGIN_USER', 'admin')}",
-      domainid: '',
-      time:     Time.now.to_i,
+      u:    "user//#{ENV.fetch('MESH_LOGIN_USER', 'admin')}",
+      a:    3,
+      time: Time.now.to_i,
     }
 
     cipher = OpenSSL::Cipher.new('aes-256-gcm')
@@ -44,14 +44,14 @@ class GeimserMeshLoginController < ApplicationController
     Base64.strict_encode64(iv + cipher.auth_tag + encrypted).tr('+/', '@$')
   end
 
-  def mesh_target_url(auth)
+  def mesh_target_url(login)
     public_url = ENV.fetch('MESH_PUBLIC_URL') do
       "https://#{ENV.fetch('MESH_HOSTNAME', 'remoto.geimser.cl')}"
     end
 
     uri = URI.parse(public_url)
     uri.path = safe_next_path
-    uri.query = URI.encode_www_form('auth' => auth)
+    uri.query = URI.encode_www_form('login' => login)
     uri.to_s
   end
 
