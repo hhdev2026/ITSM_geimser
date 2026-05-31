@@ -975,6 +975,8 @@ html[data-theme="dark"] #app {
 #app th .table-column-title,
 #app .table .js-tableHead,
 #app .table .table-column-title {
+  background: #2f3137 !important;
+  background-color: #2f3137 !important;
   color: #f3f7fb !important;
 }
 
@@ -982,6 +984,8 @@ html[data-theme="dark"] #app {
 #app table thead th *,
 #app .js-tableHead *,
 #app .table-column-title * {
+  background: transparent !important;
+  background-color: transparent !important;
   color: #f3f7fb !important;
 }
 
