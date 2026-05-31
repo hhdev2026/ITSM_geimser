@@ -10,6 +10,7 @@ node <<'NODE'
 const fs = require('fs');
 const path = '/opt/meshcentral/meshcentral-data/config.json';
 const host = process.env.MESH_HOSTNAME || '${MESH_HOSTNAME}';
+const loginKey = (process.env.MESH_LOGIN_KEY || '').trim();
 
 const config = fs.existsSync(path)
   ? JSON.parse(fs.readFileSync(path, 'utf8'))
@@ -28,6 +29,9 @@ config.settings.browserPing = 60;
 config.settings.browserPong = 60;
 config.domains[''].allowedOrigin = true;
 config.domains[''].allowFraming = true;
+if (/^[0-9a-f]{160}$/i.test(loginKey)) {
+  config.domains[''].loginKey = [loginKey];
+}
 config.domains[''].newAccounts = process.env.MESH_ALLOW_NEW_ACCOUNTS === 'true';
 config.domains[''].title = 'ITSM Geimser Remote';
 config.domains[''].certUrl = 'https://' + host;

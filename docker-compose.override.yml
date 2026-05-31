@@ -50,6 +50,7 @@ services:
       WEBRTC: ${MESH_WEBRTC:-false}
       DYNAMIC_CONFIG: "false"
       MINIFY: "true"
+      MESH_LOGIN_KEY: ${MESH_LOGIN_KEY:-}
     ports:
       - "${MESH_EXPOSE_PORT:-127.0.0.1:8443}:443"
     volumes:

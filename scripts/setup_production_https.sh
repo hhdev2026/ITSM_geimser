@@ -37,6 +37,11 @@ set_env DOCKER_PLATFORM "$DOCKER_PLATFORM"
 set_env ZAMMAD_FQDN "$ITSM_HOST"
 set_env ZAMMAD_HTTP_TYPE https
 set_env MESH_HOSTNAME "$MESH_HOST"
+set_env MESH_PUBLIC_URL "https://${MESH_HOST}"
+set_env MESH_LOGIN_USER "${MESH_LOGIN_USER:-admin}"
+if ! grep -q '^MESH_LOGIN_KEY=' .env; then
+  set_env MESH_LOGIN_KEY "$(openssl rand -hex 80)"
+fi
 set_env MESH_EXPOSE_PORT 127.0.0.1:8443
 
 docker-compose up -d --force-recreate \
