@@ -206,8 +206,9 @@
 
     var textSelectors = [
       "h1", "h2", "h3", "h4", "h5", "h6",
-      "p", "label", "legend", "span", "small", "a",
+      "p", "label", "legend", "span", "small", "a", "div",
       "li", "td", "th", "button", ".btn", ".link",
+      "[role='columnheader']", "[class*='column']", "[class*='Column']",
       "[class*='label']", "[class*='Label']", "[class*='title']", "[class*='Title']", "[class*='headline']", "[class*='Headline']"
     ].join(",");
 
@@ -215,7 +216,9 @@
       var rect = el.getBoundingClientRect();
       if (rect.width < 2 || rect.height < 2) return;
       if (isInsideNavigation(el)) return;
-      if (!(el.textContent || "").trim()) return;
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (!text) return;
+      if (el.children.length > 0 && text.length > 80 && !el.matches("[role='columnheader'], [class*='column'], [class*='Column']")) return;
 
       var style = window.getComputedStyle(el);
       var fg = parseRgb(style.color);
