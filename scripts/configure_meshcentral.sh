@@ -18,15 +18,17 @@ load_env_value() {
 MESH_HOSTNAME="${MESH_HOSTNAME:-$(load_env_value MESH_HOSTNAME)}"
 MESH_ALLOW_NEW_ACCOUNTS="${MESH_ALLOW_NEW_ACCOUNTS:-$(load_env_value MESH_ALLOW_NEW_ACCOUNTS)}"
 MESH_WEBRTC="${MESH_WEBRTC:-$(load_env_value MESH_WEBRTC)}"
+MESH_LOGIN_KEY="${MESH_LOGIN_KEY:-$(load_env_value MESH_LOGIN_KEY)}"
 
 MESH_HOSTNAME="${MESH_HOSTNAME:-3.227.213.30}"
-export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC
+export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC MESH_LOGIN_KEY
 
 docker-compose run --rm --entrypoint sh meshcentral -lc "
 node <<'NODE'
 const fs = require('fs');
 const path = '/opt/meshcentral/meshcentral-data/config.json';
 const host = process.env.MESH_HOSTNAME || '${MESH_HOSTNAME}';
+const loginKey = (process.env.MESH_LOGIN_KEY || '').trim();
 
 const config = fs.existsSync(path)
   ? JSON.parse(fs.readFileSync(path, 'utf8'))
@@ -41,6 +43,11 @@ config.settings.port = 443;
 config.settings.aliasPort = 443;
 config.settings.allowFraming = true;
 config.settings.allowLoginToken = true;
+if (/^[0-9a-f]{160}$/i.test(loginKey)) {
+  config.settings.logincookieencryptionkey = loginKey;
+} else {
+  delete config.settings.logincookieencryptionkey;
+}
 config.settings.webRTC = process.env.MESH_WEBRTC === 'true';
 config.settings.browserPing = 60;
 config.settings.browserPong = 60;
