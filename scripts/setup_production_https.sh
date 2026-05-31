@@ -29,8 +29,24 @@ docker-compose up -d --force-recreate \
   zammad-railsserver \
   zammad-websocket \
   zammad-scheduler \
-  zammad-nginx \
   meshcentral
+
+echo "Esperando a que Zammad quede saludable..."
+for _ in {1..90}; do
+  railsserver_id="$(docker-compose ps -q zammad-railsserver 2>/dev/null || true)"
+  status="$(docker inspect -f '{{.State.Health.Status}}' "$railsserver_id" 2>/dev/null || true)"
+  if [ "$status" = "healthy" ]; then
+    break
+  fi
+  sleep 10
+done
+
+if [ "${status:-unknown}" != "healthy" ]; then
+  echo "Zammad no quedo saludable dentro del tiempo esperado." >&2
+  exit 1
+fi
+
+docker-compose up -d --force-recreate zammad-nginx
 
 ./scripts/configure_meshcentral.sh
 docker-compose up -d --force-recreate meshcentral
