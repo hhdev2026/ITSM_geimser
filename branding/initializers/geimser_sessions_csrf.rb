@@ -6,7 +6,13 @@ Rails.application.config.to_prepare do
 
   SessionsController.skip_before_action(
     :verify_authenticity_token,
-    only: %i[show signin],
+    only: %i[show create],
+    raise: false,
+  )
+
+  SessionsController.skip_before_action(
+    :verify_csrf_token,
+    only: %i[show create],
     raise: false,
   )
 end
