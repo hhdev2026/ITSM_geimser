@@ -309,6 +309,17 @@
     var existing = document.querySelector(".geimser-remote-modal");
     if (existing) return existing;
 
+    var remoteInviteText = [
+      "Hola, necesitamos registrar tu equipo en ITSM Geimser para soporte remoto.",
+      "",
+      "1. Abre este enlace: https://remoto.geimser.cl",
+      "2. Descarga el agente que te indique soporte.",
+      "3. Ejecuta el instalador una sola vez.",
+      "4. Avísanos cuando termine. El equipo quedará disponible para soporte remoto autorizado.",
+      "",
+      "No compartas este instalador fuera de tu equipo."
+    ].join("\n");
+
     var modal = document.createElement("div");
     modal.className = "geimser-remote-modal";
     modal.innerHTML = [
@@ -325,16 +336,49 @@
       '      <button type="button" class="geimser-remote-close">Cerrar</button>',
       '    </div>',
       '  </div>',
-      '  <div class="geimser-remote-first-use">',
-      '    <strong>Primera vez en este navegador:</strong> abre <strong>Abrir completo</strong>, acepta el acceso seguro e inicia sesión. Después podrás trabajar aquí mismo.',
+      '  <div class="geimser-remote-guide">',
+      '    <div class="geimser-remote-guide-main">',
+      '      <strong>Flujo recomendado:</strong> primero abre <strong>Abrir completo</strong> e inicia sesión en el centro remoto. Luego vuelve acá para trabajar embebido dentro del ITSM.',
+      '    </div>',
+      '    <button type="button" class="geimser-remote-copy">Copiar mensaje para cliente</button>',
       '  </div>',
       '  <div class="geimser-remote-register-help" role="status">',
-      '    <strong>Registrar equipo:</strong> dentro de MeshCentral crea o abre un grupo de dispositivos y selecciona <strong>Agregar agente</strong>. Descarga el instalador para el equipo remoto y ejecútalo una sola vez.',
-      '    <button type="button" class="geimser-remote-help-close" aria-label="Cerrar ayuda">Cerrar</button>',
+      '    <div class="geimser-remote-steps">',
+      '      <div><span>1</span><strong>Entrar</strong><small>Abre el centro remoto completo e inicia sesión.</small></div>',
+      '      <div><span>2</span><strong>Grupo</strong><small>Crea o selecciona el grupo de dispositivos del cliente.</small></div>',
+      '      <div><span>3</span><strong>Agente</strong><small>Selecciona Agregar agente y el sistema operativo.</small></div>',
+      '      <div><span>4</span><strong>Enviar</strong><small>Descarga o copia el instalador y envíalo al usuario.</small></div>',
+      '      <div><span>5</span><strong>Validar</strong><small>Cuando el usuario lo ejecute, el equipo aparecerá conectado.</small></div>',
+      '    </div>',
+      '    <div class="geimser-remote-tip"><strong>Qué enviar:</strong> el instalador del agente que genera MeshCentral para Windows, macOS o Linux. Ese archivo registra el equipo contra <strong>remoto.geimser.cl</strong>.</div>',
+      '    <button type="button" class="geimser-remote-help-close" aria-label="Cerrar ayuda">Ocultar guia</button>',
       '  </div>',
       '  <iframe class="geimser-remote-frame" title="MeshCentral"></iframe>',
       '</div>'
     ].join("");
+
+    modal.querySelector(".geimser-remote-copy").addEventListener("click", function (event) {
+      var button = event.currentTarget;
+      function done(text) {
+        button.textContent = text;
+        setTimeout(function () {
+          button.textContent = "Copiar mensaje para cliente";
+        }, 2200);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(remoteInviteText).then(function () {
+          done("Mensaje copiado");
+        }).catch(function () {
+          window.prompt("Copia este mensaje para enviarlo al cliente:", remoteInviteText);
+          done("Mensaje listo");
+        });
+        return;
+      }
+
+      window.prompt("Copia este mensaje para enviarlo al cliente:", remoteInviteText);
+      done("Mensaje listo");
+    });
 
     modal.querySelector(".geimser-remote-close").addEventListener("click", function () {
       modal.classList.remove("is-open");

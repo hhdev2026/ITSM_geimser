@@ -1003,7 +1003,7 @@ body,
   background: #ffffff;
 }
 
-.geimser-remote-first-use,
+.geimser-remote-guide,
 .geimser-remote-register-help {
   padding: 10px 16px;
   border-bottom: 1px solid #c7d3df;
@@ -1013,22 +1013,94 @@ body,
   line-height: 1.45;
 }
 
-.geimser-remote-first-use {
+.geimser-remote-guide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
   background: #fff8e6;
   border-bottom-color: #ead29a;
 }
 
+.geimser-remote-guide-main {
+  min-width: 0;
+}
+
+.geimser-remote-copy {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 75, 141, 0.22);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #004b8d;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.geimser-remote-copy:hover {
+  background: #f0f7ff;
+}
+
 .geimser-remote-register-help {
   display: none;
+  position: relative;
+  padding: 14px 16px 12px;
 }
 
 .geimser-remote-modal.show-register-help .geimser-remote-register-help {
   display: block;
 }
 
+.geimser-remote-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin-right: 96px;
+}
+
+.geimser-remote-steps div {
+  min-height: 78px;
+  padding: 10px;
+  border: 1px solid rgba(0, 75, 141, 0.14);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 31, 61, 0.06);
+}
+
+.geimser-remote-steps span {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: #004b8d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.geimser-remote-steps strong {
+  color: #16324a;
+}
+
+.geimser-remote-steps small {
+  display: block;
+  margin-top: 7px;
+  color: #40566b;
+}
+
+.geimser-remote-tip {
+  margin-top: 10px;
+  color: #16324a;
+}
+
 .geimser-remote-help-close {
-  float: right;
-  margin: 0 0 4px 12px;
+  position: absolute;
+  top: 12px;
+  right: 16px;
   border: 0;
   background: transparent;
   color: #004b8d;
@@ -1053,8 +1125,27 @@ body,
     flex-wrap: wrap;
   }
 
-  .geimser-remote-first-use,
+  .geimser-remote-guide,
   .geimser-remote-register-help {
     padding: 9px 12px;
+  }
+
+  .geimser-remote-guide {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .geimser-remote-copy {
+    width: 100%;
+  }
+
+  .geimser-remote-steps {
+    grid-template-columns: 1fr;
+    margin-right: 0;
+  }
+
+  .geimser-remote-help-close {
+    position: static;
+    margin-top: 10px;
   }
 }
