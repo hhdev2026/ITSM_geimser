@@ -378,8 +378,17 @@
     var app = document.querySelector("#app");
     if (!app) return;
 
-    var isTicketScreen = /^#ticket\/(create|zoom|edit)|^#ticket\//.test(window.location.hash || "");
+    var hash = window.location.hash || "";
+    var isPublicScreen = /^#(login|password_reset|signup|register)?$/.test(hash) ||
+      Boolean(document.querySelector(".hero-unit"));
     var existing = document.querySelector(".geimser-remote-button");
+
+    if (isPublicScreen) {
+      if (existing) existing.remove();
+      return;
+    }
+
+    var isTicketScreen = /^#ticket\/(create|zoom|edit)|^#ticket\//.test(hash);
 
     if (existing) {
       existing.textContent = isTicketScreen ? "Toma remota" : "Equipos remotos";
