@@ -9,6 +9,7 @@ settings = {
   'fqdn' => ENV.fetch('ZAMMAD_FQDN', 'localhost:8080'),
   'product_logo' => 'geimser-logo-v2.png',
   'pretty_date_format' => 'absolute',
+  'two_factor_authentication_enforce_role_ids' => [],
 }
 
 settings.each do |key, value|
