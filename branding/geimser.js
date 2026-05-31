@@ -299,6 +299,9 @@
 
   function meshUrl() {
     var host = window.location.hostname || "localhost";
+    if (host === "itsm.geimser.cl") {
+      return "https://remoto.geimser.cl";
+    }
     return "https://" + host;
   }
 

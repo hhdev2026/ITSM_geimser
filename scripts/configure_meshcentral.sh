@@ -30,6 +30,7 @@ config.domains[''].allowedOrigin = true;
 config.domains[''].allowFraming = true;
 config.domains[''].newAccounts = process.env.MESH_ALLOW_NEW_ACCOUNTS === 'true';
 config.domains[''].title = 'ITSM Geimser Remote';
+config.domains[''].certUrl = 'https://' + host;
 
 fs.writeFileSync(path, JSON.stringify(config, null, 2));
 console.log('MeshCentral configurado para ' + host);
