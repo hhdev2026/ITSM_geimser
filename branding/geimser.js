@@ -256,6 +256,44 @@
     });
   }
 
+  function normalizeDynamicTableHeaders() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var headerText = /^(INICIAR SESI[ÓO]N|NOMBRE|APELLIDO\(S\)|ORGANIZACI[ÓO]N|ORGANIZACIONES SECUNDARIAS|ACCI[ÓO]N|AC\.\.\.|PROTOCOLO|DIRECCI[ÓO]N DE CORREO ELECTR[ÓO]NICO|SALIENTE|EDITAR)$/i;
+    var candidates = Array.from(app.querySelectorAll("div, span, th, [role='columnheader'], [class*='column'], [class*='Column']"));
+
+    candidates.forEach(function (el) {
+      if (isInsideNavigation(el)) return;
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (!headerText.test(text)) return;
+
+      var rect = el.getBoundingClientRect();
+      if (rect.width < 12 || rect.height < 8 || rect.left < 520) return;
+
+      el.style.color = "#1f2937";
+      el.style.backgroundColor = "#eef3f8";
+      el.style.fontWeight = "700";
+
+      Array.from(el.querySelectorAll("*")).forEach(function (child) {
+        child.style.color = "#1f2937";
+        child.style.backgroundColor = "transparent";
+      });
+
+      var parent = el.parentElement;
+      var depth = 0;
+      while (parent && depth < 3) {
+        var parentRect = parent.getBoundingClientRect();
+        if (parentRect.height > 12 && parentRect.height < 72 && parentRect.width > rect.width * 0.8 && !isInsideNavigation(parent)) {
+          parent.style.backgroundColor = "#eef3f8";
+          parent.style.color = "#1f2937";
+        }
+        parent = parent.parentElement;
+        depth += 1;
+      }
+    });
+  }
+
   function normalizeNavigationContrast() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -541,6 +579,7 @@
     normalizeSidebarTicketLabels();
     markSurfaces();
     normalizeTextContrast();
+    normalizeDynamicTableHeaders();
     ensureRemoteButton();
 
     var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;

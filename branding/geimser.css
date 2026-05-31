@@ -996,6 +996,23 @@ html[data-theme="dark"] #app {
   color: #1d1d1f !important;
 }
 
+#app [role="table"],
+#app [role="grid"],
+#app [role="row"],
+#app [role="cell"],
+#app [role="columnheader"],
+#app [role="rowheader"] {
+  color: #1d1d1f !important;
+}
+
+#app [role="columnheader"],
+#app [role="columnheader"] * {
+  background: #eef3f8 !important;
+  background-color: #eef3f8 !important;
+  color: #1f2937 !important;
+  font-weight: 700 !important;
+}
+
 .geimser-remote-button {
   position: fixed;
   right: 22px;
