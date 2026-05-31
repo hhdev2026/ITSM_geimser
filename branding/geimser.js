@@ -190,7 +190,7 @@
     var current = el;
     while (current && current !== document.documentElement) {
       var bg = parseRgb(window.getComputedStyle(current).backgroundColor);
-      if (bg) return bg;
+      if (bg && bg.a >= 0.92) return bg;
       current = current.parentElement;
     }
     return { r: 245, g: 247, b: 251, a: 1 };
@@ -249,6 +249,86 @@
       } else {
         el.style.color = el.matches("a, .link") ? "#8fd3ff" : "#f3f7fb";
         el.closest(".panel, .box, .widget, .card, .table, section, article")?.classList.add("geimser-dark-surface");
+      }
+    });
+  }
+
+  function normalizeNavigationContrast() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var navNodes = Array.from(app.querySelectorAll(
+      ".navigation, .sidebar, .appSidebar, .mainNavigation, aside, nav, [class*='Navigation'], [class*='navigation'], [class*='Sidebar'], [class*='sidebar']"
+    ));
+
+    navNodes.forEach(function (nav) {
+      var rect = nav.getBoundingClientRect();
+      if (rect.width < 40 || rect.left > 540) return;
+      nav.classList.add("geimser-nav-surface");
+    });
+
+    Array.from(app.querySelectorAll(".geimser-nav-surface a, .geimser-nav-surface button, .geimser-nav-surface span, .geimser-nav-surface div, .geimser-nav-surface li")).forEach(function (el) {
+      if (!(el.textContent || "").trim() && !el.matches("a, button, [role='button']")) return;
+      var isActive = Boolean(el.closest(".is-active, .active, [aria-current='page']"));
+      el.style.color = isActive ? "#071c2b" : "#e9f1f8";
+    });
+  }
+
+  function normalizeSidebarTicketLabels() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var seenIncoming = 0;
+    Array.from(app.querySelectorAll("a[href*='#ticket/create/id/'], a[href*='#ticket/zoom/'], a[href*='#ticket/edit/']")).forEach(function (link) {
+      if (!isInsideNavigation(link)) return;
+
+      var text = (link.textContent || "").replace(/\s+/g, " ").trim();
+      if (!/^Llamada entrante$/i.test(text)) return;
+
+      var href = link.getAttribute("href") || "";
+      var match = href.match(/#ticket\/(?:create\/id|zoom|edit)\/?(\d+)?/);
+      seenIncoming += 1;
+      var label = match && match[1] ? "Ticket #" + match[1] : "Ticket abierto " + seenIncoming;
+
+      link.setAttribute("title", "Llamada entrante - " + label);
+      link.setAttribute("aria-label", label);
+      replaceVisibleText(link, label);
+    });
+  }
+
+  function replaceVisibleText(root, label) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (node) {
+        return /^(\s*)Llamada entrante(\s*)$/i.test(node.nodeValue || "")
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      }
+    });
+
+    var node = walker.nextNode();
+    if (node) {
+      node.nodeValue = node.nodeValue.replace(/Llamada entrante/i, label);
+      return;
+    }
+
+    root.textContent = label;
+  }
+
+  function markSurfaces() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    Array.from(app.querySelectorAll(".content, .main, .main-content, .page, .settings, .admin, .ticketZoom, .dashboard, [class*='Content'], [class*='content']")).forEach(function (el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.width > 240 && rect.height > 120) {
+        el.classList.add("geimser-app-surface");
+      }
+    });
+
+    Array.from(app.querySelectorAll("table, .table, .card, .panel, .box, .widget, .tile, form, fieldset, section, article, [class*='Table'], [class*='table'], [class*='Card'], [class*='card'], [class*='Panel'], [class*='panel']")).forEach(function (el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.width > 80 && rect.height > 24 && !isInsideNavigation(el)) {
+        el.classList.add("geimser-readable-surface");
       }
     });
   }
@@ -454,6 +534,9 @@
     removeZammadBranding();
     normalizeSidebarFooter();
     styleSidebarDockControls();
+    normalizeNavigationContrast();
+    normalizeSidebarTicketLabels();
+    markSurfaces();
     normalizeTextContrast();
     ensureRemoteButton();
 
@@ -484,16 +567,54 @@
 
   window.GeimserContrastAudit = auditContrast;
 
+  var scheduled = false;
+  var applying = false;
+  var observer;
+  var observerOptions = {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["class", "style", "data-theme", "aria-selected", "aria-current"]
+  };
+
+  function observeChanges() {
+    if (!observer) return;
+    observer.observe(document.documentElement, observerOptions);
+  }
+
+  function scheduleApply() {
+    if (scheduled || applying) return;
+    scheduled = true;
+    window.requestAnimationFrame(function () {
+      scheduled = false;
+      applying = true;
+      if (observer) observer.disconnect();
+      patchTranslationPrompt();
+      rememberTranslationPromptDismissal();
+      closeVisibleTranslationPrompt();
+      applyGeimserUi();
+      applying = false;
+      observeChanges();
+    });
+  }
+
   var attempts = 0;
-  var interval = window.setInterval(function () {
+  var warmup = window.setInterval(function () {
     attempts += 1;
     patchTranslationPrompt();
     rememberTranslationPromptDismissal();
     closeVisibleTranslationPrompt();
     applyGeimserUi();
 
-    if (attempts > 240) {
-      window.clearInterval(interval);
+    if (attempts > 80) {
+      window.clearInterval(warmup);
     }
   }, 250);
+
+  window.addEventListener("hashchange", scheduleApply);
+  window.addEventListener("resize", scheduleApply);
+  window.addEventListener("load", scheduleApply);
+
+  observer = new MutationObserver(scheduleApply);
+  observeChanges();
 })();

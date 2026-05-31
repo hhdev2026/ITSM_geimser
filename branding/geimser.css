@@ -318,6 +318,12 @@ body,
   color-scheme: light !important;
 }
 
+html[data-theme="dark"] body,
+html[data-theme="dark"] #app {
+  background: #f5f7fb !important;
+  color: #1d1d1f !important;
+}
+
 #app,
 #app .content,
 #app .main,
@@ -333,6 +339,55 @@ body,
 #app .knowledge-base {
   background: #f5f7fb !important;
   color: #1d1d1f !important;
+}
+
+#app .geimser-app-surface,
+#app .geimser-app-surface > *,
+#app .geimser-readable-surface,
+#app .geimser-readable-surface > * {
+  color-scheme: light !important;
+}
+
+#app .geimser-app-surface {
+  background: #f5f7fb !important;
+  color: #1d1d1f !important;
+}
+
+#app .geimser-readable-surface {
+  background: #ffffff !important;
+  color: #1d1d1f !important;
+  border-color: rgba(0, 31, 61, 0.12) !important;
+}
+
+#app .geimser-readable-surface h1,
+#app .geimser-readable-surface h2,
+#app .geimser-readable-surface h3,
+#app .geimser-readable-surface h4,
+#app .geimser-readable-surface h5,
+#app .geimser-readable-surface h6,
+#app .geimser-readable-surface p,
+#app .geimser-readable-surface li,
+#app .geimser-readable-surface td,
+#app .geimser-readable-surface th,
+#app .geimser-readable-surface span:not(.icon):not([class*="icon"]):not([class*="Icon"]),
+#app .geimser-readable-surface label,
+#app .geimser-readable-surface legend {
+  color: #1d1d1f !important;
+}
+
+#app .geimser-readable-surface small,
+#app .geimser-readable-surface .small,
+#app .geimser-readable-surface [class*="muted"],
+#app .geimser-readable-surface [class*="secondary"],
+#app .geimser-readable-surface [class*="hint"],
+#app .geimser-readable-surface [class*="description"],
+#app .geimser-readable-surface [class*="Description"] {
+  color: #5f6672 !important;
+}
+
+#app .geimser-readable-surface a,
+#app .geimser-readable-surface .link {
+  color: #004b8d !important;
 }
 
 #app .content .card,
@@ -398,12 +453,16 @@ body,
 
 #app .content a,
 #app .content .link,
+#app .geimser-app-surface a,
+#app .geimser-app-surface .link,
 #app .modal-content a {
   color: #004b8d !important;
 }
 
 #app .content a:hover,
 #app .content .link:hover,
+#app .geimser-app-surface a:hover,
+#app .geimser-app-surface .link:hover,
 #app .modal-content a:hover {
   color: #f5a623 !important;
 }
@@ -412,6 +471,10 @@ body,
 #app .content textarea,
 #app .content select,
 #app .content .form-control,
+#app .geimser-readable-surface input,
+#app .geimser-readable-surface textarea,
+#app .geimser-readable-surface select,
+#app .geimser-readable-surface .form-control,
 #app .modal-content input,
 #app .modal-content textarea,
 #app .modal-content select,
@@ -425,6 +488,7 @@ body,
 #app .sidebar,
 #app .appSidebar,
 #app .mainNavigation,
+#app .geimser-nav-surface,
 #app [class*="Navigation"],
 #app [class*="navigation"] {
   background: #20232b !important;
@@ -435,6 +499,7 @@ body,
 #app .sidebar *,
 #app .appSidebar *,
 #app .mainNavigation *,
+#app .geimser-nav-surface *,
 #app [class*="Navigation"] *,
 #app [class*="navigation"] * {
   color: #d9e2ec !important;
@@ -446,10 +511,12 @@ body,
 #app .sidebar .active,
 #app .appSidebar .is-active,
 #app .mainNavigation .is-active,
+#app .geimser-nav-surface .is-active,
+#app .geimser-nav-surface .active,
 #app [class*="Navigation"] .is-active,
 #app [class*="navigation"] .is-active {
-  background: #3da8e8 !important;
-  color: #062a42 !important;
+  background: #4bb3f0 !important;
+  color: #071c2b !important;
 }
 
 #app .navigation .is-active *,
@@ -458,9 +525,35 @@ body,
 #app .sidebar .active *,
 #app .appSidebar .is-active *,
 #app .mainNavigation .is-active *,
+#app .geimser-nav-surface .is-active *,
+#app .geimser-nav-surface .active *,
 #app [class*="Navigation"] .is-active *,
 #app [class*="navigation"] .is-active * {
-  color: #062a42 !important;
+  color: #071c2b !important;
+}
+
+#app .geimser-nav-surface a,
+#app .geimser-nav-surface button,
+#app .geimser-nav-surface [role="button"] {
+  color: #e9f1f8 !important;
+}
+
+#app .geimser-nav-surface a:hover,
+#app .geimser-nav-surface button:hover,
+#app .geimser-nav-surface [role="button"]:hover {
+  background: rgba(75, 179, 240, 0.14) !important;
+  color: #ffffff !important;
+}
+
+#app .geimser-nav-surface a[title^="Llamada entrante"] {
+  font-size: 0 !important;
+}
+
+#app .geimser-nav-surface a[title^="Llamada entrante"]::after {
+  content: attr(aria-label);
+  font-size: 14px;
+  font-weight: 650;
+  color: inherit;
 }
 
 #app .activity-stream,
