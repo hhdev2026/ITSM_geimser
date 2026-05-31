@@ -6,6 +6,19 @@ cd "$(dirname "$0")/.."
 ITSM_HOST="${ITSM_HOST:-itsm.geimser.cl}"
 MESH_HOST="${MESH_HOST:-remoto.geimser.cl}"
 
+case "$(uname -m)" in
+  x86_64)
+    DOCKER_PLATFORM="linux/amd64"
+    ;;
+  aarch64|arm64)
+    DOCKER_PLATFORM="linux/arm64"
+    ;;
+  *)
+    echo "Arquitectura no soportada: $(uname -m)" >&2
+    exit 1
+    ;;
+esac
+
 set_env() {
   local key="$1"
   local value="$2"
@@ -20,6 +33,7 @@ set_env() {
 set_env NGINX_EXPOSE_PORT 127.0.0.1:8080
 set_env NGINX_PORT 8080
 set_env NGINX_SERVER_NAME _
+set_env DOCKER_PLATFORM "$DOCKER_PLATFORM"
 set_env ZAMMAD_FQDN "$ITSM_HOST"
 set_env ZAMMAD_HTTP_TYPE https
 set_env MESH_HOSTNAME "$MESH_HOST"
