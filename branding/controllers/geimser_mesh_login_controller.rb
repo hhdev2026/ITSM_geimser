@@ -147,29 +147,80 @@ class GeimserMeshLoginController < ApplicationController
     groups = rows
       .select { |row| row['type'] == 'mesh' }
       .each_with_object({}) { |row, memo| memo[row['_id']] = row['name'].presence || row['_id'] }
+    sysinfo = mesh_sysinfo_by_node(rows)
 
     rows
       .select { |row| row['type'] == 'node' && row['_id'].present? }
-      .map { |row| mesh_device_from_row(row, groups) }
+      .map { |row| mesh_device_from_row(row, groups, sysinfo[row['_id']]) }
   end
 
-  def mesh_device_from_row(row, groups)
+  def mesh_device_from_row(row, groups, sysinfo)
     node_id = row['_id'].to_s
     mesh_group_id = row['meshid'].to_s.presence
-    last_seen = remote_time(row['lastconnect'] || row['lastaddr'] || row['lastping'])
+    last_seen = remote_last_seen(row, sysinfo)
+    name = row['name'].presence || row['rname'].presence || row['host'].presence || node_id.split('/').last
+    system = sysinfo.to_h['system'].to_h
 
     {
       mesh_node_id: node_id,
       mesh_group_id: mesh_group_id,
       group_name: groups[mesh_group_id] || 'Sin grupo',
-      name: row['name'].presence || row['rname'].presence || row['host'].presence || node_id.split('/').last,
-      hostname: row['host'].presence || row['rname'].presence || row['name'].presence,
-      os_name: row['osdesc'].presence || row.dig('agent', 'osdesc').presence || row.dig('agent', 'caps').to_s.presence,
-      ip_address: Array(row['iploc']).first.presence || row['lastaddr'].to_s.split(':').first.presence,
-      status: row['conn'].to_i.positive? ? 'online' : 'offline',
+      name: name,
+      hostname: row['host'].presence || row['rname'].presence || row['name'].presence || system['Name'].presence,
+      os_name: remote_os_name(row, sysinfo),
+      ip_address: remote_ip_address(row, sysinfo),
+      status: remote_online?(row, last_seen) ? 'online' : 'offline',
       last_seen_at: last_seen,
-      raw: row,
+      raw: row.merge('sysinfo' => sysinfo),
     }
+  end
+
+  def mesh_sysinfo_by_node(rows)
+    rows
+      .select { |row| row['type'] == 'sysinfo' && row['_id'].to_s.start_with?('sinode//') }
+      .each_with_object({}) do |row, memo|
+        memo[row['_id'].sub('sinode//', 'node//')] = row
+      end
+  end
+
+  def remote_online?(row, last_seen)
+    return true if row['conn'].to_i.positive?
+
+    # Mesh stores live connection in-memory and periodically writes inventory.
+    # A very recent inventory touch is the best durable signal available here.
+    last_seen.present? && last_seen >= 15.minutes.ago
+  end
+
+  def remote_last_seen(row, sysinfo)
+    [
+      row['lastconnect'],
+      row['lastping'],
+      row['firstconnect'],
+      sysinfo.to_h['time'],
+    ].filter_map { |value| remote_time(value) }.max
+  end
+
+  def remote_os_name(row, sysinfo)
+    osinfo = sysinfo.to_h['osinfo'].to_h
+    caption = osinfo['Caption'].presence
+    version = osinfo['Version'].presence
+    build = osinfo['BuildNumber'].presence
+
+    [
+      row['osdesc'].presence,
+      [caption, version, build].compact_blank.join(' - ').presence,
+      row.dig('agent', 'osdesc').presence,
+      row.dig('agent', 'caps').to_s.presence,
+    ].compact_blank.first
+  end
+
+  def remote_ip_address(row, sysinfo)
+    network = sysinfo.to_h['network'].to_h
+    candidate = Array(row['iploc']).first.presence ||
+      Array(network['netif']).filter_map { |iface| iface['ip'].presence }.first ||
+      row['lastaddr'].to_s.split(':').first.presence
+
+    candidate
   end
 
   def remote_time(value)
