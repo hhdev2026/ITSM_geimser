@@ -149,9 +149,22 @@ class GeimserMeshLoginController < ApplicationController
       .each_with_object({}) { |row, memo| memo[row['_id']] = row['name'].presence || row['_id'] }
     sysinfo = mesh_sysinfo_by_node(rows)
 
+    merged_mesh_nodes(rows)
+      .map { |row| mesh_device_from_row(row, groups, sysinfo[row['_id']]) }
+  end
+
+  def merged_mesh_nodes(rows)
     rows
       .select { |row| row['type'] == 'node' && row['_id'].present? }
-      .map { |row| mesh_device_from_row(row, groups, sysinfo[row['_id']]) }
+      .each_with_object({}) do |row, memo|
+        id = row['_id']
+        current = memo[id] || {}
+        current['_geimser_seen_online'] = true if row['conn'].to_i.positive?
+        current['_geimser_seen_times'] ||= []
+        current['_geimser_seen_times'] += [row['lastconnect'], row['lastping'], row['firstconnect']]
+        memo[id] = current.merge(row.compact)
+      end
+      .values
   end
 
   def mesh_device_from_row(row, groups, sysinfo)
@@ -184,6 +197,7 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   def remote_online?(row, last_seen)
+    return true if row['_geimser_seen_online']
     return true if row['conn'].to_i.positive?
 
     # Mesh stores live connection in-memory and periodically writes inventory.
@@ -196,6 +210,7 @@ class GeimserMeshLoginController < ApplicationController
       row['lastconnect'],
       row['lastping'],
       row['firstconnect'],
+      *Array(row['_geimser_seen_times']),
       sysinfo.to_h['time'],
     ].filter_map { |value| remote_time(value) }.max
   end
