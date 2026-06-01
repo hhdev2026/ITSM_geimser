@@ -435,14 +435,14 @@
     if (existing) return existing;
 
     var remoteInviteText = [
-      "Hola, necesitamos registrar tu equipo en ITSM Geimser para soporte remoto.",
+      "Hola, necesitamos agregar tu equipo al centro remoto de ITSM Geimser.",
       "",
-      "1. Abre el instalador que te enviaremos desde soporte.",
-      "2. Ejecútalo una sola vez en el equipo que quieres registrar.",
-      "3. Avísanos cuando termine la instalación.",
-      "4. El equipo quedará disponible para soporte remoto autorizado dentro de ITSM Geimser.",
+      "1. Descarga el instalador que te enviaremos.",
+      "2. Ejecútalo una sola vez en el equipo que necesita soporte.",
+      "3. Acepta los permisos que pida el sistema.",
+      "4. Avísanos cuando aparezca como instalado.",
       "",
-      "No compartas este instalador fuera de tu equipo."
+      "Con eso podremos conectarnos solo cuando autorices la atención. No compartas el instalador fuera de tu equipo."
     ].join("\n");
 
     var modal = document.createElement("div");
@@ -451,43 +451,76 @@
       '<div class="geimser-remote-panel" role="dialog" aria-label="Toma remota">',
       '  <div class="geimser-remote-header">',
       '    <div class="geimser-remote-heading">',
-      '      <div class="geimser-remote-title">Centro remoto</div>',
-      '      <div class="geimser-remote-subtitle">Toma remota y registro de equipos desde la ticketera</div>',
+      '      <div class="geimser-remote-title">Soporte remoto</div>',
+      '      <div class="geimser-remote-subtitle">Conecta, registra equipos y toma control desde ITSM Geimser</div>',
       '    </div>',
       '    <div class="geimser-remote-actions">',
-      '      <button type="button" class="geimser-remote-home">Equipos</button>',
-      '      <button type="button" class="geimser-remote-register">Preparar agente</button>',
-      '      <a class="geimser-remote-open" target="_blank" rel="noopener">Abrir panel</a>',
+      '      <button type="button" class="geimser-remote-home">Ver equipos</button>',
+      '      <button type="button" class="geimser-remote-register">Registrar equipo</button>',
+      '      <a class="geimser-remote-open" target="_blank" rel="noopener">Abrir completo</a>',
       '      <button type="button" class="geimser-remote-close">Cerrar</button>',
       '    </div>',
       '  </div>',
-      '  <div class="geimser-remote-guide">',
-      '    <div class="geimser-remote-guide-main">',
-      '      <strong>Flujo integrado:</strong> usa tu sesión de ITSM para entrar al centro remoto. Desde aquí puedes preparar el agente, registrar equipos y abrir sesiones sin volver a iniciar sesión en MeshCentral.',
-      '    </div>',
-      '    <button type="button" class="geimser-remote-copy">Copiar mensaje para cliente</button>',
+      '  <div class="geimser-remote-body">',
+      '    <aside class="geimser-remote-workflow" aria-label="Flujo de soporte remoto">',
+      '      <button type="button" class="geimser-remote-flow is-active" data-remote-flow="equipos">',
+      '        <span>1</span><strong>Conectar</strong><small>Elige un equipo registrado y abre la sesión remota.</small>',
+      '      </button>',
+      '      <button type="button" class="geimser-remote-flow" data-remote-flow="registrar">',
+      '        <span>2</span><strong>Registrar</strong><small>Crea o abre un grupo y genera el instalador del agente.</small>',
+      '      </button>',
+      '      <button type="button" class="geimser-remote-flow" data-remote-flow="enviar">',
+      '        <span>3</span><strong>Enviar</strong><small>Copia el mensaje para el ticket o correo del cliente.</small>',
+      '      </button>',
+      '      <button type="button" class="geimser-remote-flow" data-remote-flow="esperar">',
+      '        <span>4</span><strong>Tomar control</strong><small>Cuando el agente aparezca online, entra por Ver equipos.</small>',
+      '      </button>',
+      '      <div class="geimser-remote-note">',
+      '        <strong>Sin doble login:</strong> este panel usa tu sesión de ITSM para entrar al centro remoto.',
+      '      </div>',
+      '      <button type="button" class="geimser-remote-copy">Copiar instrucciones</button>',
+      '    </aside>',
+      '    <main class="geimser-remote-stage">',
+      '      <div class="geimser-remote-banner" role="status">',
+      '        <strong>Equipos registrados</strong>',
+      '        <span>Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.</span>',
+      '      </div>',
+      '      <iframe class="geimser-remote-frame" title="Centro remoto ITSM Geimser"></iframe>',
+      '    </main>',
       '  </div>',
-      '  <div class="geimser-remote-register-help" role="status">',
-      '    <div class="geimser-remote-steps">',
-      '      <div><span>1</span><strong>Cliente</strong><small>Confirma el nombre de la persona y del equipo.</small></div>',
-      '      <div><span>2</span><strong>Grupo</strong><small>Selecciona o crea el grupo del cliente.</small></div>',
-      '      <div><span>3</span><strong>Agente</strong><small>Genera el instalador para Windows, macOS o Linux.</small></div>',
-      '      <div><span>4</span><strong>Enviar</strong><small>Envía el instalador al cliente desde el ticket.</small></div>',
-      '      <div><span>5</span><strong>Control</strong><small>Cuando lo ejecute, inicia la sesión remota desde Equipos.</small></div>',
-      '    </div>',
-      '    <div class="geimser-remote-tip"><strong>Qué enviar:</strong> el instalador del agente que se genera aquí. Ese archivo registra el equipo contra <strong>remoto.geimser.cl</strong> y lo deja visible en la ticketera.</div>',
-      '    <button type="button" class="geimser-remote-help-close" aria-label="Cerrar ayuda">Ocultar guia</button>',
-      '  </div>',
-      '  <iframe class="geimser-remote-frame" title="MeshCentral"></iframe>',
       '</div>'
     ].join("");
+
+    function setFlow(flow) {
+      var title = "Equipos registrados";
+      var detail = "Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.";
+
+      if (flow === "registrar") {
+        title = "Registrar equipo";
+        detail = "Crea o abre el grupo del cliente, usa Agregar agente, descarga el instalador y envíalo desde el ticket.";
+      } else if (flow === "enviar") {
+        title = "Enviar instalador";
+        detail = "Copia las instrucciones y adjunta el instalador generado. El cliente solo debe ejecutarlo una vez.";
+      } else if (flow === "esperar") {
+        title = "Tomar control";
+        detail = "Cuando el agente quede online, vuelve a Ver equipos, abre el equipo y selecciona escritorio remoto.";
+      }
+
+      modal.querySelectorAll(".geimser-remote-flow").forEach(function (button) {
+        button.classList.toggle("is-active", button.getAttribute("data-remote-flow") === flow);
+      });
+
+      modal.querySelector(".geimser-remote-banner strong").textContent = title;
+      modal.querySelector(".geimser-remote-banner span").textContent = detail;
+      modal.querySelector(".geimser-remote-frame").src = meshLoginUrl("/");
+    }
 
     modal.querySelector(".geimser-remote-copy").addEventListener("click", function (event) {
       var button = event.currentTarget;
       function done(text) {
         button.textContent = text;
         setTimeout(function () {
-          button.textContent = "Copiar mensaje para cliente";
+          button.textContent = "Copiar instrucciones";
         }, 2200);
       }
 
@@ -510,17 +543,11 @@
     });
 
     modal.querySelector(".geimser-remote-home").addEventListener("click", function () {
-      modal.classList.remove("show-register-help");
-      modal.querySelector(".geimser-remote-frame").src = meshLoginUrl("/");
+      setFlow("equipos");
     });
 
     modal.querySelector(".geimser-remote-register").addEventListener("click", function () {
-      modal.classList.add("show-register-help");
-      modal.querySelector(".geimser-remote-frame").src = meshLoginUrl("/");
-    });
-
-    modal.querySelector(".geimser-remote-help-close").addEventListener("click", function () {
-      modal.classList.remove("show-register-help");
+      setFlow("registrar");
     });
 
     modal.addEventListener("click", function (event) {
@@ -529,11 +556,18 @@
       }
     });
 
+    modal.querySelectorAll(".geimser-remote-flow").forEach(function (button) {
+      button.addEventListener("click", function () {
+        setFlow(button.getAttribute("data-remote-flow"));
+      });
+    });
+
+    modal.GeimserSetFlow = setFlow;
     document.body.appendChild(modal);
     return modal;
   }
 
-  function openRemoteModal() {
+  function openRemoteModal(flow) {
     var url = meshLoginUrl("/");
     var modal = ensureRemoteModal();
     var frame = modal.querySelector(".geimser-remote-frame");
@@ -541,6 +575,9 @@
     frame.src = url;
     openLink.href = url;
     modal.classList.add("is-open");
+    if (modal.GeimserSetFlow) {
+      modal.GeimserSetFlow(flow || "equipos");
+    }
   }
 
   function ensureRemoteButton() {
@@ -560,15 +597,17 @@
     var isTicketScreen = /^#ticket\/(create|zoom|edit)|^#ticket\//.test(hash);
 
     if (existing) {
-      existing.textContent = isTicketScreen ? "Toma remota" : "Equipos remotos";
+      existing.textContent = isTicketScreen ? "Toma remota" : "Soporte remoto";
       return;
     }
 
     var button = document.createElement("button");
     button.type = "button";
     button.className = "geimser-remote-button";
-    button.textContent = isTicketScreen ? "Toma remota" : "Equipos remotos";
-    button.addEventListener("click", openRemoteModal);
+    button.textContent = isTicketScreen ? "Toma remota" : "Soporte remoto";
+    button.addEventListener("click", function () {
+      openRemoteModal(isTicketScreen ? "equipos" : "registrar");
+    });
     document.body.appendChild(button);
   }
 
