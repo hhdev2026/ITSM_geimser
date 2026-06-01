@@ -260,6 +260,19 @@
     var session = currentSession();
     if (!session) return false;
 
+    var hasAdminDock = Array.from(document.querySelectorAll("#app a, #app button, #app [role='link'], #app [role='button']")).some(function (el) {
+      var label = [
+        el.getAttribute("href"),
+        el.getAttribute("title"),
+        el.getAttribute("aria-label"),
+        el.textContent
+      ].join(" ");
+
+      return /#manage|administrar|admin/i.test(label);
+    });
+
+    if (hasAdminDock) return true;
+
     var names = [];
     collectSessionNames(session.permissions, names, 0);
     collectSessionNames(session.roles, names, 0);
