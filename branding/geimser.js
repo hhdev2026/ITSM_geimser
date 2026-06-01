@@ -1485,7 +1485,6 @@
 
     var app = document.querySelector("#app");
     if (!app) return null;
-    if (!/geimser:\/\/meshcentral/i.test(app.textContent || "")) return null;
 
     var logsHeading = Array.from(app.querySelectorAll("h1, h2, h3, h4, div, span")).find(function (el) {
       var rect = el.getBoundingClientRect();
