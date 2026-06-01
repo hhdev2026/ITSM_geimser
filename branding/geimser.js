@@ -347,17 +347,11 @@
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-users" aria-hidden="true"></span>',
         '  <span>Usuarios</span>',
         '</a>',
-        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="cmdb" href="#geimser/cmdb">',
+        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="cmdb" href="#system/integration/idoit">',
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-cmdb" aria-hidden="true"></span>',
-        '  <span>CMDB Mesh</span>',
+        '  <span>CMDB ITSM</span>',
         '</a>'
       ].join("");
-
-      existing.querySelector('[data-geimser-shortcut="cmdb"]').addEventListener("click", function (event) {
-        event.preventDefault();
-        window.location.hash = "#geimser/cmdb";
-        openCmdbView();
-      });
     }
 
     existing.style.setProperty("--geimser-sidebar-left", Math.max(0, sidebarRect.left) + "px");
@@ -378,6 +372,16 @@
       var target = link.getAttribute("href");
       link.classList.toggle("is-active", Boolean(target && hash === target));
     });
+  }
+
+  function removeLegacyCmdbOverlay() {
+    document.querySelectorAll(".geimser-cmdb-view").forEach(function (view) {
+      view.remove();
+    });
+
+    if ((window.location.hash || "") === "#geimser/cmdb") {
+      window.location.hash = "#system/integration/idoit";
+    }
   }
 
   function normalizeSidebarFloatingUi() {
@@ -1484,6 +1488,7 @@
     normalizeVisibleBrandText();
     ensureSidebarBrand();
     ensureInternalSidebarShortcuts();
+    removeLegacyCmdbOverlay();
     normalizeSidebarFooter();
     styleSidebarDockControls();
     normalizeSidebarFloatingUi();
