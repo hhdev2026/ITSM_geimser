@@ -8,6 +8,7 @@ COPY --chown=zammad:zammad branding/layouts/application.html.erb /opt/zammad/app
 COPY --chown=zammad:zammad branding/controllers/geimser_mesh_login_controller.rb /opt/zammad/app/controllers/geimser_mesh_login_controller.rb
 COPY --chown=zammad:zammad branding/routes/geimser_mesh_login.rb /opt/zammad/config/routes/zz_geimser_mesh_login.rb
 COPY --chown=zammad:zammad branding/initializers/geimser_content_security_policy.rb /opt/zammad/config/initializers/zz_geimser_content_security_policy.rb
+COPY --chown=zammad:zammad branding/initializers/geimser_mesh_cmdb.rb /opt/zammad/config/initializers/zz_geimser_mesh_cmdb.rb
 COPY --chown=zammad:zammad branding/initializers/geimser_sessions_csrf.rb /opt/zammad/config/initializers/zz_geimser_sessions_csrf.rb
 COPY --chown=zammad:zammad branding/initializers/geimser_sessions_login.rb /opt/zammad/config/initializers/zz_geimser_sessions_login.rb
 COPY --chown=zammad:zammad scripts/configure_geimser.rb /opt/zammad/contrib/geimser/configure_geimser.rb

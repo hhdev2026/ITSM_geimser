@@ -16,6 +16,22 @@ settings.each do |key, value|
   Setting.set(key, value)
 end
 
+if Setting.exists?(name: 'idoit_integration')
+  Setting.set('idoit_integration', true)
+end
+
+if Setting.exists?(name: 'idoit_config')
+  Setting.set(
+    'idoit_config',
+    {
+      endpoint: 'geimser://meshcentral',
+      api_token: 'meshcentral',
+      client_id: 'geimser',
+      verify_ssl: true,
+    }
+  )
+end
+
 if Setting.exists?(name: 'maintenance_login')
   Setting.set('maintenance_login', true)
   Setting.set(
@@ -69,25 +85,26 @@ end
 
 remote_attributes = [
   {
-    name: 'meshcentral_device_id',
-    display: 'ID Equipo MeshCentral',
+    name: 'geimser_cmdb_device',
+    display: 'Equipo CMDB',
     position: 1560,
+    data_type: 'autocompletion_ajax_external_data_source',
+    data_option: {
+      search_url: "#{ENV.fetch('ZAMMAD_HTTP_TYPE', 'http')}://#{ENV.fetch('ZAMMAD_FQDN', 'localhost:8080')}/geimser/cmdb/search?token=#{ENV.fetch('GEIMSER_CMDB_TOKEN', 'geimser-cmdb-local')}&query=#{'#{search.term}'}",
+      search_result_list_key: '',
+      search_result_value_key: 'value',
+      search_result_label_key: 'label',
+      verify_ssl: false,
+      null: true,
+      default: '',
+      relation: '',
+      item_class: 'column',
+    },
   },
   {
     name: 'meshcentral_session_url',
     display: 'Enlace Sesion Remota',
     position: 1570,
-  },
-]
-
-remote_attributes.each do |remote_attribute|
-  next if ObjectManager::Attribute.get(object: 'Ticket', name: remote_attribute[:name])
-
-  ObjectManager::Attribute.add(
-    force: true,
-    object: 'Ticket',
-    name: remote_attribute[:name],
-    display: remote_attribute[:display],
     data_type: 'input',
     data_option: {
       type: 'text',
@@ -95,6 +112,22 @@ remote_attributes.each do |remote_attribute|
       null: true,
       item_class: 'column',
     },
+  },
+]
+
+legacy_meshcentral_device_attribute = ObjectManager::Attribute.get(object: 'Ticket', name: 'meshcentral_device_id')
+if legacy_meshcentral_device_attribute&.active
+  legacy_meshcentral_device_attribute.update!(active: false)
+end
+
+remote_attributes.each do |remote_attribute|
+  existing_remote_attribute = ObjectManager::Attribute.get(object: 'Ticket', name: remote_attribute[:name])
+  attribute_payload = {
+    object: 'Ticket',
+    name: remote_attribute[:name],
+    display: remote_attribute[:display],
+    data_type: remote_attribute[:data_type],
+    data_option: remote_attribute[:data_option],
     editable: true,
     active: true,
     screens: {
@@ -111,7 +144,16 @@ remote_attributes.each do |remote_attribute|
       },
     },
     position: remote_attribute[:position],
-  )
+  }
+
+  if existing_remote_attribute && existing_remote_attribute.data_type == remote_attribute[:data_type]
+    existing_remote_attribute.update!(attribute_payload.except(:object))
+  elsif existing_remote_attribute
+    existing_remote_attribute.update!(active: false)
+    ObjectManager::Attribute.add(force: true, **attribute_payload.merge(name: "#{remote_attribute[:name]}_native"))
+  else
+    ObjectManager::Attribute.add(force: true, **attribute_payload)
+  end
 end
 
 ObjectManager::Attribute.migration_execute

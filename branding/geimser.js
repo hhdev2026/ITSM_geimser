@@ -876,25 +876,28 @@
     document.body.appendChild(button);
   }
 
-  function ensureCmdbNavigation() {
-    var app = document.querySelector("#app");
-    if (!app || document.querySelector(".geimser-cmdb-nav")) return;
-
-    var sidebar = app.querySelector(".sidebar, .navigation, .appSidebar, .mainNavigation, [class*='Sidebar'], [class*='Navigation']");
-    if (!sidebar) return;
-
-    var link = document.createElement("button");
-    link.type = "button";
-    link.className = "geimser-cmdb-nav";
-    link.innerHTML = '<span>CMDB</span><small>Equipos</small>';
-    link.addEventListener("click", function () {
-      window.location.hash = "geimser/cmdb";
-      var view = ensureCmdbView();
-      view.removeAttribute("data-cmdb-loaded");
-      openCmdbView();
+  function normalizeNativeCmdbLabels() {
+    var labels = Array.from(document.querySelectorAll("#app, #app *")).filter(function (el) {
+      return el.childNodes && Array.from(el.childNodes).some(function (node) {
+        return node.nodeType === 3 && /i-doit/i.test(node.nodeValue || "");
+      });
     });
 
-    sidebar.appendChild(link);
+    labels.slice(0, 60).forEach(function (el) {
+      Array.from(el.childNodes).forEach(function (node) {
+        if (node.nodeType !== 3) return;
+        node.nodeValue = (node.nodeValue || "").replace(/i-doit/gi, "CMDB");
+      });
+    });
+
+    document.querySelectorAll("[title], [aria-label], [placeholder]").forEach(function (el) {
+      ["title", "aria-label", "placeholder"].forEach(function (attr) {
+        var value = el.getAttribute(attr);
+        if (value && /i-doit/i.test(value)) {
+          el.setAttribute(attr, value.replace(/i-doit/gi, "CMDB"));
+        }
+      });
+    });
   }
 
   function applyGeimserUi() {
@@ -910,8 +913,7 @@
     normalizeTextContrast();
     normalizeDynamicTableHeaders();
     ensureRemoteButton();
-    ensureCmdbNavigation();
-    syncCmdbRoute();
+    normalizeNativeCmdbLabels();
 
     var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;
     var panels = Array.from(document.querySelectorAll("#app div, #app section, #app article")).filter(function (el) {
