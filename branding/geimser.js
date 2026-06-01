@@ -223,6 +223,10 @@
     var app = document.querySelector("#app");
     if (!app) return;
 
+    Array.from(app.querySelectorAll(".geimser-sidebar-search-shell")).forEach(function (shell) {
+      shell.classList.remove("geimser-sidebar-search-shell");
+    });
+
     var navSurfaces = Array.from(app.querySelectorAll(
       ".navigation, .sidebar, .appSidebar, .mainNavigation, .geimser-nav-surface, [class*='Navigation'], [class*='navigation'], [class*='Sidebar'], [class*='sidebar']"
     )).filter(function (el) {
@@ -256,7 +260,10 @@
         var depth = 0;
         while (parent && parent !== app && depth < 3) {
           var parentRect = parent.getBoundingClientRect();
-          if (parentRect.left < sidebarRight && parentRect.top < 180) {
+          if (parentRect.left < sidebarRight &&
+              parentRect.right <= sidebarRight + 24 &&
+              parentRect.top < 180 &&
+              parentRect.width <= 360) {
             parent.classList.add("geimser-sidebar-search-shell");
           }
           parent = parent.parentElement;

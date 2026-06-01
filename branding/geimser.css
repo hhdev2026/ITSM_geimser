@@ -32,6 +32,16 @@ img[alt="Geimser ITSM"] {
   object-fit: contain;
 }
 
+.splash > .icon-logo {
+  width: 44px !important;
+  height: 44px !important;
+  background: url("/assets/images/geimser-logo-mark.png") center / contain no-repeat !important;
+}
+
+.splash > .icon-logo use {
+  display: none !important;
+}
+
 .geimser-sidebar-brand {
   position: fixed;
   top: 12px;
