@@ -437,12 +437,12 @@
     var remoteInviteText = [
       "Hola, necesitamos agregar tu equipo al centro remoto de ITSM Geimser.",
       "",
-      "1. Descarga el instalador que te enviaremos.",
-      "2. Ejecútalo una sola vez en el equipo que necesita soporte.",
-      "3. Acepta los permisos que pida el sistema.",
-      "4. Avísanos cuando aparezca como instalado.",
+      "1. Te enviaremos el instalador Windows generado desde ITSM Geimser.",
+      "2. Descárgalo y ejecútalo una sola vez en el equipo que necesita soporte.",
+      "3. Acepta los permisos que pida Windows.",
+      "4. Avísanos cuando termine. El equipo aparecerá online para la atención remota.",
       "",
-      "Con eso podremos conectarnos solo cuando autorices la atención. No compartas el instalador fuera de tu equipo."
+      "No compartas el instalador con otros equipos; queda asociado al grupo de soporte."
     ].join("\n");
 
     var modal = document.createElement("div");
@@ -456,7 +456,7 @@
       '    </div>',
       '    <div class="geimser-remote-actions">',
       '      <button type="button" class="geimser-remote-home">Ver equipos</button>',
-      '      <button type="button" class="geimser-remote-register">Registrar equipo</button>',
+      '      <button type="button" class="geimser-remote-register">Instalador</button>',
       '      <a class="geimser-remote-open" target="_blank" rel="noopener">Abrir completo</a>',
       '      <button type="button" class="geimser-remote-close">Cerrar</button>',
       '    </div>',
@@ -467,16 +467,20 @@
       '        <span>1</span><strong>Conectar</strong><small>Elige un equipo registrado y abre la sesión remota.</small>',
       '      </button>',
       '      <button type="button" class="geimser-remote-flow" data-remote-flow="registrar">',
-      '        <span>2</span><strong>Registrar</strong><small>Crea o abre un grupo y genera el instalador del agente.</small>',
+      '        <span>2</span><strong>Instalador</strong><small>Crea un grupo y descarga el agente Windows.</small>',
       '      </button>',
       '      <button type="button" class="geimser-remote-flow" data-remote-flow="enviar">',
-      '        <span>3</span><strong>Enviar</strong><small>Copia el mensaje para el ticket o correo del cliente.</small>',
+      '        <span>3</span><strong>Enviar</strong><small>Adjunta el .exe al ticket o correo del cliente.</small>',
       '      </button>',
       '      <button type="button" class="geimser-remote-flow" data-remote-flow="esperar">',
       '        <span>4</span><strong>Tomar control</strong><small>Cuando el agente aparezca online, entra por Ver equipos.</small>',
       '      </button>',
       '      <div class="geimser-remote-note">',
       '        <strong>Sin doble login:</strong> este panel usa tu sesión de ITSM para entrar al centro remoto.',
+      '      </div>',
+      '      <div class="geimser-remote-install-help">',
+      '        <strong>¿Dónde está el instalador?</strong>',
+      '        <span>En el panel derecho: crea/abre un grupo, entra a <b>Agregar agente</b>, elige Windows y descarga.</span>',
       '      </div>',
       '      <button type="button" class="geimser-remote-copy">Copiar instrucciones</button>',
       '    </aside>',
@@ -485,7 +489,9 @@
       '        <strong>Equipos registrados</strong>',
       '        <span>Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.</span>',
       '      </div>',
-      '      <iframe class="geimser-remote-frame" title="Centro remoto ITSM Geimser"></iframe>',
+      '      <div class="geimser-remote-frame-shell">',
+      '        <iframe class="geimser-remote-frame" title="Centro remoto ITSM Geimser"></iframe>',
+      '      </div>',
       '    </main>',
       '  </div>',
       '</div>'
@@ -496,11 +502,11 @@
       var detail = "Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.";
 
       if (flow === "registrar") {
-        title = "Registrar equipo";
-        detail = "Crea o abre el grupo del cliente, usa Agregar agente, descarga el instalador y envíalo desde el ticket.";
+        title = "Descargar instalador Windows";
+        detail = "En Mis Dispositivos crea o abre un grupo. Luego usa Agregar agente, selecciona Windows y descarga el instalador.";
       } else if (flow === "enviar") {
-        title = "Enviar instalador";
-        detail = "Copia las instrucciones y adjunta el instalador generado. El cliente solo debe ejecutarlo una vez.";
+        title = "Enviar al notebook";
+        detail = "Adjunta el .exe generado al ticket o correo. El usuario lo ejecuta una vez y el equipo aparecerá online.";
       } else if (flow === "esperar") {
         title = "Tomar control";
         detail = "Cuando el agente quede online, vuelve a Ver equipos, abre el equipo y selecciona escritorio remoto.";

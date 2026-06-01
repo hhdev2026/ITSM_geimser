@@ -1059,6 +1059,7 @@ html[data-theme="dark"] #app {
   border-radius: 8px;
   background: #ffffff;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+  font-size: 13px;
 }
 
 .geimser-remote-header {
@@ -1073,6 +1074,8 @@ html[data-theme="dark"] #app {
 
 .geimser-remote-title {
   color: #f3f7fb;
+  font-size: 15px;
+  line-height: 1.2;
   font-weight: 750;
 }
 
@@ -1083,7 +1086,8 @@ html[data-theme="dark"] #app {
 .geimser-remote-subtitle {
   margin-top: 2px;
   color: #b9c7d5;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .geimser-remote-actions {
@@ -1094,12 +1098,13 @@ html[data-theme="dark"] #app {
 
 .geimser-remote-actions a,
 .geimser-remote-actions button {
-  min-height: 36px;
-  padding: 0 13px;
+  min-height: 34px;
+  padding: 0 12px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
   background: transparent;
   color: #f3f7fb;
+  font-size: 12px;
   font-weight: 650;
   text-decoration: none;
   cursor: pointer;
@@ -1121,7 +1126,7 @@ html[data-theme="dark"] #app {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: 270px minmax(0, 1fr);
   background: #f5f7fb;
 }
 
@@ -1135,14 +1140,14 @@ html[data-theme="dark"] #app {
 
 .geimser-remote-flow {
   width: 100%;
-  min-height: 74px;
+  min-height: 64px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-columns: 30px minmax(0, 1fr);
   grid-template-rows: auto auto;
   column-gap: 10px;
   align-items: start;
   margin: 0 0 10px;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid rgba(0, 31, 61, 0.12);
   border-radius: 8px;
   background: #f8fafc;
@@ -1164,21 +1169,22 @@ html[data-theme="dark"] #app {
 
 .geimser-remote-flow span {
   grid-row: 1 / span 2;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   background: #004b8d;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
 }
 
 .geimser-remote-flow strong {
   color: #102033;
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.2;
   font-weight: 800;
 }
 
@@ -1186,29 +1192,47 @@ html[data-theme="dark"] #app {
   display: block;
   margin-top: 4px;
   color: #536171;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.35;
 }
 
-.geimser-remote-note {
+.geimser-remote-note,
+.geimser-remote-install-help {
   margin: 16px 0 12px;
   padding: 12px;
   border: 1px solid rgba(31, 122, 77, 0.18);
   border-radius: 8px;
   background: #eef8f2;
   color: #183e2a;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.45;
+}
+
+.geimser-remote-install-help {
+  margin-top: 0;
+  border-color: rgba(0, 75, 141, 0.16);
+  background: #eef6ff;
+  color: #17324a;
+}
+
+.geimser-remote-install-help strong,
+.geimser-remote-install-help span {
+  display: block;
+}
+
+.geimser-remote-install-help span {
+  margin-top: 4px;
 }
 
 .geimser-remote-copy {
   width: 100%;
-  min-height: 40px;
+  min-height: 38px;
   padding: 0 12px;
   border: 1px solid rgba(0, 75, 141, 0.22);
   border-radius: 8px;
   background: #004b8d;
   color: #ffffff;
+  font-size: 12px;
   font-weight: 800;
   cursor: pointer;
 }
@@ -1233,7 +1257,7 @@ html[data-theme="dark"] #app {
   border-bottom: 1px solid #c7d3df;
   background: #fff8e6;
   color: #16324a;
-  font-size: 13px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -1247,12 +1271,20 @@ html[data-theme="dark"] #app {
   color: #34495e;
 }
 
-.geimser-remote-frame {
+.geimser-remote-frame-shell {
   flex: 1;
   min-height: 0;
-  width: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.geimser-remote-frame {
+  width: 125%;
+  height: 125%;
   border: 0;
   background: #ffffff;
+  transform: scale(0.8);
+  transform-origin: top left;
 }
 
 @media (max-width: 760px) {
