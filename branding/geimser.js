@@ -78,6 +78,76 @@
     });
   }
 
+  function normalizeVisibleBrandText() {
+    var replacements = [
+      [/\bITSM Geimser\b/gi, "Geimser ITSM"],
+      [/\bZammad\b/gi, "Geimser ITSM"]
+    ];
+
+    function replaceBrand(value) {
+      return replacements.reduce(function (result, pair) {
+        return result.replace(pair[0], pair[1]);
+      }, String(value || ""));
+    }
+
+    if (document.title) {
+      document.title = replaceBrand(document.title);
+    }
+
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    var nodes = [];
+    var node;
+
+    while ((node = walker.nextNode())) {
+      if (!node.parentElement || node.parentElement.closest("script, style, textarea")) continue;
+      if (/\b(?:ITSM Geimser|Zammad)\b/i.test(node.nodeValue || "")) {
+        nodes.push(node);
+      }
+    }
+
+    nodes.forEach(function (textNode) {
+      textNode.nodeValue = replaceBrand(textNode.nodeValue);
+    });
+
+    document.querySelectorAll("[title], [aria-label], [alt], [placeholder]").forEach(function (el) {
+      ["title", "aria-label", "alt", "placeholder"].forEach(function (attr) {
+        var value = el.getAttribute(attr);
+        if (value && /\b(?:ITSM Geimser|Zammad)\b/i.test(value)) {
+          el.setAttribute(attr, replaceBrand(value));
+        }
+      });
+    });
+  }
+
+  function ensureSidebarBrand() {
+    var existing = document.querySelector(".geimser-sidebar-brand");
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var sidebar = Array.from(app.querySelectorAll(
+      ".navigation, .sidebar, .appSidebar, .mainNavigation, [class*='Navigation'], [class*='navigation'], [class*='Sidebar'], [class*='sidebar']"
+    )).find(function (el) {
+      var rect = el.getBoundingClientRect();
+      return rect.left >= -1 && rect.left < 16 && rect.width >= 120 && rect.height >= window.innerHeight * 0.55;
+    });
+
+    if (!sidebar) return;
+
+    var compact = sidebar.getBoundingClientRect().width < 250;
+    if (!existing) {
+      existing = document.createElement("div");
+      existing.className = "geimser-sidebar-brand";
+      existing.setAttribute("aria-label", "Geimser ITSM");
+      existing.innerHTML = '<img alt="Geimser ITSM" />';
+      document.body.appendChild(existing);
+    }
+
+    existing.classList.toggle("is-compact", compact);
+    existing.querySelector("img").src = compact
+      ? "/assets/images/geimser-logo-mark.png"
+      : "/assets/images/geimser-logo.png";
+  }
+
   function normalizeSidebarFooter() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -889,12 +959,12 @@
 
     var view = document.createElement("section");
     view.className = "geimser-cmdb-view";
-    view.setAttribute("aria-label", "CMDB ITSM Geimser");
+    view.setAttribute("aria-label", "CMDB Geimser ITSM");
     view.innerHTML = [
       '<div class="geimser-cmdb-shell">',
       '  <header class="geimser-cmdb-header">',
       '    <div>',
-      '      <div class="geimser-cmdb-kicker">ITSM Geimser</div>',
+      '      <div class="geimser-cmdb-kicker">Geimser ITSM</div>',
       '      <h1>CMDB de equipos</h1>',
       '      <p>Inventario sincronizado desde MeshCentral para registrar estado y tomar control remoto.</p>',
       '    </div>',
@@ -1066,9 +1136,9 @@
     if (existing) return existing;
 
     var remoteInviteText = [
-      "Hola, necesitamos agregar tu equipo al centro remoto de ITSM Geimser.",
+      "Hola, necesitamos agregar tu equipo al centro remoto de Geimser ITSM.",
       "",
-      "1. Te enviaremos el instalador Windows generado desde ITSM Geimser.",
+      "1. Te enviaremos el instalador Windows generado desde Geimser ITSM.",
       "2. Descárgalo y ejecútalo una sola vez en el equipo que necesita soporte.",
       "3. Acepta los permisos que pida Windows.",
       "4. Avísanos cuando termine. El equipo aparecerá online para la atención remota.",
@@ -1083,7 +1153,7 @@
       '  <div class="geimser-remote-header">',
       '    <div class="geimser-remote-heading">',
       '      <div class="geimser-remote-title">Soporte remoto</div>',
-      '      <div class="geimser-remote-subtitle">Conecta, registra equipos y toma control desde ITSM Geimser</div>',
+      '      <div class="geimser-remote-subtitle">Conecta, registra equipos y toma control desde Geimser ITSM</div>',
       '    </div>',
       '    <div class="geimser-remote-actions">',
       '      <button type="button" class="geimser-remote-home">Ver equipos</button>',
@@ -1114,7 +1184,7 @@
       '      </div>',
       '      <section class="geimser-remote-assets" aria-label="Activos remotos sincronizados"></section>',
       '      <div class="geimser-remote-frame-shell">',
-      '        <iframe class="geimser-remote-frame" title="Centro remoto ITSM Geimser"></iframe>',
+      '        <iframe class="geimser-remote-frame" title="Centro remoto Geimser ITSM"></iframe>',
       '      </div>',
       '    </main>',
       '  </div>',
@@ -1252,6 +1322,8 @@
     if (!app) return;
 
     removeZammadBranding();
+    normalizeVisibleBrandText();
+    ensureSidebarBrand();
     normalizeSidebarFooter();
     styleSidebarDockControls();
     normalizeSidebarFloatingUi();

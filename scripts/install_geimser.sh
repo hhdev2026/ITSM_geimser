@@ -18,7 +18,7 @@ docker-compose up -d
 ./scripts/configure_meshcentral.sh
 docker-compose up -d --force-recreate meshcentral
 
-echo "Esperando a que Zammad quede saludable..."
+echo "Esperando a que Geimser ITSM quede saludable..."
 for _ in {1..90}; do
   railsserver_id="$(docker-compose ps -q zammad-railsserver 2>/dev/null || true)"
   status="$(docker inspect -f '{{.State.Health.Status}}' "$railsserver_id" 2>/dev/null || true)"
@@ -33,5 +33,5 @@ docker-compose run --rm zammad-railsserver bundle exec rails r /opt/zammad/contr
 echo "Aplicando estilos personalizados Geimser..."
 docker-compose restart zammad-nginx zammad-railsserver zammad-websocket zammad-scheduler
 
-echo "ITSM Geimser disponible en http://localhost:8080"
+echo "Geimser ITSM disponible en http://localhost:8080"
 echo "MeshCentral disponible en https://localhost:${MESH_EXPOSE_PORT:-443}"

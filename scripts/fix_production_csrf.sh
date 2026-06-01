@@ -41,7 +41,7 @@ docker-compose up -d --force-recreate \
   zammad-scheduler \
   zammad-nginx
 
-echo "Esperando a que Zammad quede saludable..."
+echo "Esperando a que Geimser ITSM quede saludable..."
 for _ in {1..90}; do
   railsserver_id="$(docker-compose ps -q zammad-railsserver 2>/dev/null || true)"
   status="$(docker inspect -f '{{.State.Health.Status}}' "$railsserver_id" 2>/dev/null || true)"
@@ -52,7 +52,7 @@ for _ in {1..90}; do
 done
 
 if [ "${status:-unknown}" != "healthy" ]; then
-  echo "Zammad no quedo saludable dentro del tiempo esperado." >&2
+  echo "Geimser ITSM no quedo saludable dentro del tiempo esperado." >&2
   exit 1
 fi
 

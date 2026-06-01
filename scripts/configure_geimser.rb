@@ -1,7 +1,7 @@
 UserInfo.current_user_id = 1 if defined?(UserInfo)
 
 settings = {
-  'product_name' => 'ITSM Geimser',
+  'product_name' => 'Geimser ITSM',
   'organization' => 'Geimser',
   'locale_default' => 'es-cl',
   'timezone_default' => 'America/Santiago',
@@ -36,7 +36,7 @@ if Setting.exists?(name: 'maintenance_login')
   Setting.set('maintenance_login', true)
   Setting.set(
     'maintenance_login_message',
-    '<strong>Bienvenido a ITSM Geimser.</strong><br>Centraliza tus solicitudes de soporte, consultoria e infraestructura para que nuestro equipo pueda darte seguimiento con claridad.'
+    '<strong>Bienvenido a Geimser ITSM.</strong><br>Centraliza tus solicitudes de soporte, consultoria e infraestructura para que nuestro equipo pueda darte seguimiento con claridad.'
   )
 end
 
