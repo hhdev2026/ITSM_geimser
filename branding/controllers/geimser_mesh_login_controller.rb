@@ -2,6 +2,7 @@ require 'base64'
 require 'json'
 require 'openssl'
 require 'securerandom'
+require 'set'
 require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
@@ -21,6 +22,31 @@ class GeimserMeshLoginController < ApplicationController
       synced_at: Time.now.utc.iso8601,
       count: records.length,
       assets: records.map { |record| serialize_remote_asset(record) },
+    }
+  end
+
+  def users
+    assets = GeimserMeshCmdb.sync.map { |record| serialize_remote_asset(record) }
+    platform_index = user_platform_index
+    users = geimser_users(platform_index).map do |user|
+      serialize_cmdb_user(user, platform_index[user.login.to_s.downcase], assets)
+    end
+
+    summary = {
+      total: users.length,
+      with_assets: users.count { |user| user[:assets_count].positive? },
+      without_assets: users.count { |user| user[:assets_count].zero? },
+      online: users.count { |user| user[:state] == 'online' },
+      offline: users.count { |user| user[:state] == 'offline' },
+      platforms: users.map { |user| user.dig(:platform, :servicio) }.compact_blank.uniq.length,
+      orphan_assets: orphan_assets(users, assets).length,
+    }
+
+    render json: {
+      synced_at: Time.now.utc.iso8601,
+      summary: summary,
+      users: users,
+      orphan_assets: orphan_assets(users, assets),
     }
   end
 
@@ -123,6 +149,93 @@ class GeimserMeshLoginController < ApplicationController
       updated_at: record.updated_at&.iso8601,
       details: remote_asset_details(record),
     }
+  end
+
+  def geimser_users(platform_index)
+    logins = platform_index.keys
+    scope = User.where(active: true)
+    scope = scope.where('LOWER(login) IN (?) OR LOWER(email) IN (?)', logins, logins) if logins.present?
+
+    records = scope.order(:firstname, :lastname, :login).limit(2_000).to_a
+    return records if records.present? && logins.present?
+
+    User.where(active: true).where("LOWER(email) LIKE '%@geimser.local' OR LOWER(login) LIKE '%@geimser.local'")
+      .order(:firstname, :lastname, :login)
+      .limit(2_000)
+      .to_a
+  end
+
+  def serialize_cmdb_user(user, platform, assets)
+    matched_assets = assets_for_user(user, platform, assets)
+    state = if matched_assets.any? { |asset| asset[:status] == 'online' }
+              'online'
+            elsif matched_assets.present?
+              'offline'
+            else
+              'unassigned'
+            end
+
+    {
+      id: user.id,
+      name: [user.firstname, user.lastname].compact_blank.join(' ').presence || user.login,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      login: user.login,
+      email: user.email,
+      organization: user.organization&.name,
+      state: state,
+      assets_count: matched_assets.length,
+      platform: platform.to_h.slice(:area, :cargo, :cliente, :servicio, :campana, :rut, :reg),
+      assets: matched_assets,
+    }
+  end
+
+  def assets_for_user(user, platform, assets)
+    tokens = user_match_tokens(user, platform)
+    return [] if tokens.blank?
+
+    strong = assets.select do |asset|
+      asset_text = [
+        asset[:name],
+        asset[:hostname],
+        asset[:group],
+        asset.dig(:details, :computer_name),
+      ].compact.join(' ').downcase
+
+      tokens.any? { |token| token.length >= 4 && asset_text.include?(token) }
+    end
+
+    strong.first(5)
+  end
+
+  def user_match_tokens(user, platform)
+    local = user.login.to_s.split('@').first
+    names = [user.firstname, user.lastname, platform.to_h[:nombre_completo]].compact.join(' ')
+    [
+      local,
+      *local.split(/[._-]+/),
+      *names.downcase.split(/\W+/),
+    ].map { |token| token.to_s.downcase.strip }.select { |token| token.length >= 4 }.uniq
+  end
+
+  def orphan_assets(users, assets)
+    used_ids = users.flat_map { |user| user[:assets].map { |asset| asset[:id] } }.compact.to_set
+    assets.reject { |asset| used_ids.include?(asset[:id]) }
+  end
+
+  def user_platform_index
+    path = ENV.fetch('GEIMSER_USER_PLATFORM_FILE', '/opt/zammad/storage/geimser_users_platform.json')
+    return {} if path.blank? || !File.exist?(path)
+
+    rows = JSON.parse(File.read(path))
+    Array(rows).each_with_object({}) do |row, memo|
+      data = row.to_h.symbolize_keys.except(:password)
+      key = data[:login].presence || data[:email].presence
+      memo[key.to_s.downcase] = data if key.present?
+    end
+  rescue StandardError => error
+    Rails.logger.warn("Geimser user platform file ignored: #{error.class}: #{error.message}")
+    {}
   end
 
   def remote_asset_details(record)
