@@ -515,6 +515,162 @@
     });
   }
 
+  function remoteAssetSummary(assets) {
+    return assets.reduce(function (memo, asset) {
+      if (asset.status === "online") {
+        memo.online += 1;
+      } else {
+        memo.offline += 1;
+      }
+      memo.groups[asset.group || "Sin grupo"] = true;
+      return memo;
+    }, { online: 0, offline: 0, groups: {} });
+  }
+
+  function ensureCmdbView() {
+    var existing = document.querySelector(".geimser-cmdb-view");
+    if (existing) return existing;
+
+    var view = document.createElement("section");
+    view.className = "geimser-cmdb-view";
+    view.setAttribute("aria-label", "CMDB ITSM Geimser");
+    view.innerHTML = [
+      '<div class="geimser-cmdb-shell">',
+      '  <header class="geimser-cmdb-header">',
+      '    <div>',
+      '      <div class="geimser-cmdb-kicker">ITSM Geimser</div>',
+      '      <h1>CMDB de equipos</h1>',
+      '      <p>Inventario sincronizado desde MeshCentral para registrar estado y tomar control remoto.</p>',
+      '    </div>',
+      '    <div class="geimser-cmdb-actions">',
+      '      <button type="button" class="geimser-cmdb-refresh">Actualizar</button>',
+      '      <button type="button" class="geimser-cmdb-register">Registrar equipo</button>',
+      '      <button type="button" class="geimser-cmdb-close">Cerrar</button>',
+      '    </div>',
+      '  </header>',
+      '  <div class="geimser-cmdb-stats" aria-label="Resumen CMDB"></div>',
+      '  <div class="geimser-cmdb-content"></div>',
+      '</div>'
+    ].join("");
+
+    view.querySelector(".geimser-cmdb-close").addEventListener("click", function () {
+      view.classList.remove("is-open");
+      if ((window.location.hash || "") === "#geimser/cmdb") {
+        window.location.hash = "#dashboard";
+      }
+    });
+
+    view.querySelector(".geimser-cmdb-refresh").addEventListener("click", function () {
+      loadCmdbView(view, true);
+    });
+
+    view.querySelector(".geimser-cmdb-register").addEventListener("click", function () {
+      openRemoteModal("registrar");
+    });
+
+    document.body.appendChild(view);
+    return view;
+  }
+
+  function renderCmdbView(view, payload) {
+    var assets = (payload && payload.assets) || [];
+    var summary = remoteAssetSummary(assets);
+    var groupsCount = Object.keys(summary.groups).length;
+    var stats = view.querySelector(".geimser-cmdb-stats");
+    var content = view.querySelector(".geimser-cmdb-content");
+
+    stats.innerHTML = [
+      '<article><span>Total</span><strong>' + assets.length + '</strong></article>',
+      '<article><span>Online</span><strong>' + summary.online + '</strong></article>',
+      '<article><span>Offline</span><strong>' + summary.offline + '</strong></article>',
+      '<article><span>Grupos</span><strong>' + groupsCount + '</strong></article>'
+    ].join("");
+
+    if (!assets.length) {
+      content.innerHTML = [
+        '<div class="geimser-cmdb-empty">',
+        '  <strong>No hay equipos en la CMDB todavía.</strong>',
+        '  <span>Usa Registrar equipo, instala el agente Windows y vuelve a actualizar cuando aparezca online.</span>',
+        '</div>'
+      ].join("");
+      return;
+    }
+
+    content.innerHTML = [
+      '<div class="geimser-cmdb-table" role="table" aria-label="Equipos sincronizados">',
+      '  <div class="geimser-cmdb-row geimser-cmdb-row-head" role="row">',
+      '    <span role="columnheader">Equipo</span>',
+      '    <span role="columnheader">Grupo</span>',
+      '    <span role="columnheader">Sistema</span>',
+      '    <span role="columnheader">IP / contacto</span>',
+      '    <span role="columnheader">Estado</span>',
+      '    <span role="columnheader">Acción</span>',
+      '  </div>',
+      assets.map(function (asset) {
+        var isOnline = asset.status === "online";
+        return [
+          '<div class="geimser-cmdb-row" role="row">',
+          '  <span role="cell"><strong>' + escapeHtml(asset.name || asset.hostname || "Equipo remoto") + '</strong><small>' + escapeHtml(asset.hostname || "") + '</small></span>',
+          '  <span role="cell">' + escapeHtml(asset.group || "Sin grupo") + '</span>',
+          '  <span role="cell">' + escapeHtml(asset.os || "Sistema no informado") + '</span>',
+          '  <span role="cell">' + escapeHtml(asset.ip || remoteAssetLastSeen(asset)) + '</span>',
+          '  <span role="cell"><em class="' + (isOnline ? "is-online" : "is-offline") + '">' + remoteAssetStatusLabel(asset.status) + '</em></span>',
+          '  <span role="cell"><button type="button" data-cmdb-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Tomar control</button></span>',
+          '</div>'
+        ].join("");
+      }).join(""),
+      '</div>'
+    ].join("");
+
+    content.querySelectorAll("[data-cmdb-session]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var sessionUrl = button.getAttribute("data-cmdb-session") || meshLoginUrl("/");
+        var modal = ensureRemoteModal();
+        openRemoteModal("equipos");
+        modal.querySelector(".geimser-remote-frame").src = sessionUrl;
+        modal.querySelector(".geimser-remote-open").href = sessionUrl;
+      });
+    });
+  }
+
+  function loadCmdbView(view, force) {
+    if (!force && view.getAttribute("data-cmdb-loaded") === "true") return;
+    view.setAttribute("data-cmdb-loaded", "true");
+
+    var stats = view.querySelector(".geimser-cmdb-stats");
+    var content = view.querySelector(".geimser-cmdb-content");
+    stats.innerHTML = "";
+    content.innerHTML = '<div class="geimser-cmdb-empty"><strong>Actualizando CMDB...</strong><span>Estamos leyendo los equipos registrados en MeshCentral.</span></div>';
+
+    fetch("/geimser/remote/assets", {
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" }
+    }).then(function (response) {
+      if (!response.ok) throw new Error("cmdb assets failed");
+      return response.json();
+    }).then(function (payload) {
+      renderCmdbView(view, payload);
+    }).catch(function () {
+      view.removeAttribute("data-cmdb-loaded");
+      content.innerHTML = '<div class="geimser-cmdb-empty is-error"><strong>No pudimos cargar la CMDB.</strong><span>Revisa que MeshCentral esté levantado y vuelve a actualizar.</span></div>';
+    });
+  }
+
+  function openCmdbView() {
+    var view = ensureCmdbView();
+    view.classList.add("is-open");
+    loadCmdbView(view);
+  }
+
+  function syncCmdbRoute() {
+    var view = document.querySelector(".geimser-cmdb-view");
+    if ((window.location.hash || "") === "#geimser/cmdb") {
+      openCmdbView();
+    } else if (view) {
+      view.classList.remove("is-open");
+    }
+  }
+
   function escapeHtml(value) {
     return String(value || "").replace(/[&<>"']/g, function (char) {
       return {
@@ -720,6 +876,27 @@
     document.body.appendChild(button);
   }
 
+  function ensureCmdbNavigation() {
+    var app = document.querySelector("#app");
+    if (!app || document.querySelector(".geimser-cmdb-nav")) return;
+
+    var sidebar = app.querySelector(".sidebar, .navigation, .appSidebar, .mainNavigation, [class*='Sidebar'], [class*='Navigation']");
+    if (!sidebar) return;
+
+    var link = document.createElement("button");
+    link.type = "button";
+    link.className = "geimser-cmdb-nav";
+    link.innerHTML = '<span>CMDB</span><small>Equipos</small>';
+    link.addEventListener("click", function () {
+      window.location.hash = "geimser/cmdb";
+      var view = ensureCmdbView();
+      view.removeAttribute("data-cmdb-loaded");
+      openCmdbView();
+    });
+
+    sidebar.appendChild(link);
+  }
+
   function applyGeimserUi() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -733,6 +910,8 @@
     normalizeTextContrast();
     normalizeDynamicTableHeaders();
     ensureRemoteButton();
+    ensureCmdbNavigation();
+    syncCmdbRoute();
 
     var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;
     var panels = Array.from(document.querySelectorAll("#app div, #app section, #app article")).filter(function (el) {
