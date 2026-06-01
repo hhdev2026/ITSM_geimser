@@ -245,6 +245,12 @@
 
     if (typeof value !== "object") return;
 
+    Object.keys(value).forEach(function (key) {
+      if (value[key] === true || value[key] === 1 || typeof value[key] === "string") {
+        result.push(key);
+      }
+    });
+
     ["name", "title", "permission", "permissions", "roles"].forEach(function (key) {
       collectSessionNames(value[key], result, depth + 1);
     });
@@ -258,6 +264,7 @@
     collectSessionNames(session.permissions, names, 0);
     collectSessionNames(session.roles, names, 0);
     collectSessionNames(session.role, names, 0);
+    collectSessionNames(session, names, 0);
 
     var text = names.join(" ").toLowerCase();
     var hasAdmin = /(^|[\s._-])admin($|[\s._-])/.test(text);
@@ -316,6 +323,7 @@
 
     var sidebar = findSidebarSurface();
     if (!sidebar) return;
+    var sidebarRect = sidebar.getBoundingClientRect();
 
     if (!existing) {
       existing = document.createElement("nav");
@@ -339,17 +347,17 @@
       });
     }
 
+    existing.style.setProperty("--geimser-sidebar-left", Math.max(0, sidebarRect.left) + "px");
+    existing.style.setProperty("--geimser-sidebar-width", sidebarRect.width + "px");
+    existing.classList.add("is-fixed");
+
     var reference = sidebarReferenceItem(sidebar);
     var insertionNode = reference && reference.parentElement && /^(LI|DD|DT)$/i.test(reference.parentElement.tagName)
       ? reference.parentElement
       : reference;
 
-    if (insertionNode && insertionNode.parentElement) {
-      if (existing.parentElement !== insertionNode.parentElement || existing.previousElementSibling !== insertionNode) {
-        insertionNode.parentElement.insertBefore(existing, insertionNode.nextSibling);
-      }
-    } else if (existing.parentElement !== sidebar) {
-      sidebar.appendChild(existing);
+    if (existing.parentElement !== document.body) {
+      document.body.appendChild(existing);
     }
 
     var hash = window.location.hash || "";

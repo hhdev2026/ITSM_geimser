@@ -81,6 +81,17 @@ img[alt="Geimser ITSM"] {
   list-style: none;
 }
 
+.geimser-sidebar-shortcuts.is-fixed {
+  position: fixed;
+  top: 178px;
+  left: var(--geimser-sidebar-left, 0);
+  z-index: 9999;
+  width: var(--geimser-sidebar-width, 305px);
+  max-width: 360px;
+  margin: 0;
+  pointer-events: auto;
+}
+
 .geimser-sidebar-shortcut {
   display: flex !important;
   align-items: center;
