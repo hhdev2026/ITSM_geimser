@@ -2364,6 +2364,73 @@ html[data-theme="dark"] #app {
   background: #fff5f2;
 }
 
+.geimser-native-cmdb-assets {
+  width: min(1120px, 100%);
+  margin: 28px 0 40px;
+  border: 1px solid #d8e2ec;
+  border-radius: 8px;
+  background: #f8fafc;
+  overflow: hidden;
+}
+
+.geimser-native-cmdb-assets-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #d8e2ec;
+  background: #102033;
+  color: #ffffff;
+}
+
+.geimser-native-cmdb-assets-head span {
+  display: block;
+  margin-bottom: 4px;
+  color: #8fd3ff;
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.geimser-native-cmdb-assets-head h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 850;
+}
+
+.geimser-native-cmdb-assets-head button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  background: #004b8d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.geimser-native-cmdb-assets-head button:hover {
+  background: #005daa;
+}
+
+.geimser-native-cmdb-assets .geimser-cmdb-stats {
+  padding: 16px 18px 0;
+}
+
+.geimser-native-cmdb-assets .geimser-cmdb-content {
+  max-width: 100%;
+  padding: 16px 18px 18px;
+  overflow-x: auto;
+}
+
+.geimser-native-cmdb-assets .geimser-cmdb-detail-slot {
+  min-width: 840px;
+}
+
 @media (max-width: 860px) {
   .geimser-cmdb-view {
     padding: 10px;
@@ -2395,6 +2462,15 @@ html[data-theme="dark"] #app {
 
   .geimser-cmdb-detail-grid {
     grid-template-columns: 1fr;
+  }
+
+  .geimser-native-cmdb-assets-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .geimser-native-cmdb-assets .geimser-cmdb-detail-slot {
+    min-width: 0;
   }
 }
 

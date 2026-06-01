@@ -1480,6 +1480,74 @@
     });
   }
 
+  function findNativeCmdbContainer() {
+    if ((window.location.hash || "") !== "#system/integration/idoit") return null;
+
+    var app = document.querySelector("#app");
+    if (!app) return null;
+
+    var candidates = Array.from(app.querySelectorAll("main, section, div")).filter(function (el) {
+      if (el.classList.contains("geimser-native-cmdb-assets")) return false;
+      var rect = el.getBoundingClientRect();
+      var text = (el.textContent || "").replace(/\s+/g, " ");
+      return rect.width >= 520 &&
+        rect.height >= 260 &&
+        rect.left >= 180 &&
+        /geimser:\/\/meshcentral/i.test(text) &&
+        /Endpoint/i.test(text) &&
+        /Logs recientes|SIN ENTRADAS/i.test(text);
+    }).sort(function (a, b) {
+      var ar = a.getBoundingClientRect();
+      var br = b.getBoundingClientRect();
+      return (ar.width * ar.height) - (br.width * br.height);
+    });
+
+    return candidates[0] || null;
+  }
+
+  function ensureNativeCmdbAssetsPanel() {
+    var container = findNativeCmdbContainer();
+    if (!container) return null;
+
+    var panel = container.querySelector(":scope > .geimser-native-cmdb-assets") ||
+      document.querySelector(".geimser-native-cmdb-assets");
+
+    if (!panel) {
+      panel = document.createElement("section");
+      panel.className = "geimser-native-cmdb-assets";
+      panel.setAttribute("aria-label", "Equipos registrados en CMDB ITSM");
+      panel.innerHTML = [
+        '<header class="geimser-native-cmdb-assets-head">',
+        '  <div>',
+        '    <span>Inventario MeshCentral</span>',
+        '    <h2>Equipos registrados</h2>',
+        '  </div>',
+        '  <button type="button" class="geimser-native-cmdb-refresh">Actualizar</button>',
+        '</header>',
+        '<div class="geimser-cmdb-stats" aria-label="Resumen de equipos registrados"></div>',
+        '<div class="geimser-cmdb-content"></div>'
+      ].join("");
+
+      panel.querySelector(".geimser-native-cmdb-refresh").addEventListener("click", function () {
+        loadCmdbView(panel, true);
+      });
+    }
+
+    if (panel.parentElement !== container) {
+      container.appendChild(panel);
+    }
+
+    return panel;
+  }
+
+  function syncNativeCmdbAssetsPanel() {
+    if ((window.location.hash || "") !== "#system/integration/idoit") return;
+
+    var panel = ensureNativeCmdbAssetsPanel();
+    if (!panel) return;
+    loadCmdbView(panel);
+  }
+
   function applyGeimserUi() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -1499,6 +1567,7 @@
     normalizeDynamicTableHeaders();
     ensureRemoteButton();
     normalizeNativeCmdbLabels();
+    syncNativeCmdbAssetsPanel();
     ensurePasswordVisibilityToggle();
     forceActivityContrast();
     enforceGlobalContrast();
