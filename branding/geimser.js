@@ -180,6 +180,27 @@
     return Math.max(rgb.r, rgb.g, rgb.b) - Math.min(rgb.r, rgb.g, rgb.b);
   }
 
+  function setImportantStyle(el, property, value) {
+    el.style.setProperty(property, value, "important");
+  }
+
+  function setReadableColor(el, bg, options) {
+    var isDark = luminance(bg) < 0.42;
+    var color = isDark ? "#f8fbff" : "#1d1d1f";
+
+    if (options && options.link) {
+      color = isDark ? "#bfe7ff" : "#004b8d";
+    } else if (options && options.muted) {
+      color = isDark ? "#d7e7f6" : "#5f6672";
+    }
+
+    setImportantStyle(el, "color", color);
+    if (el.matches("svg, .icon, [class*='icon'], [class*='Icon']")) {
+      setImportantStyle(el, "fill", "currentColor");
+      setImportantStyle(el, "stroke", "currentColor");
+    }
+  }
+
   function isFilledControl(el, bg) {
     if (!el.matches("a, button, .btn, .button, [role='button']")) return false;
     if (luminance(bg) > 0.82 && colorSpread(bg) < 35) return false;
@@ -233,24 +254,24 @@
 
       if (isFilledControl(el, bg)) {
         el.classList.add("geimser-filled-control");
-        el.style.color = "#ffffff";
+        setImportantStyle(el, "color", "#ffffff");
         Array.from(el.querySelectorAll("*")).forEach(function (child) {
-          child.style.color = "#ffffff";
+          setImportantStyle(child, "color", "#ffffff");
         });
         return;
       }
 
       if (bgIsLight) {
         if (el.matches("a, .link")) {
-          el.style.color = "#004b8d";
+          setImportantStyle(el, "color", "#004b8d");
         } else if (el.matches("label, legend, small, .small, [class*='label'], [class*='Label'], [class*='muted'], [class*='hint']")) {
-          el.style.color = "#5f6672";
+          setImportantStyle(el, "color", "#5f6672");
         } else {
-          el.style.color = "#1d1d1f";
+          setImportantStyle(el, "color", "#1d1d1f");
         }
         el.closest(".panel, .box, .widget, .card, .table, section, article")?.classList.add("geimser-light-surface");
       } else {
-        el.style.color = el.matches("a, .link") ? "#8fd3ff" : "#f3f7fb";
+        setImportantStyle(el, "color", el.matches("a, .link") ? "#8fd3ff" : "#f3f7fb");
         el.closest(".panel, .box, .widget, .card, .table, section, article")?.classList.add("geimser-dark-surface");
       }
     });
@@ -271,13 +292,13 @@
       var rect = el.getBoundingClientRect();
       if (rect.width < 12 || rect.height < 8 || rect.left < 520) return;
 
-      el.style.color = "#1f2937";
-      el.style.backgroundColor = "#eef3f8";
+      setImportantStyle(el, "color", "#1f2937");
+      setImportantStyle(el, "background-color", "#eef3f8");
       el.style.fontWeight = "700";
 
       Array.from(el.querySelectorAll("*")).forEach(function (child) {
-        child.style.color = "#1f2937";
-        child.style.backgroundColor = "transparent";
+        setImportantStyle(child, "color", "#1f2937");
+        setImportantStyle(child, "background-color", "transparent");
       });
 
       var parent = el.parentElement;
@@ -285,8 +306,8 @@
       while (parent && depth < 3) {
         var parentRect = parent.getBoundingClientRect();
         if (parentRect.height > 12 && parentRect.height < 72 && parentRect.width > rect.width * 0.8 && !isInsideNavigation(parent)) {
-          parent.style.backgroundColor = "#eef3f8";
-          parent.style.color = "#1f2937";
+          setImportantStyle(parent, "background-color", "#eef3f8");
+          setImportantStyle(parent, "color", "#1f2937");
         }
         parent = parent.parentElement;
         depth += 1;
@@ -311,7 +332,7 @@
     Array.from(app.querySelectorAll(".geimser-nav-surface a, .geimser-nav-surface button, .geimser-nav-surface span, .geimser-nav-surface div, .geimser-nav-surface li")).forEach(function (el) {
       if (!(el.textContent || "").trim() && !el.matches("a, button, [role='button']")) return;
       var isActive = Boolean(el.closest(".is-active, .active, [aria-current='page']"));
-      el.style.color = isActive ? "#071c2b" : "#e9f1f8";
+      setImportantStyle(el, "color", isActive ? "#071c2b" : "#e9f1f8");
     });
   }
 
@@ -337,6 +358,69 @@
     });
   }
 
+  function passwordToggleIcon(visible) {
+    if (visible) {
+      return [
+        '<svg viewBox="0 0 24 24" aria-hidden="true">',
+        '<path d="M17.94 17.94A10.9 10.9 0 0 1 12 20C7 20 2.73 16.89 1 12a11.5 11.5 0 0 1 5.06-5.94"/>',
+        '<path d="M9.9 4.24A10.8 10.8 0 0 1 12 4c5 0 9.27 3.11 11 8a11.5 11.5 0 0 1-2.16 3.19"/>',
+        '<path d="M14.12 14.12a3 3 0 0 1-4.24-4.24"/>',
+        '<path d="M1 1l22 22"/>',
+        '</svg>'
+      ].join("");
+    }
+
+    return [
+      '<svg viewBox="0 0 24 24" aria-hidden="true">',
+      '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>',
+      '<circle cx="12" cy="12" r="3"/>',
+      '</svg>'
+    ].join("");
+  }
+
+  function ensurePasswordVisibilityToggle() {
+    var fields = Array.from(document.querySelectorAll(".hero-unit input, .login input")).filter(function (input) {
+      var label = [
+        input.type,
+        input.name,
+        input.id,
+        input.autocomplete,
+        input.placeholder,
+        input.getAttribute("aria-label")
+      ].join(" ");
+
+      return /password|contrase/i.test(label);
+    });
+
+    fields.forEach(function (input) {
+      if (input.closest(".geimser-password-field")) return;
+
+      var wrapper = document.createElement("div");
+      wrapper.className = "geimser-password-field";
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(input);
+
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "geimser-password-toggle";
+      button.setAttribute("aria-label", "Mostrar contraseña");
+      button.setAttribute("title", "Mostrar contraseña");
+      button.innerHTML = passwordToggleIcon(false);
+
+      button.addEventListener("click", function () {
+        var visible = input.type === "password";
+        input.type = visible ? "text" : "password";
+        button.classList.toggle("is-visible", visible);
+        button.setAttribute("aria-label", visible ? "Ocultar contraseña" : "Mostrar contraseña");
+        button.setAttribute("title", visible ? "Ocultar contraseña" : "Mostrar contraseña");
+        button.innerHTML = passwordToggleIcon(visible);
+        input.focus();
+      });
+
+      wrapper.appendChild(button);
+    });
+  }
+
   function replaceVisibleText(root, label) {
     var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode: function (node) {
@@ -359,6 +443,8 @@
     var app = document.querySelector("#app");
     if (!app) return;
 
+    markActivitySurfaces(app);
+
     Array.from(app.querySelectorAll(".content, .main, .main-content, .page, .settings, .admin, .ticketZoom, .dashboard, [class*='Content'], [class*='content']")).forEach(function (el) {
       var rect = el.getBoundingClientRect();
       if (rect.width > 240 && rect.height > 120) {
@@ -371,6 +457,132 @@
       if (rect.width > 80 && rect.height > 24 && !isInsideNavigation(el)) {
         el.classList.add("geimser-readable-surface");
       }
+    });
+  }
+
+  function markActivitySurfaces(app) {
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    var titleRegex = /Flujo de Actividad/i;
+    var itemRegex = /(Admin Geimser|inici[oó] nueva sesi[oó]n|actualiz[oó] el usuario|cre[oó] el usuario|Lunes \d{1,2}:\d{2})/i;
+    var candidates = Array.from(app.querySelectorAll("aside, section, article, div, nav")).filter(function (el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.width < 180 || rect.height < 160) return false;
+      if (rect.left < viewportWidth * 0.68) return false;
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      return titleRegex.test(text) || itemRegex.test(text);
+    });
+
+    candidates.forEach(function (el) {
+      var current = el;
+      var best = el;
+      var depth = 0;
+
+      while (current && current !== app && depth < 5) {
+        var rect = current.getBoundingClientRect();
+        if (rect.left >= viewportWidth * 0.68 && rect.width >= 180 && rect.height >= best.getBoundingClientRect().height) {
+          best = current;
+        }
+        current = current.parentElement;
+        depth += 1;
+      }
+
+      best.classList.add("geimser-activity-surface");
+    });
+  }
+
+  function forceActivityContrast() {
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    var surfaces = Array.from(document.querySelectorAll("#app .geimser-activity-surface, #app aside, #app section, #app div")).filter(function (el) {
+      var rect = el.getBoundingClientRect();
+      if (rect.width < 170 || rect.height < 150) return false;
+      if (rect.left < viewportWidth * 0.68) return false;
+
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      var bg = parseRgb(window.getComputedStyle(el).backgroundColor);
+      var isDarkBlue = bg && bg.b > bg.r && bg.b >= bg.g && luminance(bg) < 0.16;
+
+      return el.classList.contains("geimser-activity-surface") ||
+        /Flujo de Actividad|Admin Geimser|Lunes \d{1,2}:\d{2}/i.test(text) ||
+        isDarkBlue;
+    });
+
+    surfaces.forEach(function (surface) {
+      surface.classList.add("geimser-activity-surface");
+      surface.style.setProperty("background", "#173f78", "important");
+      surface.style.setProperty("background-color", "#173f78", "important");
+      surface.style.setProperty("color", "#ffffff", "important");
+
+      Array.from(surface.querySelectorAll("*")).forEach(function (el) {
+        if (el.matches("input, textarea, select, option")) return;
+
+        var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+        var rect = el.getBoundingClientRect();
+        if (!text && !el.matches("svg, .icon, [class*='icon'], [class*='Icon']")) return;
+        if (rect.width < 2 || rect.height < 2) return;
+
+        if (el.matches(".avatar, [class*='avatar'], [class*='Avatar']")) {
+          el.style.setProperty("background", "#f28c18", "important");
+          el.style.setProperty("background-color", "#f28c18", "important");
+          el.style.setProperty("color", "#071c2b", "important");
+          return;
+        }
+
+        if (el.matches("a, .link, [role='link']")) {
+          el.style.setProperty("color", "#d9efff", "important");
+          return;
+        }
+
+        if (el.matches("small, time, [class*='meta'], [class*='Meta'], [class*='time'], [class*='Time']")) {
+          el.style.setProperty("color", "#d7e7f6", "important");
+          return;
+        }
+
+        el.style.setProperty("color", "#ffffff", "important");
+      });
+    });
+  }
+
+  function enforceGlobalContrast() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var selectors = [
+      "h1", "h2", "h3", "h4", "h5", "h6",
+      "p", "label", "legend", "span", "small", "a", "button",
+      "li", "td", "th", "strong", "em", "time", "summary",
+      "[role='button']", "[role='link']", "[role='tab']", "[role='menuitem']",
+      "[class*='label']", "[class*='Label']", "[class*='title']", "[class*='Title']",
+      "[class*='headline']", "[class*='Headline']", "[class*='text']", "[class*='Text']",
+      "svg", ".icon", "[class*='icon']", "[class*='Icon']"
+    ].join(",");
+
+    Array.from(app.querySelectorAll(selectors)).forEach(function (el) {
+      if (el.matches("input, textarea, select, option, canvas, img, video")) return;
+
+      var rect = el.getBoundingClientRect();
+      if (rect.width < 2 || rect.height < 2) return;
+
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      var isIcon = el.matches("svg, .icon, [class*='icon'], [class*='Icon']");
+      if (!text && !isIcon) return;
+
+      var style = window.getComputedStyle(el);
+      var fg = parseRgb(style.color);
+      var bg = effectiveBackground(el);
+      if (!fg || !bg) return;
+
+      var minRatio = /^(H[1-6]|LABEL|LEGEND|BUTTON)$/i.test(el.tagName) || el.matches("button, [role='button']")
+        ? 4.5
+        : 4.0;
+      var ratio = contrastRatio(fg, bg);
+      var isWhiteOnLight = luminance(bg) > 0.72 && /rgba?\(255,\s*255,\s*255/i.test(style.color);
+      var needsFix = ratio < minRatio || isWhiteOnLight;
+      if (!needsFix) return;
+
+      setReadableColor(el, bg, {
+        link: el.matches("a, .link, [role='link']"),
+        muted: el.matches("small, time, .small, [class*='muted'], [class*='hint'], [class*='meta'], [class*='Meta']")
+      });
     });
   }
 
@@ -441,6 +653,89 @@
       return "Ultimo contacto: " + new Date(asset.last_seen_at).toLocaleString();
     } catch (_error) {
       return "Ultimo contacto registrado";
+    }
+  }
+
+  function formatRemoteDate(value) {
+    if (!value) return "Sin dato";
+
+    try {
+      return new Date(value).toLocaleString();
+    } catch (_error) {
+      return String(value);
+    }
+  }
+
+  function detailValue(value) {
+    if (Array.isArray(value)) return value.length ? value.join(" / ") : "Sin dato";
+    return value || "Sin dato";
+  }
+
+  function cmdbDetailRows(asset) {
+    var details = asset.details || {};
+    return [
+      ["Nombre", asset.name || asset.hostname],
+      ["Hostname", asset.hostname || details.computer_name],
+      ["Grupo Mesh", asset.group],
+      ["Estado", remoteAssetStatusLabel(asset.status)],
+      ["Sistema operativo", details.os_caption || asset.os],
+      ["Version / build", [details.os_version, details.os_build].filter(Boolean).join(" / ")],
+      ["IP principal", asset.ip || details.last_address],
+      ["Interfaces de red", details.network_interfaces || []],
+      ["Fabricante", details.manufacturer],
+      ["Modelo", details.model],
+      ["Serie", details.serial],
+      ["Agente Mesh", [details.agent_id, details.agent_version].filter(Boolean).join(" / ")],
+      ["Capacidades Mesh", details.mesh_capabilities],
+      ["Mesh node ID", details.mesh_node_id || asset.id],
+      ["Mesh group ID", details.mesh_group_id || asset.mesh_group_id],
+      ["Primer contacto", formatRemoteDate(details.first_seen_at)],
+      ["Ultima conexion", formatRemoteDate(details.last_connect_at)],
+      ["Ultimo ping", formatRemoteDate(details.last_ping_at)],
+      ["Actualizado en ITSM", formatRemoteDate(asset.updated_at)]
+    ];
+  }
+
+  function renderCmdbAssetDetail(container, asset) {
+    var isOnline = asset.status === "online";
+    var rows = cmdbDetailRows(asset).filter(function (row) {
+      return detailValue(row[1]) !== "Sin dato";
+    });
+
+    container.innerHTML = [
+      '<section class="geimser-cmdb-detail" aria-label="Detalle nativo del equipo">',
+      '  <div class="geimser-cmdb-detail-head">',
+      '    <div>',
+      '      <span>Detalle nativo ITSM</span>',
+      '      <strong>' + escapeHtml(asset.name || asset.hostname || "Equipo remoto") + '</strong>',
+      '    </div>',
+      '    <em class="' + (isOnline ? "is-online" : "is-offline") + '">' + remoteAssetStatusLabel(asset.status) + '</em>',
+      '  </div>',
+      '  <div class="geimser-cmdb-detail-grid">',
+      rows.map(function (row) {
+        return [
+          '<article>',
+          '  <span>' + escapeHtml(row[0]) + '</span>',
+          '  <strong>' + escapeHtml(detailValue(row[1])) + '</strong>',
+          '</article>'
+        ].join("");
+      }).join(""),
+      '  </div>',
+      '  <div class="geimser-cmdb-detail-actions">',
+      '    <button type="button" data-cmdb-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Tomar control</button>',
+      '  </div>',
+      '</section>'
+    ].join("");
+
+    var control = container.querySelector("[data-cmdb-session]");
+    if (control) {
+      control.addEventListener("click", function () {
+        var sessionUrl = control.getAttribute("data-cmdb-session") || meshLoginUrl("/");
+        var modal = ensureRemoteModal();
+        openRemoteModal("equipos");
+        modal.querySelector(".geimser-remote-frame").src = sessionUrl;
+        modal.querySelector(".geimser-remote-open").href = sessionUrl;
+      });
     }
   }
 
@@ -606,7 +901,7 @@
       '    <span role="columnheader">Estado</span>',
       '    <span role="columnheader">Acción</span>',
       '  </div>',
-      assets.map(function (asset) {
+      assets.map(function (asset, index) {
         var isOnline = asset.status === "online";
         return [
           '<div class="geimser-cmdb-row" role="row">',
@@ -615,12 +910,28 @@
           '  <span role="cell">' + escapeHtml(asset.os || "Sistema no informado") + '</span>',
           '  <span role="cell">' + escapeHtml(asset.ip || remoteAssetLastSeen(asset)) + '</span>',
           '  <span role="cell"><em class="' + (isOnline ? "is-online" : "is-offline") + '">' + remoteAssetStatusLabel(asset.status) + '</em></span>',
-          '  <span role="cell"><button type="button" data-cmdb-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Tomar control</button></span>',
+          '  <span role="cell" class="geimser-cmdb-row-actions"><button type="button" data-cmdb-detail="' + index + '">Detalle</button><button type="button" data-cmdb-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Control</button></span>',
           '</div>'
         ].join("");
       }).join(""),
-      '</div>'
+      '</div>',
+      '<div class="geimser-cmdb-detail-slot"></div>'
     ].join("");
+
+    var detailSlot = content.querySelector(".geimser-cmdb-detail-slot");
+    content.querySelectorAll("[data-cmdb-detail]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var index = Number(button.getAttribute("data-cmdb-detail"));
+        var asset = assets[index];
+        if (!asset) return;
+
+        content.querySelectorAll(".geimser-cmdb-row").forEach(function (row) {
+          row.classList.remove("is-selected");
+        });
+        button.closest(".geimser-cmdb-row")?.classList.add("is-selected");
+        renderCmdbAssetDetail(detailSlot, asset);
+      });
+    });
 
     content.querySelectorAll("[data-cmdb-session]").forEach(function (button) {
       button.addEventListener("click", function () {
@@ -631,6 +942,12 @@
         modal.querySelector(".geimser-remote-open").href = sessionUrl;
       });
     });
+
+    if (assets[0]) {
+      var firstButton = content.querySelector("[data-cmdb-detail='0']");
+      if (firstButton) firstButton.closest(".geimser-cmdb-row")?.classList.add("is-selected");
+      renderCmdbAssetDetail(detailSlot, assets[0]);
+    }
   }
 
   function loadCmdbView(view, force) {
@@ -728,14 +1045,6 @@
       '      <button type="button" class="geimser-remote-flow" data-remote-flow="esperar">',
       '        <span>4</span><strong>Tomar control</strong><small>Cuando el agente aparezca online, entra por Ver equipos.</small>',
       '      </button>',
-      '      <div class="geimser-remote-note">',
-      '        <strong>Sin doble login:</strong> este panel usa tu sesión de ITSM para entrar al centro remoto.',
-      '      </div>',
-      '      <div class="geimser-remote-install-help">',
-      '        <strong>¿Dónde está el instalador?</strong>',
-      '        <span>En el panel derecho: crea/abre un grupo, entra a <b>Agregar agente</b>, elige Windows y descarga.</span>',
-      '      </div>',
-      '      <button type="button" class="geimser-remote-copy">Copiar instrucciones</button>',
       '    </aside>',
       '    <main class="geimser-remote-stage">',
       '      <div class="geimser-remote-banner" role="status">',
@@ -779,29 +1088,6 @@
         loadRemoteAssets(modal);
       }
     }
-
-    modal.querySelector(".geimser-remote-copy").addEventListener("click", function (event) {
-      var button = event.currentTarget;
-      function done(text) {
-        button.textContent = text;
-        setTimeout(function () {
-          button.textContent = "Copiar instrucciones";
-        }, 2200);
-      }
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(remoteInviteText).then(function () {
-          done("Mensaje copiado");
-        }).catch(function () {
-          window.prompt("Copia este mensaje para enviarlo al cliente:", remoteInviteText);
-          done("Mensaje listo");
-        });
-        return;
-      }
-
-      window.prompt("Copia este mensaje para enviarlo al cliente:", remoteInviteText);
-      done("Mensaje listo");
-    });
 
     modal.querySelector(".geimser-remote-close").addEventListener("click", function () {
       modal.classList.remove("is-open");
@@ -914,6 +1200,9 @@
     normalizeDynamicTableHeaders();
     ensureRemoteButton();
     normalizeNativeCmdbLabels();
+    ensurePasswordVisibilityToggle();
+    forceActivityContrast();
+    enforceGlobalContrast();
 
     var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;
     var panels = Array.from(document.querySelectorAll("#app div, #app section, #app article")).filter(function (el) {
@@ -940,7 +1229,10 @@
     });
   }
 
-  window.GeimserContrastAudit = auditContrast;
+  window.GeimserContrastAudit = function () {
+    applyGeimserUi();
+    return auditContrast();
+  };
 
   var scheduled = false;
   var applying = false;

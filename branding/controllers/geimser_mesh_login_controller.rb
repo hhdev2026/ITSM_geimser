@@ -111,6 +111,7 @@ class GeimserMeshLoginController < ApplicationController
   def serialize_remote_asset(record)
     {
       id: record.mesh_node_id,
+      mesh_group_id: record.mesh_group_id,
       group: record.group_name,
       name: record.name,
       hostname: record.hostname,
@@ -120,6 +121,48 @@ class GeimserMeshLoginController < ApplicationController
       last_seen_at: record.last_seen_at&.iso8601,
       session_url: record.session_url,
       updated_at: record.updated_at&.iso8601,
+      details: remote_asset_details(record),
     }
+  end
+
+  def remote_asset_details(record)
+    raw = JSON.parse(record.raw.presence || '{}')
+    sysinfo = raw['sysinfo'].to_h
+    system = sysinfo['system'].to_h
+    osinfo = sysinfo['osinfo'].to_h
+    agent = raw['agent'].to_h
+    network = sysinfo['network'].to_h
+    netifs = Array(network['netif']).filter_map do |iface|
+      [
+        iface['name'].presence || iface['desc'].presence,
+        Array(iface['ip']).compact_blank.join(', ').presence,
+        iface['mac'].presence,
+      ].compact.join(' · ').presence
+    end
+
+    {
+      mesh_node_id: record.mesh_node_id,
+      mesh_group_id: record.mesh_group_id,
+      computer_name: system['Name'].presence || raw['host'].presence || record.hostname,
+      manufacturer: system['Manufacturer'].presence,
+      model: system['Model'].presence,
+      serial: system['SerialNumber'].presence || system['Serial'].presence,
+      os_caption: osinfo['Caption'].presence || record.os_name,
+      os_version: osinfo['Version'].presence,
+      os_build: osinfo['BuildNumber'].presence,
+      agent_id: agent['id'].presence,
+      agent_version: agent['ver'].presence,
+      mesh_capabilities: agent['caps'].presence,
+      last_address: raw['lastaddr'].presence,
+      first_seen_at: GeimserMeshCmdb.time(raw['firstconnect'])&.iso8601,
+      last_connect_at: GeimserMeshCmdb.time(raw['lastconnect'])&.iso8601,
+      last_ping_at: GeimserMeshCmdb.time(raw['lastping'])&.iso8601,
+      network_interfaces: netifs,
+    }.compact_blank
+  rescue StandardError
+    {
+      mesh_node_id: record.mesh_node_id,
+      mesh_group_id: record.mesh_group_id,
+    }.compact_blank
   end
 end
