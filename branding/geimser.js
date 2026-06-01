@@ -1480,20 +1480,39 @@
     });
   }
 
-  function findNativeCmdbContainer() {
+  function nativeCmdbMountPoint() {
     if ((window.location.hash || "") !== "#system/integration/idoit") return null;
 
     var app = document.querySelector("#app");
     if (!app) return null;
+    if (!/geimser:\/\/meshcentral/i.test(app.textContent || "")) return null;
+
+    var logsHeading = Array.from(app.querySelectorAll("h1, h2, h3, h4, div, span")).find(function (el) {
+      var rect = el.getBoundingClientRect();
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      return rect.width > 20 && rect.height > 10 && text === "Logs recientes";
+    });
+
+    if (logsHeading) {
+      var logsBlock = logsHeading.parentElement;
+      while (logsBlock && logsBlock !== app) {
+        var blockText = (logsBlock.textContent || "").replace(/\s+/g, " ");
+        if (/Logs recientes/i.test(blockText) && /SIN ENTRADAS/i.test(blockText)) {
+          return {
+            parent: logsBlock.parentElement || app,
+            after: logsBlock
+          };
+        }
+        logsBlock = logsBlock.parentElement;
+      }
+    }
 
     var candidates = Array.from(app.querySelectorAll("main, section, div")).filter(function (el) {
       if (el.classList.contains("geimser-native-cmdb-assets")) return false;
       var rect = el.getBoundingClientRect();
       var text = (el.textContent || "").replace(/\s+/g, " ");
-      return rect.width >= 520 &&
-        rect.height >= 260 &&
-        rect.left >= 180 &&
-        /geimser:\/\/meshcentral/i.test(text) &&
+      return rect.width >= 420 &&
+        rect.height >= 160 &&
         /Endpoint/i.test(text) &&
         /Logs recientes|SIN ENTRADAS/i.test(text);
     }).sort(function (a, b) {
@@ -1502,15 +1521,14 @@
       return (ar.width * ar.height) - (br.width * br.height);
     });
 
-    return candidates[0] || null;
+    return candidates[0] ? { parent: candidates[0], after: null } : null;
   }
 
   function ensureNativeCmdbAssetsPanel() {
-    var container = findNativeCmdbContainer();
-    if (!container) return null;
+    var mount = nativeCmdbMountPoint();
+    if (!mount || !mount.parent) return null;
 
-    var panel = container.querySelector(":scope > .geimser-native-cmdb-assets") ||
-      document.querySelector(".geimser-native-cmdb-assets");
+    var panel = document.querySelector(".geimser-native-cmdb-assets");
 
     if (!panel) {
       panel = document.createElement("section");
@@ -1533,8 +1551,12 @@
       });
     }
 
-    if (panel.parentElement !== container) {
-      container.appendChild(panel);
+    if (panel.parentElement !== mount.parent || (mount.after && panel.previousElementSibling !== mount.after)) {
+      if (mount.after && mount.after.parentElement === mount.parent) {
+        mount.parent.insertBefore(panel, mount.after.nextSibling);
+      } else {
+        mount.parent.appendChild(panel);
+      }
     }
 
     return panel;
