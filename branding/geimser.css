@@ -72,6 +72,98 @@ img[alt="Geimser ITSM"] {
   background: url("/assets/images/geimser-logo-mark.png") center / contain no-repeat;
 }
 
+.geimser-sidebar-shortcuts {
+  display: grid !important;
+  gap: 2px;
+  width: 100%;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.geimser-sidebar-shortcut {
+  display: flex !important;
+  align-items: center;
+  gap: 22px;
+  min-height: 58px;
+  width: 100%;
+  padding: 0 25px !important;
+  color: #e9f1f8 !important;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-decoration: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-left: 3px solid transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  letter-spacing: 0;
+}
+
+.geimser-sidebar-shortcut:hover,
+.geimser-sidebar-shortcut:focus,
+.geimser-sidebar-shortcut.is-active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-left-color: var(--geimser-orange) !important;
+  outline: none;
+}
+
+.geimser-sidebar-shortcut-icon {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  color: currentColor;
+}
+
+.geimser-sidebar-shortcut-icon-users::before,
+.geimser-sidebar-shortcut-icon-users::after,
+.geimser-sidebar-shortcut-icon-cmdb::before,
+.geimser-sidebar-shortcut-icon-cmdb::after {
+  content: "";
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.geimser-sidebar-shortcut-icon-users::before {
+  top: 3px;
+  left: 8px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  box-shadow: -8px 4px 0 -3px currentColor, 8px 4px 0 -3px currentColor;
+}
+
+.geimser-sidebar-shortcut-icon-users::after {
+  left: 3px;
+  bottom: 3px;
+  width: 22px;
+  height: 11px;
+  border: 2px solid currentColor;
+  border-bottom: 0;
+  border-radius: 14px 14px 3px 3px;
+}
+
+.geimser-sidebar-shortcut-icon-cmdb::before {
+  inset: 4px;
+  border: 2px solid currentColor;
+  border-radius: 5px;
+  box-shadow: 0 7px 0 -5px currentColor, 0 -7px 0 -5px currentColor;
+}
+
+.geimser-sidebar-shortcut-icon-cmdb::after {
+  top: 9px;
+  left: 9px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid currentColor;
+  border-radius: 3px;
+}
+
 input,
 textarea,
 select,

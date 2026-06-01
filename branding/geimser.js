@@ -219,6 +219,146 @@
     });
   }
 
+  function currentSession() {
+    try {
+      if (!window.App || !App.Session || !App.Session.get()) return null;
+      return App.Session.get();
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function collectSessionNames(value, result, depth) {
+    if (!value || depth > 3) return;
+
+    if (typeof value === "string") {
+      result.push(value);
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.forEach(function (entry) {
+        collectSessionNames(entry, result, depth + 1);
+      });
+      return;
+    }
+
+    if (typeof value !== "object") return;
+
+    ["name", "title", "permission", "permissions", "roles"].forEach(function (key) {
+      collectSessionNames(value[key], result, depth + 1);
+    });
+  }
+
+  function internalSidebarAccess() {
+    var session = currentSession();
+    if (!session) return false;
+
+    var names = [];
+    collectSessionNames(session.permissions, names, 0);
+    collectSessionNames(session.roles, names, 0);
+    collectSessionNames(session.role, names, 0);
+
+    var text = names.join(" ").toLowerCase();
+    var hasAdmin = /(^|[\s._-])admin($|[\s._-])/.test(text);
+    var hasResolver = /ticket\.agent|(^|[\s._-])(agent|resolver|resolutor|soporte|support)($|[\s._-])/.test(text);
+    var isOnlyCustomer = /ticket\.customer/.test(text) && !hasAdmin && !hasResolver;
+
+    return (hasAdmin || hasResolver) && !isOnlyCustomer;
+  }
+
+  function findSidebarSurface() {
+    var app = document.querySelector("#app");
+    if (!app) return null;
+
+    return Array.from(app.querySelectorAll(
+      ".navigation, .sidebar, .appSidebar, .mainNavigation, .geimser-nav-surface, [class*='Navigation'], [class*='navigation'], [class*='Sidebar'], [class*='sidebar']"
+    )).find(function (el) {
+      var rect = el.getBoundingClientRect();
+      return rect.left >= -1 &&
+        rect.left < 18 &&
+        rect.width >= 120 &&
+        rect.width <= 360 &&
+        rect.height >= window.innerHeight * 0.55;
+    });
+  }
+
+  function sidebarReferenceItem(sidebar) {
+    var items = Array.from(sidebar.querySelectorAll("a, button, [role='button'], li, div")).filter(function (el) {
+      if (el.closest(".geimser-sidebar-shortcuts, .geimser-sidebar-footer, .geimser-sidebar-dock")) return false;
+      var rect = el.getBoundingClientRect();
+      var sidebarRect = sidebar.getBoundingClientRect();
+      return rect.left >= sidebarRect.left - 2 &&
+        rect.right <= sidebarRect.right + 8 &&
+        rect.top >= sidebarRect.top &&
+        rect.top < Math.min(sidebarRect.top + 360, window.innerHeight - 160) &&
+        rect.height >= 28 &&
+        rect.width >= 80;
+    });
+
+    var overview = items.find(function (el) {
+      return /vision general|visión general|overview/i.test((el.textContent || "").replace(/\s+/g, " ").trim());
+    });
+
+    var dashboard = items.find(function (el) {
+      return /panel principal|dashboard/i.test((el.textContent || "").replace(/\s+/g, " ").trim());
+    });
+
+    return overview || dashboard || null;
+  }
+
+  function ensureInternalSidebarShortcuts() {
+    var existing = document.querySelector(".geimser-sidebar-shortcuts");
+    if (!internalSidebarAccess()) {
+      if (existing) existing.remove();
+      return;
+    }
+
+    var sidebar = findSidebarSurface();
+    if (!sidebar) return;
+
+    if (!existing) {
+      existing = document.createElement("nav");
+      existing.className = "geimser-sidebar-shortcuts";
+      existing.setAttribute("aria-label", "Accesos internos Geimser ITSM");
+      existing.innerHTML = [
+        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="users" href="#manage/users">',
+        '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-users" aria-hidden="true"></span>',
+        '  <span>Usuarios</span>',
+        '</a>',
+        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="cmdb" href="#geimser/cmdb">',
+        '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-cmdb" aria-hidden="true"></span>',
+        '  <span>CMDB Mesh</span>',
+        '</a>'
+      ].join("");
+
+      existing.querySelector('[data-geimser-shortcut="cmdb"]').addEventListener("click", function (event) {
+        event.preventDefault();
+        window.location.hash = "#geimser/cmdb";
+        openCmdbView();
+      });
+    }
+
+    var reference = sidebarReferenceItem(sidebar);
+    var insertionNode = reference && reference.parentElement && /^(LI|DD|DT)$/i.test(reference.parentElement.tagName)
+      ? reference.parentElement
+      : reference;
+
+    if (insertionNode && insertionNode.parentElement) {
+      if (existing.parentElement !== insertionNode.parentElement || existing.previousElementSibling !== insertionNode) {
+        insertionNode.parentElement.insertBefore(existing, insertionNode.nextSibling);
+      }
+    } else if (existing.parentElement !== sidebar) {
+      sidebar.appendChild(existing);
+    }
+
+    var hash = window.location.hash || "";
+    existing.querySelectorAll(".geimser-sidebar-shortcut").forEach(function (link) {
+      var target = link.getAttribute("href");
+      link.classList.toggle("is-active", Boolean(target && hash === target));
+    });
+  }
+
   function normalizeSidebarFloatingUi() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -1106,6 +1246,11 @@
   function syncCmdbRoute() {
     var view = document.querySelector(".geimser-cmdb-view");
     if ((window.location.hash || "") === "#geimser/cmdb") {
+      if (!internalSidebarAccess()) {
+        if (view) view.classList.remove("is-open");
+        window.location.hash = "#dashboard";
+        return;
+      }
       openCmdbView();
     } else if (view) {
       view.classList.remove("is-open");
@@ -1317,6 +1462,7 @@
     removeZammadBranding();
     normalizeVisibleBrandText();
     ensureSidebarBrand();
+    ensureInternalSidebarShortcuts();
     normalizeSidebarFooter();
     styleSidebarDockControls();
     normalizeSidebarFloatingUi();
