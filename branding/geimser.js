@@ -1523,9 +1523,88 @@
     return candidates[0] ? { parent: candidates[0], after: null } : null;
   }
 
+  function nativeCmdbNativeSections() {
+    if ((window.location.hash || "") !== "#system/integration/idoit") return null;
+
+    var app = document.querySelector("#app");
+    if (!app) return null;
+
+    function findSection(label, requiredPattern) {
+      var headings = Array.from(app.querySelectorAll("h1, h2, h3, h4, div, span")).filter(function (el) {
+        var rect = el.getBoundingClientRect();
+        var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+        return rect.width > 20 && rect.height > 10 && text === label;
+      });
+
+      var matches = [];
+      headings.forEach(function (heading) {
+        var block = heading.parentElement;
+        while (block && block !== app) {
+          var blockText = (block.textContent || "").replace(/\s+/g, " ");
+          var rect = block.getBoundingClientRect();
+          if (rect.width >= 360 && rect.height >= 70 && requiredPattern.test(blockText)) {
+            matches.push(block);
+            break;
+          }
+          block = block.parentElement;
+        }
+      });
+
+      return matches.sort(function (a, b) {
+        var ar = a.getBoundingClientRect();
+        var br = b.getBoundingClientRect();
+        return (ar.width * ar.height) - (br.width * br.height);
+      })[0] || null;
+    }
+
+    return {
+      app: app,
+      settings: findSection("Ajustes", /Endpoint/i),
+      logs: findSection("Logs recientes", /SIN ENTRADAS|Logs recientes/i)
+    };
+  }
+
+  function ensureNativeCmdbLayout(panel) {
+    var sections = nativeCmdbNativeSections();
+    if (!sections || !sections.app || !sections.settings) return false;
+
+    var layout = sections.app.querySelector(".geimser-native-cmdb-layout");
+    if (!layout) {
+      layout = document.createElement("section");
+      layout.className = "geimser-native-cmdb-layout";
+      layout.setAttribute("aria-label", "Panel CMDB Geimser");
+    }
+
+    var main = layout.querySelector(".geimser-native-cmdb-main");
+    if (!main) {
+      main = document.createElement("div");
+      main.className = "geimser-native-cmdb-main";
+      layout.appendChild(main);
+    }
+
+    var side = layout.querySelector(".geimser-native-cmdb-side");
+    if (!side) {
+      side = document.createElement("aside");
+      side.className = "geimser-native-cmdb-side";
+      layout.appendChild(side);
+    }
+
+    sections.settings.classList.add("geimser-native-cmdb-settings");
+    if (sections.logs) sections.logs.classList.add("geimser-native-cmdb-logs");
+
+    if (!layout.parentElement) {
+      sections.settings.parentElement.insertBefore(layout, sections.settings);
+    }
+
+    if (panel.parentElement !== main) main.appendChild(panel);
+    if (sections.settings.parentElement !== side) side.appendChild(sections.settings);
+    if (sections.logs && sections.logs.parentElement !== side) side.appendChild(sections.logs);
+
+    return true;
+  }
+
   function ensureNativeCmdbAssetsPanel() {
     var mount = nativeCmdbMountPoint();
-    if (!mount || !mount.parent) return null;
 
     var panel = document.querySelector(".geimser-native-cmdb-assets");
 
@@ -1549,6 +1628,10 @@
         loadCmdbView(panel, true);
       });
     }
+
+    if (ensureNativeCmdbLayout(panel)) return panel;
+
+    if (!mount || !mount.parent) return null;
 
     if (panel.parentElement !== mount.parent || (mount.after && panel.previousElementSibling !== mount.after)) {
       if (mount.after && mount.after.parentElement === mount.parent) {

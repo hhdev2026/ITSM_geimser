@@ -2365,12 +2365,109 @@ html[data-theme="dark"] #app {
 }
 
 .geimser-native-cmdb-assets {
-  width: min(1120px, 100%);
-  margin: 28px 0 40px;
-  border: 1px solid #d8e2ec;
+  width: 100%;
+  margin: 0;
+  border: 1px solid #dce5ee;
   border-radius: 8px;
   background: #f8fafc;
   overflow: hidden;
+  box-shadow: 0 18px 45px rgba(14, 31, 53, 0.08);
+}
+
+.geimser-native-cmdb-layout {
+  width: min(1440px, calc(100vw - 48px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 390px);
+  gap: 18px;
+  align-items: start;
+  margin: 18px 0 44px;
+}
+
+.geimser-native-cmdb-main,
+.geimser-native-cmdb-side {
+  min-width: 0;
+}
+
+.geimser-native-cmdb-side {
+  display: grid;
+  gap: 14px;
+}
+
+.geimser-native-cmdb-settings,
+.geimser-native-cmdb-logs {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 16px !important;
+  border: 1px solid #dce5ee !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  box-shadow: 0 14px 34px rgba(14, 31, 53, 0.07) !important;
+  overflow: hidden !important;
+}
+
+.geimser-native-cmdb-settings h1,
+.geimser-native-cmdb-settings h2,
+.geimser-native-cmdb-settings h3,
+.geimser-native-cmdb-logs h1,
+.geimser-native-cmdb-logs h2,
+.geimser-native-cmdb-logs h3 {
+  margin: 0 0 12px !important;
+  color: #102033 !important;
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+  font-weight: 850 !important;
+}
+
+.geimser-native-cmdb-settings table {
+  width: 100% !important;
+  min-width: 0 !important;
+  border: 1px solid #e4ebf2 !important;
+  border-radius: 8px !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden !important;
+}
+
+.geimser-native-cmdb-settings th {
+  padding: 10px 12px !important;
+  background: #eef3f8 !important;
+  color: #334155 !important;
+  border-color: #e4ebf2 !important;
+  font-size: 11px !important;
+}
+
+.geimser-native-cmdb-settings td {
+  padding: 8px 10px !important;
+  border-color: #e4ebf2 !important;
+  color: #172235 !important;
+  font-size: 12px !important;
+}
+
+.geimser-native-cmdb-settings input,
+.geimser-native-cmdb-settings select {
+  min-height: 34px !important;
+  border: 1px solid #d8e2ec !important;
+  border-radius: 7px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+}
+
+.geimser-native-cmdb-settings button {
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  border-radius: 8px !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+.geimser-native-cmdb-logs {
+  color: #2d3b4d !important;
+}
+
+.geimser-native-cmdb-logs > *:last-child {
+  margin-bottom: 0 !important;
 }
 
 .geimser-native-cmdb-assets-head {
@@ -2467,6 +2564,20 @@ html[data-theme="dark"] #app {
   .geimser-native-cmdb-assets-head {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .geimser-native-cmdb-layout {
+    width: 100%;
+    grid-template-columns: 1fr;
+    margin: 14px 0 30px;
+  }
+
+  .geimser-native-cmdb-main {
+    order: 1;
+  }
+
+  .geimser-native-cmdb-side {
+    order: 2;
   }
 
   .geimser-native-cmdb-assets .geimser-cmdb-detail-slot {

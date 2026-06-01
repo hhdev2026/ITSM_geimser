@@ -90,7 +90,7 @@ chmod +x aws/deploy-lightsail-geimser.sh
 REGION=us-east-1 BUNDLE_ID=large_3_0 ./aws/deploy-lightsail-geimser.sh
 ```
 
-El script crea una instancia Lightsail Ubuntu 24.04, abre puertos 22/80/443/8080, asigna una IP estatica, instala Docker y levanta ITSM Geimser.
+El script crea una instancia Lightsail Ubuntu 24.04, abre solo puertos 22/80/443, asigna una IP estatica, instala Docker y levanta ITSM Geimser. Si no se define `GEIMSER_ADMIN_PASSWORD`, genera una clave inicial aleatoria y la muestra al final del despliegue.
 
 ## MeshCentral
 

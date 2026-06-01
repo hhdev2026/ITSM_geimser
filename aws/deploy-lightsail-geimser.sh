@@ -7,7 +7,7 @@ STATIC_IP_NAME="${STATIC_IP_NAME:-itsm-geimser-ip}"
 BUNDLE_ID="${BUNDLE_ID:-large_3_0}"
 BLUEPRINT_ID="${BLUEPRINT_ID:-ubuntu_24_04}"
 REPO_URL="${REPO_URL:-https://github.com/hhdev2026/ITSM_geimser.git}"
-ADMIN_PASSWORD="${GEIMSER_ADMIN_PASSWORD:-GeimserM1!2026}"
+ADMIN_PASSWORD="${GEIMSER_ADMIN_PASSWORD:-$(openssl rand -base64 24 | tr -d '/+=' | cut -c1-24)}"
 KEY_PAIR_NAME="${KEY_PAIR_NAME:-${INSTANCE_NAME}-key}"
 DOCKER_PLATFORM="${DOCKER_PLATFORM:-linux/amd64}"
 
@@ -112,15 +112,14 @@ if [ "${STATE:-unknown}" != "running" ]; then
   exit 1
 fi
 
-echo "Opening ports 22, 80, 443 and 8080..."
+echo "Opening ports 22, 80 and 443..."
 aws lightsail put-instance-public-ports \
   --region "$REGION" \
   --instance-name "$INSTANCE_NAME" \
   --port-infos \
     fromPort=22,toPort=22,protocol=TCP \
     fromPort=80,toPort=80,protocol=TCP \
-    fromPort=443,toPort=443,protocol=TCP \
-    fromPort=8080,toPort=8080,protocol=TCP
+    fromPort=443,toPort=443,protocol=TCP
 
 echo "Allocating and attaching static IP..."
 if ! aws lightsail get-static-ip --region "$REGION" --static-ip-name "$STATIC_IP_NAME" >/dev/null 2>&1; then
