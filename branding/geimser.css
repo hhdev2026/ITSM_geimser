@@ -67,6 +67,11 @@ img[alt="Geimser ITSM"] {
   height: 40px;
 }
 
+#app .geimser-sidebar-with-brand {
+  box-sizing: border-box !important;
+  padding-top: 60px !important;
+}
+
 input,
 textarea,
 select,

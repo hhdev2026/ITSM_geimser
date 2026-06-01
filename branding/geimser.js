@@ -133,6 +133,8 @@
 
     if (!sidebar) return;
 
+    sidebar.classList.add("geimser-sidebar-with-brand");
+
     var compact = sidebar.getBoundingClientRect().width < 250;
     if (!existing) {
       existing = document.createElement("div");
