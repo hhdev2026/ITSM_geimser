@@ -47,20 +47,18 @@ img[alt="Geimser ITSM"] {
   top: auto;
   bottom: 68px;
   left: 12px;
-  z-index: 40;
-  display: flex;
+  z-index: 10000 !important;
+  display: block !important;
   align-items: center;
+  width: 40px;
   height: 44px;
   max-width: 164px;
+  background: url("/assets/images/geimser-logo-mark.png") center / contain no-repeat;
   pointer-events: none;
 }
 
 .geimser-sidebar-brand img {
-  content: normal !important;
-  display: block;
-  width: auto;
-  height: 40px;
-  object-fit: contain;
+  display: none !important;
 }
 
 .geimser-sidebar-brand.is-compact img {
