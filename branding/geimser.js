@@ -149,6 +149,67 @@
     });
   }
 
+  function normalizeSidebarFloatingUi() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    var navSurfaces = Array.from(app.querySelectorAll(
+      ".navigation, .sidebar, .appSidebar, .mainNavigation, .geimser-nav-surface, [class*='Navigation'], [class*='navigation'], [class*='Sidebar'], [class*='sidebar']"
+    )).filter(function (el) {
+      var rect = el.getBoundingClientRect();
+      return rect.left >= -1 &&
+        rect.left < 16 &&
+        rect.width >= 120 &&
+        rect.width <= 360 &&
+        rect.height >= window.innerHeight * 0.55;
+    });
+
+    var sidebarRight = navSurfaces.reduce(function (right, el) {
+      return Math.max(right, el.getBoundingClientRect().right);
+    }, 0);
+
+    if (sidebarRight < 120) return;
+
+    Array.from(app.querySelectorAll("input, textarea, .form-control")).forEach(function (control) {
+      var rect = control.getBoundingClientRect();
+      var label = [
+        control.getAttribute("type"),
+        control.getAttribute("placeholder"),
+        control.getAttribute("aria-label"),
+        control.className
+      ].join(" ");
+
+      if (rect.left < sidebarRight && rect.top < 180 && /search|buscar|filter|filtro|text/i.test(label)) {
+        control.classList.add("geimser-sidebar-search-control");
+
+        var parent = control.parentElement;
+        var depth = 0;
+        while (parent && parent !== app && depth < 3) {
+          var parentRect = parent.getBoundingClientRect();
+          if (parentRect.left < sidebarRight && parentRect.top < 180) {
+            parent.classList.add("geimser-sidebar-search-shell");
+          }
+          parent = parent.parentElement;
+          depth += 1;
+        }
+      }
+    });
+
+    Array.from(document.querySelectorAll(".dropdown-menu, .popover, [role='menu']")).forEach(function (overlay) {
+      var rect = overlay.getBoundingClientRect();
+      if (rect.width < 80 || rect.height < 24 || rect.left > sidebarRight + 24 || rect.top > window.innerHeight - 36) return;
+
+      overlay.classList.add("geimser-sidebar-overlay");
+      var first = overlay.firstElementChild;
+      if (!first) return;
+
+      var firstRect = first.getBoundingClientRect();
+      if (firstRect.height >= 38 && firstRect.height <= 110) {
+        first.classList.add("geimser-sidebar-overlay-header");
+      }
+    });
+  }
+
   function parseRgb(value) {
     var match = String(value || "").match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([.\d]+))?\)/i);
     if (!match) return null;
@@ -1193,6 +1254,7 @@
     removeZammadBranding();
     normalizeSidebarFooter();
     styleSidebarDockControls();
+    normalizeSidebarFloatingUi();
     normalizeNavigationContrast();
     normalizeSidebarTicketLabels();
     markSurfaces();
