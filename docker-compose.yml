@@ -108,6 +108,7 @@ x-shared:
     restart: ${RESTART:-always}
     volumes:
       - zammad-backup:/var/tmp/zammad:ro # needed for waiting on restore operations
+      - meshcentral-data:/opt/meshcentral/meshcentral-data:ro
       - zammad-storage:/opt/zammad/storage
     depends_on:
       - zammad-memcached
@@ -207,4 +208,6 @@ volumes:
   zammad-backup:
     driver: local
   zammad-storage:
+    driver: local
+  meshcentral-data:
     driver: local

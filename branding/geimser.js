@@ -430,6 +430,103 @@
     return "/geimser/mesh/login?next=" + encodeURIComponent(path || "/");
   }
 
+  function remoteAssetStatusLabel(status) {
+    return status === "online" ? "Online" : "Offline";
+  }
+
+  function remoteAssetLastSeen(asset) {
+    if (!asset.last_seen_at) return "Sin contacto registrado";
+
+    try {
+      return "Ultimo contacto: " + new Date(asset.last_seen_at).toLocaleString();
+    } catch (_error) {
+      return "Ultimo contacto registrado";
+    }
+  }
+
+  function renderRemoteAssets(modal, payload) {
+    var container = modal.querySelector(".geimser-remote-assets");
+    if (!container) return;
+
+    var assets = (payload && payload.assets) || [];
+    if (!assets.length) {
+      container.innerHTML = [
+        '<div class="geimser-remote-empty">',
+        '  <strong>No hay equipos sincronizados todavia.</strong>',
+        '  <span>Instala el agente en Windows. Cuando el equipo aparezca online en MeshCentral, tambien quedara registrado aqui como activo remoto.</span>',
+        '</div>'
+      ].join("");
+      return;
+    }
+
+    container.innerHTML = [
+      '<div class="geimser-remote-assets-head">',
+      '  <strong>Activos remotos sincronizados</strong>',
+      '  <span>' + assets.length + ' equipo' + (assets.length === 1 ? '' : 's') + ' en CMDB ITSM</span>',
+      '</div>',
+      '<div class="geimser-remote-asset-grid">',
+      assets.map(function (asset) {
+        var isOnline = asset.status === "online";
+        return [
+          '<article class="geimser-remote-asset ' + (isOnline ? 'is-online' : 'is-offline') + '">',
+          '  <div>',
+          '    <strong>' + escapeHtml(asset.name || asset.hostname || "Equipo remoto") + '</strong>',
+          '    <span>' + escapeHtml(asset.group || "Sin grupo") + '</span>',
+          '  </div>',
+          '  <div class="geimser-remote-asset-meta">',
+          '    <span>' + escapeHtml(asset.os || "Sistema no informado") + '</span>',
+          '    <span>' + escapeHtml(asset.ip || remoteAssetLastSeen(asset)) + '</span>',
+          '  </div>',
+          '  <div class="geimser-remote-asset-actions">',
+          '    <em>' + remoteAssetStatusLabel(asset.status) + '</em>',
+          '    <button type="button" data-remote-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Tomar control</button>',
+          '  </div>',
+          '</article>'
+        ].join("");
+      }).join(""),
+      '</div>'
+    ].join("");
+
+    container.querySelectorAll("[data-remote-session]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var url = button.getAttribute("data-remote-session") || meshLoginUrl("/");
+        modal.querySelector(".geimser-remote-frame").src = url;
+        modal.querySelector(".geimser-remote-open").href = url;
+      });
+    });
+  }
+
+  function loadRemoteAssets(modal) {
+    var container = modal.querySelector(".geimser-remote-assets");
+    if (!container) return;
+
+    container.innerHTML = '<div class="geimser-remote-empty"><strong>Sincronizando equipos...</strong><span>Estamos leyendo los agentes registrados en MeshCentral y guardandolos como activos del ITSM.</span></div>';
+
+    fetch("/geimser/remote/assets", {
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" }
+    }).then(function (response) {
+      if (!response.ok) throw new Error("remote assets failed");
+      return response.json();
+    }).then(function (payload) {
+      renderRemoteAssets(modal, payload);
+    }).catch(function () {
+      container.innerHTML = '<div class="geimser-remote-empty is-error"><strong>No pudimos sincronizar la CMDB remota.</strong><span>Abre MeshCentral con el boton Instalador/Completo mientras revisamos la conexion.</span></div>';
+    });
+  }
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, function (char) {
+      return {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char];
+    });
+  }
+
   function ensureRemoteModal() {
     var existing = document.querySelector(".geimser-remote-modal");
     if (existing) return existing;
@@ -489,6 +586,7 @@
       '        <strong>Equipos registrados</strong>',
       '        <span>Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.</span>',
       '      </div>',
+      '      <section class="geimser-remote-assets" aria-label="Activos remotos sincronizados"></section>',
       '      <div class="geimser-remote-frame-shell">',
       '        <iframe class="geimser-remote-frame" title="Centro remoto ITSM Geimser"></iframe>',
       '      </div>',
@@ -519,6 +617,11 @@
       modal.querySelector(".geimser-remote-banner strong").textContent = title;
       modal.querySelector(".geimser-remote-banner span").textContent = detail;
       modal.querySelector(".geimser-remote-frame").src = meshLoginUrl("/");
+      modal.querySelector(".geimser-remote-assets").hidden = flow !== "equipos";
+      modal.querySelector(".geimser-remote-frame-shell").classList.toggle("is-compact", flow === "equipos");
+      if (flow === "equipos") {
+        loadRemoteAssets(modal);
+      }
     }
 
     modal.querySelector(".geimser-remote-copy").addEventListener("click", function (event) {

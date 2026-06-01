@@ -14,7 +14,23 @@ class GeimserMeshLoginController < ApplicationController
     redirect_to mesh_target_url(mesh_login_token(key)), allow_other_host: true
   end
 
+  def assets
+    records = sync_remote_assets
+    render json: {
+      synced_at: Time.now.utc.iso8601,
+      count: records.length,
+      assets: records.map { |record| serialize_remote_asset(record) },
+    }
+  end
+
   private
+
+  REMOTE_ASSETS_TABLE = :geimser_remote_assets
+  MESH_DB_PATH = '/opt/meshcentral/meshcentral-data/meshcentral.db'
+
+  class RemoteAsset < ActiveRecord::Base
+    self.table_name = 'geimser_remote_assets'
+  end
 
   def mesh_login_key
     key = ENV['MESH_LOGIN_KEY'].to_s.strip
@@ -61,5 +77,128 @@ class GeimserMeshLoginController < ApplicationController
     uri.path.presence || '/'
   rescue URI::InvalidURIError
     '/'
+  end
+
+  def sync_remote_assets
+    ensure_remote_assets_table
+
+    devices = mesh_devices
+    now = Time.now.utc
+
+    devices.each do |device|
+      attrs = {
+        mesh_group_id: device[:mesh_group_id],
+        group_name: device[:group_name],
+        name: device[:name],
+        hostname: device[:hostname],
+        os_name: device[:os_name],
+        ip_address: device[:ip_address],
+        status: device[:status],
+        last_seen_at: device[:last_seen_at],
+        session_url: mesh_login_path_for(device[:mesh_node_id]),
+        raw: device[:raw].to_json,
+        updated_at: now,
+      }
+
+      record = RemoteAsset.find_or_initialize_by(mesh_node_id: device[:mesh_node_id])
+      attrs[:created_at] = now if record.new_record?
+      record.assign_attributes(attrs)
+      record.save!
+    end
+
+    RemoteAsset.order(Arel.sql("CASE WHEN status = 'online' THEN 0 ELSE 1 END"), :group_name, :name).to_a
+  end
+
+  def ensure_remote_assets_table
+    return if ActiveRecord::Base.connection.table_exists?(REMOTE_ASSETS_TABLE)
+
+    ActiveRecord::Base.connection.create_table(REMOTE_ASSETS_TABLE) do |table|
+      table.string :mesh_node_id, null: false
+      table.string :mesh_group_id
+      table.string :group_name
+      table.string :name
+      table.string :hostname
+      table.string :os_name
+      table.string :ip_address
+      table.string :status
+      table.datetime :last_seen_at
+      table.string :session_url
+      table.text :raw
+      table.timestamps null: false
+    end
+
+    ActiveRecord::Base.connection.add_index(
+      REMOTE_ASSETS_TABLE,
+      :mesh_node_id,
+      unique: true,
+      name: 'idx_geimser_remote_assets_node'
+    )
+  end
+
+  def mesh_devices
+    return [] unless File.exist?(MESH_DB_PATH)
+
+    rows = File.readlines(MESH_DB_PATH, chomp: true).filter_map do |line|
+      JSON.parse(line)
+    rescue JSON::ParserError
+      nil
+    end
+
+    groups = rows
+      .select { |row| row['type'] == 'mesh' }
+      .each_with_object({}) { |row, memo| memo[row['_id']] = row['name'].presence || row['_id'] }
+
+    rows
+      .select { |row| row['type'] == 'node' && row['_id'].present? }
+      .map { |row| mesh_device_from_row(row, groups) }
+  end
+
+  def mesh_device_from_row(row, groups)
+    node_id = row['_id'].to_s
+    mesh_group_id = row['meshid'].to_s.presence
+    last_seen = remote_time(row['lastconnect'] || row['lastaddr'] || row['lastping'])
+
+    {
+      mesh_node_id: node_id,
+      mesh_group_id: mesh_group_id,
+      group_name: groups[mesh_group_id] || 'Sin grupo',
+      name: row['name'].presence || row['rname'].presence || row['host'].presence || node_id.split('/').last,
+      hostname: row['host'].presence || row['rname'].presence || row['name'].presence,
+      os_name: row['osdesc'].presence || row.dig('agent', 'osdesc').presence || row.dig('agent', 'caps').to_s.presence,
+      ip_address: Array(row['iploc']).first.presence || row['lastaddr'].to_s.split(':').first.presence,
+      status: row['conn'].to_i.positive? ? 'online' : 'offline',
+      last_seen_at: last_seen,
+      raw: row,
+    }
+  end
+
+  def remote_time(value)
+    return if value.blank?
+
+    numeric = value.to_i
+    return if numeric <= 0
+
+    numeric > 99_999_999_999 ? Time.at(numeric / 1000).utc : Time.at(numeric).utc
+  rescue StandardError
+    nil
+  end
+
+  def mesh_login_path_for(_node_id)
+    "/geimser/mesh/login?next=#{URI.encode_www_form_component('/')}"
+  end
+
+  def serialize_remote_asset(record)
+    {
+      id: record.mesh_node_id,
+      group: record.group_name,
+      name: record.name,
+      hostname: record.hostname,
+      os: record.os_name,
+      ip: record.ip_address,
+      status: record.status,
+      last_seen_at: record.last_seen_at&.iso8601,
+      session_url: record.session_url,
+      updated_at: record.updated_at&.iso8601,
+    }
   end
 end

@@ -1278,6 +1278,157 @@ html[data-theme="dark"] #app {
   background: #ffffff;
 }
 
+.geimser-remote-frame-shell.is-compact {
+  flex: 1 1 42%;
+  min-height: 260px;
+  border-top: 1px solid #d9e2ec;
+}
+
+.geimser-remote-assets {
+  flex: 0 0 auto;
+  max-height: 290px;
+  overflow: auto;
+  padding: 14px 16px;
+  border-bottom: 1px solid #d9e2ec;
+  background: #f8fafc;
+}
+
+.geimser-remote-assets[hidden] {
+  display: none;
+}
+
+.geimser-remote-assets-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.geimser-remote-assets-head strong {
+  color: #102033;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.geimser-remote-assets-head span {
+  color: #536171;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.geimser-remote-asset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.geimser-remote-asset {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #d8e2ec;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(16, 32, 51, 0.06);
+}
+
+.geimser-remote-asset.is-online {
+  border-color: rgba(31, 122, 77, 0.35);
+}
+
+.geimser-remote-asset strong {
+  display: block;
+  color: #102033;
+  font-size: 13px;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.geimser-remote-asset span {
+  display: block;
+  color: #536171;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.geimser-remote-asset-meta {
+  display: grid;
+  gap: 2px;
+}
+
+.geimser-remote-asset-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.geimser-remote-asset-actions em {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #536171;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.geimser-remote-asset.is-online .geimser-remote-asset-actions em {
+  background: #e6f7ee;
+  color: #1f7a4d;
+}
+
+.geimser-remote-asset-actions button {
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid rgba(0, 75, 141, 0.2);
+  border-radius: 8px;
+  background: #004b8d;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.geimser-remote-asset-actions button:hover {
+  background: #005daa;
+}
+
+.geimser-remote-empty {
+  padding: 14px;
+  border: 1px dashed #bed0df;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #34495e;
+}
+
+.geimser-remote-empty strong,
+.geimser-remote-empty span {
+  display: block;
+}
+
+.geimser-remote-empty strong {
+  color: #102033;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.geimser-remote-empty span {
+  margin-top: 4px;
+  color: #536171;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.geimser-remote-empty.is-error {
+  border-color: #f4b4a8;
+  background: #fff5f2;
+}
+
 .geimser-remote-frame {
   width: 125%;
   height: 125%;
