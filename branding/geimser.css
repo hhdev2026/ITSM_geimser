@@ -64,9 +64,12 @@ img[alt="Geimser ITSM"] {
 }
 
 .geimser-sidebar-brand.is-compact img {
-  content: url("/assets/images/geimser-logo-mark.png") !important;
+  display: none !important;
+}
+
+.geimser-sidebar-brand.is-compact {
   width: 40px;
-  height: 40px;
+  background: url("/assets/images/geimser-logo-mark.png") center / contain no-repeat;
 }
 
 input,
