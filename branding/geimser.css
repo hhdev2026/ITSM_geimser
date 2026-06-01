@@ -55,6 +55,7 @@ img[alt="Geimser ITSM"] {
 }
 
 .geimser-sidebar-brand img {
+  content: normal !important;
   display: block;
   width: auto;
   height: 40px;

@@ -255,20 +255,6 @@
 
       if (rect.left < sidebarRight && rect.top < 180 && /search|buscar|filter|filtro|text/i.test(label)) {
         control.classList.add("geimser-sidebar-search-control");
-
-        var parent = control.parentElement;
-        var depth = 0;
-        while (parent && parent !== app && depth < 3) {
-          var parentRect = parent.getBoundingClientRect();
-          if (parentRect.left < sidebarRight &&
-              parentRect.right <= sidebarRight + 24 &&
-              parentRect.top < 180 &&
-              parentRect.width <= 360) {
-            parent.classList.add("geimser-sidebar-search-shell");
-          }
-          parent = parent.parentElement;
-          depth += 1;
-        }
       }
     });
 
