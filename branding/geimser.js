@@ -392,6 +392,62 @@
     }
   }
 
+  function fixSidebarSearchDropdowns() {
+    var sidebar = findSidebarSurface();
+    if (!sidebar) return;
+
+    var sidebarRect = sidebar.getBoundingClientRect();
+    if (sidebarRect.width < 60) return;
+
+    // Paneles de sugerencias que Zammad renderiza dentro del sidebar
+    var panels = Array.from(document.querySelectorAll(
+      "#app [class*='search'] [class*='result']," +
+      "#app [class*='search'] [class*='suggest']," +
+      "#app [class*='search'] [class*='dropdown']," +
+      "#app .js-results," +
+      "#app .js-search-result," +
+      "#app [class*='SearchResult']," +
+      "#app [class*='Suggestions']"
+    ));
+
+    panels.forEach(function (panel) {
+      // Solo procesar panels dentro del sidebar
+      if (!sidebar.contains(panel)) return;
+
+      var rect = panel.getBoundingClientRect();
+      // Si el panel no es visible, ignorar
+      if (rect.width < 30 || rect.height < 20) return;
+
+      // Verificar si el panel está siendo clippeado (sale de la sidebar)
+      var overflowsRight = rect.right > sidebarRect.right + 8;
+      var overflowsBottom = rect.bottom > window.innerHeight - 20;
+
+      if (overflowsRight || overflowsBottom) {
+        panel.style.setProperty("position", "fixed", "important");
+        panel.style.setProperty("z-index", "99999", "important");
+        panel.style.setProperty("left", sidebarRect.left + "px", "important");
+        panel.style.setProperty("width", sidebarRect.width + "px", "important");
+        panel.style.setProperty("max-height", Math.min(480, window.innerHeight - rect.top - 20) + "px", "important");
+        panel.style.setProperty("overflow-y", "auto", "important");
+        panel.style.setProperty("background", "#ffffff", "important");
+        panel.style.setProperty("color", "#1d1d1f", "important");
+        panel.style.setProperty("border", "1px solid rgba(0,31,61,0.14)", "important");
+        panel.style.setProperty("border-radius", "10px", "important");
+        panel.style.setProperty("box-shadow", "0 16px 48px rgba(0,31,61,0.22)", "important");
+      }
+
+      // Garantizar contraste dentro del panel
+      Array.from(panel.querySelectorAll("*")).forEach(function (child) {
+        var text = (child.textContent || "").trim();
+        if (!text && !child.matches("a, button, [role='option']")) return;
+        child.style.setProperty("color", "#1d1d1f", "important");
+      });
+      Array.from(panel.querySelectorAll("a, [role='option'], [class*='item']")).forEach(function (item) {
+        item.style.setProperty("color", "#004b8d", "important");
+      });
+    });
+  }
+
   function normalizeSidebarFloatingUi() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -951,12 +1007,36 @@
     return meshLoginUrl("/meshagents");
   }
 
+  function meshDevicesUrl() {
+    return meshLoginUrl("/");
+  }
+
   function clientPlatformLabel() {
     var ua = navigator.userAgent || "";
-    if (/Windows/i.test(ua)) return "Windows";
-    if (/Macintosh|Mac OS X/i.test(ua)) return "macOS";
-    if (/Linux/i.test(ua)) return "Linux";
+    var platform = navigator.platform || "";
+    if (/Win/i.test(platform) || /Windows/i.test(ua)) return "Windows";
+    if (/Mac/i.test(platform) || /Macintosh|Mac OS X/i.test(ua)) return "macOS";
+    if (/Android/i.test(ua)) return "Android";
+    if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
+    if (/Linux/i.test(platform) || /Linux/i.test(ua)) return "Linux";
     return "este equipo";
+  }
+
+  function clientPlatformInstallerHint() {
+    var platform = clientPlatformLabel();
+    if (platform === "Windows") return "descarga el instalador Windows (.exe)";
+    if (platform === "macOS") return "descarga el instalador macOS";
+    if (platform === "Linux") return "descarga el instalador Linux";
+    if (platform === "Android" || platform === "iOS") return "usa un equipo Windows, macOS o Linux para instalar el agente remoto";
+    return "elige el sistema operativo correcto del equipo";
+  }
+
+  function clientPlatformPermissionLabel() {
+    var platform = clientPlatformLabel();
+    if (platform === "Windows") return "Windows";
+    if (platform === "macOS") return "macOS";
+    if (platform === "Linux") return "Linux";
+    return "el sistema operativo";
   }
 
   function remoteInstallInstructions() {
@@ -964,22 +1044,25 @@
       "Instalacion agente remoto Geimser",
       "",
       "1. Abre el instalador desde Geimser ITSM.",
-      "2. En MeshCentral entra a Mis Dispositivos y descarga el agente para " + clientPlatformLabel() + ".",
+      "2. En MeshCentral entra a Mis Dispositivos y " + clientPlatformInstallerHint() + ".",
       "3. Ejecuta el instalador una sola vez en el equipo que necesita soporte.",
-      "4. Acepta los permisos del sistema operativo.",
+      "4. Acepta los permisos que pida " + clientPlatformPermissionLabel() + ".",
       "5. Cuando el equipo aparezca online, vuelve a Geimser ITSM y usa Tomar control."
     ].join("\n");
   }
 
-  function maybePromptRemoteInstall(modal, assets) {
+  function maybePromptRemoteInstall(modal, assets, options) {
     if (!internalSidebarAccess() || assets.length) return;
+    options = options || {};
 
-    try {
-      var key = "geimserRemoteInstallPromptSeen";
-      if (window.localStorage && localStorage.getItem(key) === "true") return;
-      if (window.localStorage) localStorage.setItem(key, "true");
-    } catch (_error) {
-      // Best effort only; the prompt should never block normal navigation.
+    if (options.autocheck) {
+      try {
+        var key = "geimserRemoteInstallPromptSeenThisTab";
+        if (window.sessionStorage && sessionStorage.getItem(key) === "true") return;
+        if (window.sessionStorage) sessionStorage.setItem(key, "true");
+      } catch (_error) {
+        // Best effort only; the prompt should never block normal navigation.
+      }
     }
 
     window.setTimeout(function () {
@@ -1094,8 +1177,12 @@
       container.innerHTML = [
         '<div class="geimser-remote-empty">',
         '  <strong>Este navegador no tiene equipos Mesh sincronizados todavia.</strong>',
-        '  <span>Instala el agente Geimser en el equipo del usuario. Cuando aparezca online en MeshCentral, tambien quedara registrado aqui como activo remoto.</span>',
-        '  <button type="button" data-remote-empty-install>Instalar agente</button>',
+        '  <span>No se detecto el agente remoto. Instala el agente Geimser para ' + escapeHtml(clientPlatformLabel()) + ' y cuando aparezca online en MeshCentral quedara registrado aqui.</span>',
+        '  <div class="geimser-remote-empty-actions">',
+        '    <a href="' + escapeHtml(meshAgentInstallUrl()) + '" target="_blank" rel="noopener">Descargar instalador</a>',
+        '    <button type="button" data-remote-empty-install>Ver pasos</button>',
+        '    <a href="' + escapeHtml(meshDevicesUrl()) + '" target="_blank" rel="noopener">Abrir MeshCentral</a>',
+        '  </div>',
         '</div>'
       ].join("");
       var installButton = container.querySelector("[data-remote-empty-install]");
@@ -1169,12 +1256,6 @@
   function checkRemoteInstallFirstRun() {
     if (remoteInstallAutocheckStarted || !internalSidebarAccess()) return;
 
-    try {
-      if (window.localStorage && localStorage.getItem("geimserRemoteInstallPromptSeen") === "true") return;
-    } catch (_error) {
-      return;
-    }
-
     remoteInstallAutocheckStarted = true;
     window.setTimeout(function () {
       fetch("/geimser/remote/assets", {
@@ -1185,7 +1266,7 @@
         return response.json();
       }).then(function (payload) {
         var modal = ensureRemoteModal();
-        maybePromptRemoteInstall(modal, (payload && payload.assets) || []);
+        maybePromptRemoteInstall(modal, (payload && payload.assets) || [], { autocheck: true });
       }).catch(function () {
         remoteInstallAutocheckStarted = false;
       });
@@ -1267,7 +1348,7 @@
       content.innerHTML = [
         '<div class="geimser-cmdb-empty">',
         '  <strong>No hay equipos en la CMDB todavía.</strong>',
-        '  <span>Usa Registrar equipo, instala el agente Windows y vuelve a actualizar cuando aparezca online.</span>',
+        '  <span>No se detecto Mesh instalado. Usa Registrar equipo, ' + escapeHtml(clientPlatformInstallerHint()) + ' y vuelve a actualizar cuando aparezca online.</span>',
         '</div>'
       ].join("");
       return;
@@ -1663,9 +1744,9 @@
     var remoteInviteText = [
       "Hola, necesitamos agregar tu equipo al centro remoto de Geimser ITSM.",
       "",
-      "1. Te enviaremos el instalador Windows generado desde Geimser ITSM.",
+      "1. Te enviaremos el instalador generado desde Geimser ITSM para tu sistema operativo.",
       "2. Descárgalo y ejecútalo una sola vez en el equipo que necesita soporte.",
-      "3. Acepta los permisos que pida Windows.",
+      "3. Acepta los permisos que pida el sistema operativo.",
       "4. Avísanos cuando termine. El equipo aparecerá online para la atención remota.",
       "",
       "No compartas el instalador con otros equipos; queda asociado al grupo de soporte."
@@ -1693,10 +1774,10 @@
       '        <span>1</span><strong>Conectar</strong><small>Elige un equipo registrado y abre la sesión remota.</small>',
       '      </button>',
       '      <button type="button" class="geimser-remote-flow" data-remote-flow="registrar">',
-      '        <span>2</span><strong>Instalador</strong><small>Crea un grupo y descarga el agente Windows.</small>',
+      '        <span>2</span><strong>Instalador</strong><small>Crea un grupo y descarga el agente para este sistema.</small>',
       '      </button>',
       '      <button type="button" class="geimser-remote-flow" data-remote-flow="enviar">',
-      '        <span>3</span><strong>Enviar</strong><small>Adjunta el .exe al ticket o correo del cliente.</small>',
+      '        <span>3</span><strong>Enviar</strong><small>Adjunta el instalador al ticket o correo del cliente.</small>',
       '      </button>',
       '      <button type="button" class="geimser-remote-flow" data-remote-flow="esperar">',
       '        <span>4</span><strong>Tomar control</strong><small>Cuando el agente aparezca online, entra por Ver equipos.</small>',
@@ -1712,16 +1793,17 @@
       '        <div class="geimser-remote-install-card">',
       '          <div>',
       '            <strong>Instalar agente en ' + escapeHtml(clientPlatformLabel()) + '</strong>',
-      '            <span>El navegador no puede instalarlo en silencio. Abre MeshCentral, descarga el agente y ejecútalo una vez en el equipo.</span>',
+      '            <span>No se detecto Mesh instalado en este equipo. El navegador no puede instalarlo en silencio: abre MeshCentral, ' + escapeHtml(clientPlatformInstallerHint()) + ' y ejecutalo una vez.</span>',
       '          </div>',
       '          <div class="geimser-remote-install-actions">',
-      '            <a class="geimser-remote-agent-download" target="_blank" rel="noopener">Abrir descarga del agente</a>',
+      '            <a class="geimser-remote-agent-download is-primary" target="_blank" rel="noopener">Descargar instalador</a>',
+      '            <a class="geimser-remote-agent-full" target="_blank" rel="noopener">Abrir MeshCentral</a>',
       '            <button type="button" class="geimser-remote-copy-install">Copiar pasos</button>',
       '          </div>',
       '        </div>',
       '        <ol class="geimser-remote-install-steps">',
       '          <li>En MeshCentral abre <strong>Mis Dispositivos</strong>.</li>',
-      '          <li>Usa <strong>Agregar agente</strong> y elige el sistema operativo del equipo.</li>',
+      '          <li>Usa <strong>Agregar agente</strong> y elige <strong>' + escapeHtml(clientPlatformLabel()) + '</strong> o el sistema operativo real del equipo.</li>',
       '          <li>Ejecuta el instalador y espera que el equipo aparezca online.</li>',
       '        </ol>',
       '      </section>',
@@ -1739,10 +1821,10 @@
 
       if (flow === "registrar") {
         title = "Descargar agente remoto";
-        detail = "Abre la descarga del agente, elige el sistema operativo y ejecuta el instalador una sola vez en el equipo.";
+        detail = "No se detecto Mesh instalado. Abre la descarga del agente para " + clientPlatformLabel() + " y ejecuta el instalador una sola vez en el equipo.";
       } else if (flow === "enviar") {
         title = "Enviar al notebook";
-        detail = "Adjunta el .exe generado al ticket o correo. El usuario lo ejecuta una vez y el equipo aparecerá online.";
+        detail = "Adjunta el instalador generado al ticket o correo. El usuario lo ejecuta una vez y el equipo aparecerá online.";
       } else if (flow === "esperar") {
         title = "Tomar control";
         detail = "Cuando el agente quede online, vuelve a Ver equipos, abre el equipo y selecciona escritorio remoto.";
@@ -1776,6 +1858,7 @@
     });
 
     modal.querySelector(".geimser-remote-agent-download").href = meshAgentInstallUrl();
+    modal.querySelector(".geimser-remote-agent-full").href = meshDevicesUrl();
     modal.querySelector(".geimser-remote-copy-install").addEventListener("click", function () {
       var button = this;
       var text = remoteInstallInstructions();
@@ -2070,6 +2153,7 @@
     ensureRemoteButton();
     checkRemoteInstallFirstRun();
     syncCmdbRoute();
+    fixSidebarSearchDropdowns();
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();
     ensurePasswordVisibilityToggle();

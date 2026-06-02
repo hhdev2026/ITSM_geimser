@@ -702,14 +702,15 @@ html[data-theme="dark"] #app {
   color: #d9e2ec !important;
 }
 
+/* Sidebar: NO usamos overflow-x clip en el contenedor principal —
+   eso cortaba los dropdowns de búsqueda. El box-sizing aplica solo
+   a elementos internos que no sean panels flotantes. */
 #app .navigation,
 #app .sidebar,
 #app .appSidebar,
 #app .mainNavigation,
 #app .geimser-nav-surface {
   box-sizing: border-box !important;
-  max-width: 100vw !important;
-  overflow-x: clip !important;
 }
 
 #app .navigation *,
@@ -720,26 +721,67 @@ html[data-theme="dark"] #app {
   box-sizing: border-box !important;
 }
 
+/* Search shell: visible para que el dropdown no quede clippeado */
 #app .geimser-sidebar-search-shell {
   box-sizing: border-box !important;
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  overflow: hidden !important;
+  overflow: visible !important;
+  position: relative !important;
 }
 
 #app .geimser-sidebar-search-control {
   box-sizing: border-box !important;
   display: block !important;
-  width: calc(100% - 12px) !important;
-  max-width: calc(100% - 12px) !important;
+  width: calc(100% - 16px) !important;
+  max-width: calc(100% - 16px) !important;
   min-width: 0 !important;
-  margin-right: 6px !important;
-  margin-left: 6px !important;
+  margin-right: 8px !important;
+  margin-left: 8px !important;
+  border-radius: 8px !important;
 }
 
 #app .geimser-sidebar-search-control:focus {
-  box-shadow: 0 0 0 3px rgba(75, 179, 240, 0.32) !important;
+  box-shadow: 0 0 0 3px rgba(75, 179, 240, 0.28) !important;
+  border-color: #4bb3f0 !important;
+}
+
+/* Paneles de sugerencias/resultados de búsqueda dentro del sidebar:
+   se les da z-index alto y se corta solo si son demasiado largos. */
+#app .navigation [class*="search"] [class*="result"],
+#app .navigation [class*="search"] [class*="suggest"],
+#app .navigation [class*="search"] [class*="dropdown"],
+#app .navigation .js-results,
+#app .navigation .js-search-result,
+#app .sidebar [class*="search"] [class*="result"],
+#app .sidebar [class*="search"] [class*="suggest"],
+#app .sidebar [class*="search"] [class*="dropdown"],
+#app .sidebar .js-results,
+#app .appSidebar [class*="search"] [class*="result"],
+#app .appSidebar [class*="search"] [class*="suggest"],
+#app .geimser-nav-surface [class*="search"] [class*="result"],
+#app .geimser-nav-surface [class*="search"] [class*="suggest"] {
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 99999 !important;
+  max-height: 60vh !important;
+  overflow-y: auto !important;
+  background: #ffffff !important;
+  color: #1d1d1f !important;
+  border: 1px solid rgba(0, 31, 61, 0.14) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 16px 48px rgba(0, 31, 61, 0.22) !important;
+}
+
+#app .navigation [class*="search"] [class*="result"] *,
+#app .navigation [class*="search"] [class*="suggest"] *,
+#app .sidebar [class*="search"] [class*="result"] *,
+#app .sidebar [class*="search"] [class*="suggest"] *,
+#app .appSidebar [class*="search"] [class*="result"] *,
+#app .appSidebar [class*="search"] [class*="suggest"] * {
+  color: #1d1d1f !important;
 }
 
 #app .navigation input,
@@ -1918,8 +1960,18 @@ html[data-theme="dark"] #app {
   justify-content: flex-end;
 }
 
+.geimser-remote-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
 .geimser-remote-install-actions a,
 .geimser-remote-install-actions button,
+.geimser-remote-empty-actions a,
+.geimser-remote-empty-actions button,
 .geimser-remote-empty button {
   min-height: 34px;
   padding: 0 12px;
@@ -1931,19 +1983,29 @@ html[data-theme="dark"] #app {
   font-weight: 800;
   text-decoration: none;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.geimser-remote-install-actions button {
+.geimser-remote-install-actions button,
+.geimser-remote-install-actions a:not(.is-primary),
+.geimser-remote-empty-actions button,
+.geimser-remote-empty-actions a + a {
   background: #ffffff;
   color: #004b8d;
 }
 
 .geimser-remote-install-actions a:hover,
+.geimser-remote-empty-actions a:first-child:hover,
 .geimser-remote-empty button:hover {
   background: #005daa;
 }
 
-.geimser-remote-install-actions button:hover {
+.geimser-remote-install-actions button:hover,
+.geimser-remote-install-actions a:not(.is-primary):hover,
+.geimser-remote-empty-actions button:hover,
+.geimser-remote-empty-actions a + a:hover {
   background: #eef6ff;
 }
 
@@ -3283,40 +3345,21 @@ html[data-theme="dark"] #app {
   color: #071c2b !important;
 }
 
-/* =============================================================
-   POPOVERS / DROPDOWNS DE PERFIL — contraste garantizado
-   El wildcard nav (*) ponía texto claro sobre fondo blanco.
-   Estas reglas específicas lo anulan con mayor especificidad.
-   ============================================================= */
+/* ═══════════════════════════════════════════════════════════════
+   MENÚ DE PERFIL Y DROPDOWNS — REDISEÑO COMPLETO
+   Problema: el wildcard nav * {color:#d9e2ec !important} en JS
+   se aplica inline y sobreescribe cualquier CSS. La solución
+   definitiva es el guard en normalizeNavigationContrast() + estas
+   reglas CSS de alta especificidad como capa de seguridad.
+   ═══════════════════════════════════════════════════════════════ */
 
-/* Cualquier popover, dropdown o menú flotante dentro del sidebar/nav */
-#app .navigation .dropdown-menu,
-#app .navigation .dropdown,
-#app .navigation .popover,
-#app .navigation [role="menu"],
-#app .navigation [role="listbox"],
-#app .sidebar .dropdown-menu,
-#app .sidebar .dropdown,
-#app .sidebar .popover,
-#app .sidebar [role="menu"],
-#app .sidebar [role="listbox"],
-#app .appSidebar .dropdown-menu,
-#app .appSidebar .dropdown,
-#app .appSidebar .popover,
-#app .appSidebar [role="menu"],
-#app .mainNavigation .dropdown-menu,
-#app .mainNavigation .dropdown,
-#app .mainNavigation .popover,
-#app .mainNavigation [role="menu"],
-#app [class*="Navigation"] .dropdown-menu,
-#app [class*="Navigation"] .dropdown,
-#app [class*="Navigation"] .popover,
-#app [class*="Navigation"] [role="menu"],
-#app [class*="navigation"] .dropdown-menu,
-#app [class*="navigation"] .dropdown,
-#app [class*="navigation"] .popover,
-#app [class*="navigation"] [role="menu"],
-/* Selectores de Zammad Vue (UserMenu, ProfileMenu, etc.) */
+/* Base: fondo blanco + texto oscuro en TODO dropdown/popover/menú */
+#app .dropdown-menu,
+#app .dropdown,
+#app .popover,
+#app [role="menu"],
+#app [role="listbox"],
+#app [role="dialog"],
 #app [class*="popover"],
 #app [class*="Popover"],
 #app [class*="userMenu"],
@@ -3324,38 +3367,26 @@ html[data-theme="dark"] #app {
 #app [class*="profileMenu"],
 #app [class*="ProfileMenu"],
 #app [class*="accountMenu"],
-#app [class*="AccountMenu"] {
+#app [class*="AccountMenu"],
+#app [class*="contextMenu"],
+#app [class*="ContextMenu"],
+#app [class*="floatingMenu"],
+#app [class*="FloatingMenu"] {
   background: #ffffff !important;
   background-color: #ffffff !important;
   color: #1d1d1f !important;
-  border-color: rgba(0, 31, 61, 0.14) !important;
-  box-shadow: 0 14px 40px rgba(0, 31, 61, 0.18) !important;
+  border: 1px solid rgba(0, 31, 61, 0.12) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0, 31, 61, 0.16), 0 2px 8px rgba(0, 31, 61, 0.08) !important;
 }
 
-#app .navigation .dropdown-menu *,
-#app .navigation .dropdown *,
-#app .navigation .popover *,
-#app .navigation [role="menu"] *,
-#app .navigation [role="listbox"] *,
-#app .sidebar .dropdown-menu *,
-#app .sidebar .dropdown *,
-#app .sidebar .popover *,
-#app .sidebar [role="menu"] *,
-#app .appSidebar .dropdown-menu *,
-#app .appSidebar .dropdown *,
-#app .appSidebar .popover *,
-#app .appSidebar [role="menu"] *,
-#app .mainNavigation .dropdown-menu *,
-#app .mainNavigation .dropdown *,
-#app .mainNavigation .popover *,
-#app .mainNavigation [role="menu"] *,
-#app [class*="Navigation"] .dropdown-menu *,
-#app [class*="Navigation"] .dropdown *,
-#app [class*="Navigation"] .popover *,
-#app [class*="Navigation"] [role="menu"] *,
-#app [class*="navigation"] .dropdown-menu *,
-#app [class*="navigation"] .popover *,
-#app [class*="navigation"] [role="menu"] *,
+/* Todos los hijos heredan texto oscuro */
+#app .dropdown-menu *,
+#app .dropdown *,
+#app .popover *,
+#app [role="menu"] *,
+#app [role="listbox"] *,
+#app [role="dialog"] *,
 #app [class*="popover"] *,
 #app [class*="Popover"] *,
 #app [class*="userMenu"] *,
@@ -3363,45 +3394,94 @@ html[data-theme="dark"] #app {
 #app [class*="profileMenu"] *,
 #app [class*="ProfileMenu"] *,
 #app [class*="accountMenu"] *,
-#app [class*="AccountMenu"] * {
+#app [class*="AccountMenu"] *,
+#app [class*="contextMenu"] *,
+#app [class*="ContextMenu"] * {
   color: #1d1d1f !important;
   background-color: transparent !important;
 }
 
-/* Links dentro de popovers/dropdowns */
-#app [class*="popover"] a,
-#app [class*="Popover"] a,
-#app [class*="userMenu"] a,
-#app [class*="UserMenu"] a,
-#app [class*="profileMenu"] a,
-#app [class*="ProfileMenu"] a,
-#app .navigation .dropdown-menu a,
-#app .sidebar .dropdown-menu a,
-#app .appSidebar .dropdown-menu a,
-#app .mainNavigation .dropdown-menu a {
-  color: #004b8d !important;
+/* Items del menú */
+#app .dropdown-menu li,
+#app .dropdown-menu [role="menuitem"],
+#app [role="menu"] li,
+#app [role="menu"] [role="menuitem"],
+#app [role="menu"] [role="option"],
+#app [class*="userMenu"] li,
+#app [class*="userMenu"] [role="menuitem"],
+#app [class*="profileMenu"] li,
+#app [class*="profileMenu"] [role="menuitem"],
+#app [class*="contextMenu"] li,
+#app [class*="contextMenu"] [role="menuitem"] {
+  color: #1d1d1f !important;
+  padding: 8px 14px !important;
+  border-radius: 6px !important;
+  transition: background 0.12s ease !important;
 }
 
-/* Items hover en popovers */
-#app [class*="popover"] li:hover,
-#app [class*="popover"] [role="menuitem"]:hover,
+/* Hover en items */
+#app .dropdown-menu li:hover,
+#app .dropdown-menu [role="menuitem"]:hover,
+#app [role="menu"] li:hover,
+#app [role="menu"] [role="menuitem"]:hover,
+#app [role="menu"] [role="option"]:hover,
 #app [class*="userMenu"] li:hover,
 #app [class*="userMenu"] [role="menuitem"]:hover,
-#app .navigation .dropdown-menu li:hover,
-#app .navigation .dropdown-menu a:hover {
-  background: #eef6ff !important;
+#app [class*="profileMenu"] li:hover,
+#app [class*="profileMenu"] [role="menuitem"]:hover {
+  background: #f0f7ff !important;
   color: #004b8d !important;
 }
 
-/* =============================================================
-   CONTRASTE EN PÁGINAS DE ADMINISTRACIÓN / USUARIOS
-   Asegura que el panel de usuarios de Zammad sea siempre legible.
-   ============================================================= */
+/* Links en dropdowns */
+#app .dropdown-menu a,
+#app [role="menu"] a,
+#app [class*="userMenu"] a,
+#app [class*="profileMenu"] a,
+#app [class*="accountMenu"] a {
+  color: #1d1d1f !important;
+  text-decoration: none !important;
+}
+
+#app .dropdown-menu a:hover,
+#app [role="menu"] a:hover,
+#app [class*="userMenu"] a:hover,
+#app [class*="profileMenu"] a:hover {
+  color: #004b8d !important;
+  background: #f0f7ff !important;
+}
+
+/* Separadores en menús */
+#app .dropdown-menu .divider,
+#app .dropdown-menu hr,
+#app [role="menu"] .divider,
+#app [role="menu"] hr,
+#app [class*="userMenu"] .divider,
+#app [class*="userMenu"] hr,
+#app [class*="profileMenu"] .divider {
+  background: rgba(0, 31, 61, 0.08) !important;
+  border-color: rgba(0, 31, 61, 0.08) !important;
+  margin: 4px 0 !important;
+}
+
+/* Header del menú de perfil */
+#app [class*="userMenu"] [class*="header"],
+#app [class*="profileMenu"] [class*="header"],
+#app [class*="userMenu"] [class*="name"],
+#app [class*="profileMenu"] [class*="name"],
+#app [class*="userMenu"] [class*="email"],
+#app [class*="profileMenu"] [class*="email"] {
+  color: #1d1d1f !important;
+  font-weight: 650 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTRASTE EN PÁGINAS DE ADMIN / USUARIOS
+   ═══════════════════════════════════════════════════════════════ */
 
 #app .manage-users table,
 #app [class*="UserList"] table,
 #app [class*="userList"] table,
-#app .users-table table,
 #app [class*="manage"] table {
   background: #ffffff !important;
   color: #1d1d1f !important;
@@ -3421,39 +3501,36 @@ html[data-theme="dark"] #app {
   border-color: rgba(0, 31, 61, 0.08) !important;
 }
 
-/* =============================================================
-   CONTRASTE EN MODALES — evitar texto claro sobre fondo claro
-   ============================================================= */
+/* ═══════════════════════════════════════════════════════════════
+   MODALES — contraste y diseño
+   ═══════════════════════════════════════════════════════════════ */
 
 #app .modal-content,
 #app .modal-body,
 #app .modal-header,
-#app .modal-footer,
-#app [role="dialog"] {
+#app .modal-footer {
   background: #ffffff !important;
   color: #1d1d1f !important;
 }
 
 #app .modal-content *,
-#app .modal-body *,
-#app [role="dialog"] * {
+#app .modal-body * {
   color: #1d1d1f !important;
 }
 
 #app .modal-content a,
-#app .modal-body a,
-#app [role="dialog"] a {
+#app .modal-body a {
   color: #004b8d !important;
 }
 
 #app .modal-header {
-  border-bottom-color: rgba(0, 31, 61, 0.12) !important;
+  border-bottom: 1px solid rgba(0, 31, 61, 0.10) !important;
+  font-weight: 700 !important;
 }
 
-/* =============================================================
-   FIX ITEM ACTIVO EN SIDEBAR — garantiza contraste WCAG AA
-   #4bb3f0 bg con #071c2b texto: ratio ~8.6:1 ✓
-   ============================================================= */
+/* ═══════════════════════════════════════════════════════════════
+   ITEM ACTIVO EN SIDEBAR — WCAG AA garantizado
+   ═══════════════════════════════════════════════════════════════ */
 
 #app .navigation .is-active > *,
 #app .sidebar .is-active > *,
@@ -3463,15 +3540,472 @@ html[data-theme="dark"] #app {
   color: #071c2b !important;
 }
 
-/* =============================================================
-   CORRECCIÓN ESPECÍFICA: texto blanco sobre fondos claros
-   Zammad a veces deja spans con color: white heredado
-   en superficies claras (#f5f7fb, #ffffff, etc.)
-   ============================================================= */
+/* ═══════════════════════════════════════════════════════════════
+   TEXTO BLANCO HEREDADO SOBRE FONDOS CLAROS
+   ═══════════════════════════════════════════════════════════════ */
 
 #app .content span[style*="color: rgb(255, 255, 255)"],
 #app .content span[style*="color: white"],
 #app .main span[style*="color: rgb(255, 255, 255)"],
 #app .main span[style*="color: white"] {
   color: #1d1d1f !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REDISEÑO UX/UI — ALTO NIVEL VISUAL
+   Mejoras de tipografía, espaciado, profundidad y refinamiento
+   en todas las superficies principales de Zammad.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* --- SIDEBAR: refinamiento visual --- */
+#app .navigation,
+#app .appSidebar,
+#app .mainNavigation,
+#app .geimser-nav-surface {
+  background: #181b24 !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Items de navegación — más cómodos y con mejor jerarquía */
+#app .navigation a,
+#app .appSidebar a,
+#app .mainNavigation a,
+#app .geimser-nav-surface a,
+#app .navigation li,
+#app .appSidebar li,
+#app .mainNavigation li,
+#app .geimser-nav-surface li {
+  border-radius: 6px !important;
+  transition: background 0.12s ease, color 0.12s ease !important;
+}
+
+/* Items activos — acento naranja Geimser */
+#app .navigation .is-active,
+#app .navigation .active,
+#app .appSidebar .is-active,
+#app .mainNavigation .is-active,
+#app .geimser-nav-surface .is-active {
+  background: rgba(75, 179, 240, 0.16) !important;
+  border-left: 3px solid #f5a623 !important;
+  color: #ffffff !important;
+}
+
+/* Hover sobre items del sidebar */
+#app .navigation a:hover,
+#app .navigation li:hover,
+#app .appSidebar a:hover,
+#app .mainNavigation a:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #ffffff !important;
+}
+
+/* --- BÚSQUEDA EN SIDEBAR --- */
+#app .geimser-sidebar-search-control,
+#app .navigation input[type="search"],
+#app .navigation input[type="text"],
+#app .appSidebar input[type="search"],
+#app .appSidebar input[type="text"],
+#app .mainNavigation input[type="search"],
+#app .mainNavigation input[type="text"] {
+  background: rgba(255, 255, 255, 0.09) !important;
+  background-color: rgba(255, 255, 255, 0.09) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-radius: 8px !important;
+  color: #e9f1f8 !important;
+  caret-color: #4bb3f0 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  transition: border-color 0.15s ease, background 0.15s ease !important;
+}
+
+#app .geimser-sidebar-search-control:focus,
+#app .navigation input[type="search"]:focus,
+#app .navigation input[type="text"]:focus,
+#app .appSidebar input[type="search"]:focus,
+#app .mainNavigation input[type="search"]:focus {
+  background: rgba(255, 255, 255, 0.13) !important;
+  background-color: rgba(255, 255, 255, 0.13) !important;
+  border-color: #4bb3f0 !important;
+  box-shadow: 0 0 0 3px rgba(75, 179, 240, 0.20) !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+#app .navigation input[type="search"]::placeholder,
+#app .navigation input[type="text"]::placeholder,
+#app .appSidebar input[type="search"]::placeholder,
+#app .mainNavigation input[type="search"]::placeholder {
+  color: rgba(255, 255, 255, 0.42) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.42) !important;
+}
+
+/* --- SIDEBAR FOOTER (avatar + acciones) --- */
+#app .geimser-sidebar-footer,
+#app .geimser-sidebar-dock {
+  background: #11131a !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+/* --- CONTENIDO PRINCIPAL — superficies limpias --- */
+#app .content,
+#app .main,
+#app .main-content,
+#app .dashboard,
+#app .overview,
+#app .settings,
+#app .admin {
+  background: #f4f6fa !important;
+}
+
+/* Cards y widgets — fondo blanco, sombra sutil, bordes suaves */
+#app .content .card,
+#app .content .panel,
+#app .content .widget,
+#app .content .box,
+#app .content .tile,
+#app .content .overviewItem,
+#app .content .dashboardWidget,
+#app .content [class*="widget"],
+#app .content [class*="Widget"],
+#app .content [class*="card"],
+#app .content [class*="Card"] {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 31, 61, 0.09) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(0, 31, 61, 0.06), 0 4px 16px rgba(0, 31, 61, 0.05) !important;
+  transition: box-shadow 0.15s ease !important;
+}
+
+#app .content .card:hover,
+#app .content .overviewItem:hover {
+  box-shadow: 0 2px 8px rgba(0, 31, 61, 0.10), 0 8px 28px rgba(0, 31, 61, 0.08) !important;
+}
+
+/* --- TABLAS — lectura cómoda --- */
+#app table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+#app table thead th {
+  background: #eef2f8 !important;
+  color: #374151 !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: uppercase !important;
+  padding: 10px 14px !important;
+  border-bottom: 2px solid #dce5ef !important;
+}
+
+#app table tbody tr {
+  transition: background 0.10s ease !important;
+}
+
+#app table tbody tr:hover {
+  background: #f6f9ff !important;
+}
+
+#app table tbody td {
+  padding: 10px 14px !important;
+  border-bottom: 1px solid rgba(0, 31, 61, 0.07) !important;
+  color: #1d1d1f !important;
+  font-size: 13px !important;
+  vertical-align: middle !important;
+}
+
+/* --- TICKETS — lista y zoom --- */
+#app .ticketRow,
+#app [class*="ticketRow"],
+#app [class*="TicketRow"] {
+  border-radius: 8px !important;
+  transition: background 0.12s ease !important;
+}
+
+#app .ticketRow:hover,
+#app [class*="ticketRow"]:hover {
+  background: #f0f6ff !important;
+}
+
+/* --- BOTONES — sistema coherente --- */
+#app button,
+#app .btn,
+#app a.btn {
+  border-radius: 7px !important;
+  font-weight: 600 !important;
+  transition: background 0.13s ease, box-shadow 0.13s ease, transform 0.10s ease !important;
+}
+
+#app button:hover:not(:disabled),
+#app .btn:hover:not(:disabled) {
+  transform: translateY(-1px) !important;
+}
+
+#app button:active:not(:disabled),
+#app .btn:active:not(:disabled) {
+  transform: translateY(0) !important;
+}
+
+/* Botón primario */
+#app .btn--primary,
+#app .button--primary,
+#app .btn-primary,
+#app button[type="submit"] {
+  background: linear-gradient(135deg, #005daa 0%, #004b8d 100%) !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(0, 75, 141, 0.28), 0 1px 2px rgba(0, 75, 141, 0.16) !important;
+  color: #ffffff !important;
+  letter-spacing: 0.01em !important;
+}
+
+#app .btn--primary:hover,
+#app .button--primary:hover,
+#app button[type="submit"]:hover {
+  background: linear-gradient(135deg, #0069bf 0%, #005daa 100%) !important;
+  box-shadow: 0 4px 14px rgba(0, 75, 141, 0.36), 0 2px 4px rgba(0, 75, 141, 0.18) !important;
+}
+
+/* --- FORMULARIOS — inputs refinados --- */
+#app .content input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+#app .content textarea,
+#app .content select,
+#app .content .form-control,
+#app .settings input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+#app .settings textarea,
+#app .settings select,
+#app .settings .form-control,
+#app .admin input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+#app .admin textarea,
+#app .admin select,
+#app .admin .form-control {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(0, 31, 61, 0.16) !important;
+  border-radius: 8px !important;
+  color: #1d1d1f !important;
+  font-size: 14px !important;
+  padding: 8px 12px !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  box-shadow: 0 1px 2px rgba(0, 31, 61, 0.04) !important;
+}
+
+#app .content input:focus,
+#app .content textarea:focus,
+#app .content select:focus,
+#app .content .form-control:focus,
+#app .settings input:focus,
+#app .settings textarea:focus,
+#app .settings .form-control:focus,
+#app .admin input:focus,
+#app .admin textarea:focus,
+#app .admin .form-control:focus {
+  border-color: #0071bc !important;
+  box-shadow: 0 0 0 3px rgba(0, 113, 188, 0.14) !important;
+  outline: none !important;
+}
+
+/* --- BADGES Y ETIQUETAS --- */
+#app .badge,
+#app .label:not(label),
+#app [class*="badge"],
+#app [class*="Badge"] {
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+}
+
+/* --- TOOLTIPS --- */
+#app [class*="tooltip"],
+#app [class*="Tooltip"] {
+  background: #1a2332 !important;
+  color: #f0f6ff !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
+  padding: 5px 10px !important;
+}
+
+/* --- TABS --- */
+#app .nav-tabs,
+#app [role="tablist"] {
+  border-bottom: 2px solid rgba(0, 31, 61, 0.10) !important;
+}
+
+#app .nav-tabs [role="tab"],
+#app [role="tab"] {
+  border-radius: 7px 7px 0 0 !important;
+  color: #5f6672 !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+  transition: color 0.13s ease !important;
+}
+
+#app .nav-tabs [role="tab"]:hover {
+  color: #004b8d !important;
+  background: rgba(0, 75, 141, 0.05) !important;
+}
+
+#app [role="tab"][aria-selected="true"],
+#app .nav-tabs .active,
+#app .nav-tabs .is-active {
+  background: #ffffff !important;
+  border-color: #004b8d !important;
+  color: #004b8d !important;
+  border-bottom: 2px solid #004b8d !important;
+}
+
+/* --- SCROLLBAR — refinada y discreta --- */
+#app *::-webkit-scrollbar {
+  width: 5px !important;
+  height: 5px !important;
+}
+
+#app *::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+#app *::-webkit-scrollbar-thumb {
+  background: rgba(0, 31, 61, 0.18) !important;
+  border-radius: 99px !important;
+}
+
+#app .navigation *::-webkit-scrollbar-thumb,
+#app .appSidebar *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* --- ESTADOS DE PRIORIDAD EN TICKETS --- */
+#app [class*="priority-1"],
+#app [class*="low-priority"],
+#app .u-priority-1 { border-left-color: #64748b !important; }
+
+#app [class*="priority-2"],
+#app [class*="normal-priority"],
+#app .u-priority-2 { border-left-color: #0284c7 !important; }
+
+#app [class*="priority-3"],
+#app [class*="high-priority"],
+#app .u-priority-3 { border-left-color: #f59e0b !important; }
+
+#app [class*="priority-4"],
+#app [class*="very-high-priority"],
+#app .u-priority-4 { border-left-color: #dc2626 !important; }
+
+/* --- AVATAR GEIMSER --- */
+#app .avatar,
+#app [class*="avatar"],
+#app [class*="Avatar"] {
+  border-radius: 50% !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* --- NOTIFICACIONES / ALERTS --- */
+#app .alert,
+#app [class*="alert"],
+#app [class*="Alert"],
+#app .notification,
+#app [class*="notification"],
+#app [class*="Notification"] {
+  border-radius: 8px !important;
+  border-left-width: 4px !important;
+}
+
+/* --- ZOOM DE TICKET — lectura de alto nivel --- */
+#app .ticketZoom {
+  background: #f4f6fa !important;
+}
+
+#app .ticketZoom article,
+#app .ticketZoom .article {
+  border-radius: 10px !important;
+  box-shadow: 0 1px 4px rgba(0, 31, 61, 0.06) !important;
+  margin-bottom: 12px !important;
+}
+
+/* Respuesta interna vs externa */
+#app .ticketZoom article.is-internal,
+#app .ticketZoom .article.is-internal {
+  border-left: 3px solid #f59e0b !important;
+  background: #fffdf0 !important;
+}
+
+/* --- SHORTCUTS GEIMSER EN SIDEBAR — refinados --- */
+.geimser-sidebar-shortcuts {
+  padding: 4px 8px !important;
+}
+
+.geimser-sidebar-shortcut {
+  border-radius: 7px !important;
+  min-height: 44px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  color: #c8d9eb !important;
+  gap: 14px !important;
+  padding: 0 14px !important;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease !important;
+}
+
+.geimser-sidebar-shortcut:hover,
+.geimser-sidebar-shortcut:focus,
+.geimser-sidebar-shortcut.is-active {
+  background: rgba(75, 179, 240, 0.13) !important;
+  border-left-color: #f5a623 !important;
+  color: #ffffff !important;
+}
+
+/* --- BOTÓN SOPORTE REMOTO — nivel superior --- */
+.geimser-remote-button {
+  background: linear-gradient(135deg, #005daa, #004b8d) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 4px 16px rgba(0, 75, 141, 0.32), 0 2px 4px rgba(0, 75, 141, 0.16) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.01em !important;
+  transition: box-shadow 0.15s ease, transform 0.10s ease !important;
+}
+
+.geimser-remote-button:hover {
+  background: linear-gradient(135deg, #0069bf, #005daa) !important;
+  box-shadow: 0 6px 20px rgba(0, 75, 141, 0.40), 0 2px 6px rgba(0, 75, 141, 0.20) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* --- SEARCH OVERLAY GLOBAL (Zammad Vue full-screen) --- */
+#app [class*="searchOverlay"],
+#app [class*="SearchOverlay"],
+#app [class*="globalSearch"],
+#app [class*="GlobalSearch"] {
+  background: rgba(15, 23, 42, 0.72) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+#app [class*="searchOverlay"] [class*="results"],
+#app [class*="SearchOverlay"] [class*="results"],
+#app [class*="globalSearch"] [class*="results"],
+#app [class*="GlobalSearch"] [class*="results"] {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 24px 64px rgba(0, 20, 50, 0.28) !important;
+  color: #1d1d1f !important;
+}
+
+#app [class*="searchOverlay"] [class*="results"] *,
+#app [class*="SearchOverlay"] [class*="results"] *,
+#app [class*="globalSearch"] [class*="results"] *,
+#app [class*="GlobalSearch"] [class*="results"] * {
+  color: #1d1d1f !important;
+}
+
+/* --- REFINAMIENTO FINAL — links en contenido --- */
+#app .content a:not(.btn):not([class*="button"]):not([class*="Button"]) {
+  color: #0071bc !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid rgba(0, 113, 188, 0.20) !important;
+  transition: color 0.12s ease, border-color 0.12s ease !important;
+}
+
+#app .content a:not(.btn):not([class*="button"]):not([class*="Button"]):hover {
+  color: #004b8d !important;
+  border-bottom-color: rgba(0, 75, 141, 0.45) !important;
 }
