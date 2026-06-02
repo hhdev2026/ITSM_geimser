@@ -1,21 +1,35 @@
 :root {
-  --geimser-blue: #004b8d;
-  --geimser-blue-deep: #1b3a6b;
+  --geimser-blue: #0057a8;
+  --geimser-blue-mid: #0070d2;
+  --geimser-blue-deep: #003d7a;
   --geimser-orange: #f5a623;
-  --geimser-surface: #f5f5f7;
-  --geimser-panel: rgba(255, 255, 255, 0.92);
-  --geimser-line: rgba(0, 31, 61, 0.1);
-  --geimser-text: #1d1d1f;
-  --geimser-muted: #6e6e73;
-  --geimser-shadow: 0 18px 48px rgba(0, 31, 61, 0.12);
+  --geimser-orange-dark: #d4881a;
+  --geimser-surface: #f0f2f5;
+  --geimser-panel: #ffffff;
+  --geimser-line: rgba(0, 31, 61, 0.09);
+  --geimser-text: #111827;
+  --geimser-text-secondary: #4b5563;
+  --geimser-muted: #6b7280;
+  --geimser-shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.05);
+  --geimser-shadow: 0 4px 16px rgba(0,31,61,0.10), 0 1px 4px rgba(0,31,61,0.06);
+  --geimser-shadow-lg: 0 12px 40px rgba(0,31,61,0.14), 0 4px 12px rgba(0,31,61,0.08);
+  --geimser-radius: 10px;
+  --geimser-sidebar-bg: #0f1117;
+  --geimser-sidebar-text: #c9d5e3;
+  --geimser-sidebar-hover: rgba(255,255,255,0.07);
+  --geimser-sidebar-active: rgba(0,112,210,0.18);
 }
 
 body {
   background: var(--geimser-surface);
   color: var(--geimser-text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Roboto", "Open Sans", "Lato", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Text", "Segoe UI", "Roboto", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
   letter-spacing: 0;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html,
@@ -47,7 +61,8 @@ img[alt="Geimser ITSM"] {
   top: auto;
   bottom: 68px;
   left: 12px;
-  z-index: 10000 !important;
+  /* z-index reducido: los popups/dropdowns del perfil deben quedar SOBRE el logo */
+  z-index: 4000 !important;
   display: block !important;
   align-items: center;
   width: 40px;
@@ -3999,13 +4014,504 @@ html[data-theme="dark"] #app {
 
 /* --- REFINAMIENTO FINAL — links en contenido --- */
 #app .content a:not(.btn):not([class*="button"]):not([class*="Button"]) {
-  color: #0071bc !important;
+  color: #0057a8 !important;
   text-decoration: none !important;
-  border-bottom: 1px solid rgba(0, 113, 188, 0.20) !important;
+  border-bottom: 1px solid rgba(0, 87, 168, 0.18) !important;
   transition: color 0.12s ease, border-color 0.12s ease !important;
 }
 
 #app .content a:not(.btn):not([class*="button"]):not([class*="Button"]):hover {
-  color: #004b8d !important;
-  border-bottom-color: rgba(0, 75, 141, 0.45) !important;
+  color: #003d7a !important;
+  border-bottom-color: rgba(0, 61, 122, 0.45) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   REDISEÑO COMPLETO LOOK & FEEL — GEIMSER ITSM
+   Sistema visual moderno de alta calidad.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── SIDEBAR PRINCIPAL ─────────────────────────────────────── */
+#app .navigation,
+#app .appSidebar,
+#app .mainNavigation,
+#app .geimser-nav-surface,
+#app [class*="Navigation"],
+#app [class*="navigation"] {
+  background: var(--geimser-sidebar-bg, #0f1117) !important;
+  background-image: linear-gradient(180deg, #141720 0%, #0f1117 100%) !important;
+  border-right: 1px solid rgba(255,255,255,0.05) !important;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.18) !important;
+}
+
+/* Items de nav — texto legible */
+#app .navigation *,
+#app .appSidebar *,
+#app .mainNavigation *,
+#app .geimser-nav-surface * {
+  color: #c9d5e3 !important;
+}
+
+/* Links del sidebar */
+#app .navigation a,
+#app .appSidebar a,
+#app .mainNavigation a {
+  color: #c9d5e3 !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  transition: background 0.13s, color 0.13s !important;
+}
+
+/* Hover items sidebar */
+#app .navigation a:hover,
+#app .appSidebar a:hover,
+#app .mainNavigation a:hover {
+  background: rgba(255,255,255,0.07) !important;
+  color: #ffffff !important;
+}
+
+/* Item activo — highlight azul con acento naranja */
+#app .navigation .is-active,
+#app .navigation .active,
+#app .appSidebar .is-active,
+#app .mainNavigation .is-active {
+  background: rgba(0,112,210,0.18) !important;
+  border-left: 3px solid #f5a623 !important;
+}
+
+#app .navigation .is-active *,
+#app .navigation .active *,
+#app .appSidebar .is-active *,
+#app .mainNavigation .is-active * {
+  color: #ffffff !important;
+}
+
+/* ─── MENÚ DE PERFIL / POPUP DE USUARIO ─────────────────────── */
+/* z-index alto para que quede SOBRE el logo Geimser (z-index: 4000) */
+#app .dropdown-menu,
+#app [role="menu"],
+#app [role="listbox"],
+#app [class*="popover"],
+#app [class*="Popover"],
+#app [class*="userMenu"],
+#app [class*="UserMenu"],
+#app [class*="profileMenu"],
+#app [class*="ProfileMenu"],
+#app [class*="contextMenu"],
+#app [class*="accountMenu"],
+#app .js-profileMenu,
+#app .js-accountMenu {
+  z-index: 9500 !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(0,31,61,0.10) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.08) !important;
+  overflow: hidden !important;
+  min-width: 220px !important;
+  padding: 6px !important;
+}
+
+/* Header del popup de perfil (nombre de usuario / avatar) */
+#app [class*="userMenu"] [class*="header"],
+#app [class*="profileMenu"] [class*="header"],
+#app .js-profileMenu [class*="header"],
+#app [role="menu"] .js-profile,
+#app [role="menu"] [class*="profile"],
+#app [role="menu"] li:first-child:has([class*="avatar"]),
+#app [role="menu"] li:first-child:has(.avatar) {
+  background: linear-gradient(135deg, #0f1117 0%, #1a2035 100%) !important;
+  color: #ffffff !important;
+  padding: 14px 16px !important;
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+/* Texto dentro del header */
+#app [class*="userMenu"] [class*="header"] *,
+#app [class*="profileMenu"] [class*="header"] * {
+  color: #ffffff !important;
+}
+
+/* Items del menú de perfil */
+#app [role="menu"] li,
+#app [role="menu"] [role="menuitem"],
+#app [role="menu"] a,
+#app [class*="userMenu"] li,
+#app [class*="profileMenu"] li,
+#app [class*="contextMenu"] li,
+#app .dropdown-menu li,
+#app .dropdown-menu a {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 12px !important;
+  border-radius: 8px !important;
+  color: #1a2035 !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  text-decoration: none !important;
+  transition: background 0.11s ease !important;
+  cursor: pointer !important;
+}
+
+#app [role="menu"] li:hover,
+#app [role="menu"] [role="menuitem"]:hover,
+#app [role="menu"] a:hover,
+#app [class*="userMenu"] li:hover,
+#app [class*="profileMenu"] li:hover,
+#app .dropdown-menu li:hover,
+#app .dropdown-menu a:hover {
+  background: #f0f7ff !important;
+  color: #0057a8 !important;
+}
+
+/* Separador en menú */
+#app [role="menu"] .divider,
+#app [role="menu"] hr,
+#app .dropdown-menu .divider,
+#app .dropdown-menu hr {
+  border: none !important;
+  border-top: 1px solid rgba(0,31,61,0.08) !important;
+  margin: 5px 6px !important;
+}
+
+/* Toggle "Modo oscuro" — mantenerlo visible */
+#app [role="menu"] [class*="toggle"],
+#app [class*="userMenu"] [class*="toggle"],
+#app .js-profileMenu [class*="toggle"] {
+  color: #374151 !important;
+}
+
+/* Todos los hijos del popup en color oscuro */
+#app [role="menu"] *,
+#app [role="listbox"] *,
+#app [class*="userMenu"] *,
+#app [class*="profileMenu"] *,
+#app [class*="contextMenu"] *,
+#app .dropdown-menu * {
+  color: #1a2035 !important;
+  background-color: transparent !important;
+}
+
+/* ─── DOCK INFERIOR DEL SIDEBAR (avatar + botones) ─────────── */
+#app .geimser-sidebar-footer,
+#app .geimser-sidebar-dock,
+#app [class*="userPanel"],
+#app [class*="UserPanel"] {
+  background: #080a0f !important;
+  border-top: 1px solid rgba(255,255,255,0.06) !important;
+}
+
+/* Avatar en dock */
+#app .geimser-sidebar-dock-item .avatar,
+#app .geimser-sidebar-dock-item [class*="avatar"],
+#app .geimser-sidebar-footer .avatar,
+#app .geimser-sidebar-footer [class*="avatar"] {
+  background: var(--geimser-orange, #f5a623) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(245,166,35,0.36) !important;
+}
+
+/* ─── ÁREA DE CONTENIDO PRINCIPAL ───────────────────────────── */
+#app .content,
+#app .main,
+#app .main-content,
+#app .dashboard,
+#app .overview,
+#app .settings,
+#app .admin,
+#app .ticketZoom,
+#app .page {
+  background: #f0f2f5 !important;
+}
+
+/* ─── PANTALLA DE BIENVENIDA ─────────────────────────────────── */
+/* Detecta el texto de bienvenida y le da un estilo moderno */
+#app .content:has(h1),
+#app .main:has(h1) {
+  display: flex !important;
+  align-items: flex-start !important;
+}
+
+/* Card de bienvenida cuando no hay tickets */
+#app .content > div > h1,
+#app .main > div > h1,
+#app [class*="welcome"] h1,
+#app [class*="Welcome"] h1 {
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  letter-spacing: -0.02em !important;
+  margin-bottom: 8px !important;
+}
+
+/* ─── CARDS Y PANELES ────────────────────────────────────────── */
+#app .card,
+#app .panel,
+#app .widget,
+#app .box,
+#app .overviewItem,
+#app .dashboardWidget,
+#app [class*="Widget"],
+#app [class*="widget"],
+#app [class*="Card"],
+#app [class*="card"] {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,31,61,0.08) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--geimser-shadow-sm) !important;
+  transition: box-shadow 0.15s ease, transform 0.13s ease !important;
+}
+
+#app .overviewItem:hover,
+#app .dashboardWidget:hover,
+#app .card:hover {
+  box-shadow: var(--geimser-shadow) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ─── BOTONES ────────────────────────────────────────────────── */
+/* Reset base */
+#app button,
+#app .btn,
+#app a.btn,
+#app [role="button"] {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  letter-spacing: 0.01em !important;
+  transition: background 0.13s, box-shadow 0.13s, transform 0.10s !important;
+}
+
+/* Botón primario — gradiente azul Geimser */
+#app .btn--primary,
+#app .button--primary,
+#app .btn-primary,
+#app button[type="submit"],
+#app input[type="submit"] {
+  background: linear-gradient(160deg, #0070d2 0%, #0057a8 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0,87,168,0.30) !important;
+  padding: 9px 20px !important;
+}
+
+#app .btn--primary:hover,
+#app button[type="submit"]:hover {
+  background: linear-gradient(160deg, #0080f0 0%, #0067c0 100%) !important;
+  box-shadow: 0 4px 16px rgba(0,87,168,0.40) !important;
+  transform: translateY(-1px) !important;
+}
+
+#app .btn--primary:active,
+#app button[type="submit"]:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 1px 4px rgba(0,87,168,0.25) !important;
+}
+
+/* ─── TABLAS ─────────────────────────────────────────────────── */
+#app table {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(0,31,61,0.08) !important;
+  box-shadow: var(--geimser-shadow-sm) !important;
+}
+
+#app thead th {
+  background: #f8fafc !important;
+  color: #374151 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 11px 16px !important;
+  border-bottom: 1px solid rgba(0,31,61,0.08) !important;
+}
+
+#app tbody tr:hover {
+  background: #f5f9ff !important;
+}
+
+#app tbody td {
+  color: #1a2035 !important;
+  font-size: 13.5px !important;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid rgba(0,31,61,0.06) !important;
+  vertical-align: middle !important;
+}
+
+/* ─── INPUTS EN CONTENIDO ────────────────────────────────────── */
+#app .content input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="file"]),
+#app .content textarea,
+#app .content select,
+#app .content .form-control,
+#app .settings input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="file"]),
+#app .settings textarea,
+#app .settings select,
+#app .settings .form-control,
+#app .admin input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="file"]),
+#app .admin textarea,
+#app .admin select,
+#app .admin .form-control {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(0,31,61,0.14) !important;
+  border-radius: 8px !important;
+  color: #111827 !important;
+  font-size: 14px !important;
+  padding: 9px 13px !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04) !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+
+#app .content input:focus,
+#app .content textarea:focus,
+#app .content select:focus,
+#app .content .form-control:focus,
+#app .settings input:focus,
+#app .settings textarea:focus,
+#app .admin input:focus,
+#app .admin textarea:focus {
+  border-color: #0070d2 !important;
+  box-shadow: 0 0 0 3px rgba(0,112,210,0.15), inset 0 1px 2px rgba(0,0,0,0.04) !important;
+  outline: none !important;
+}
+
+/* ─── TICKET ZOOM ─────────────────────────────────────────────── */
+#app .ticketZoom article,
+#app .ticketZoom .article {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(0,31,61,0.08) !important;
+  box-shadow: var(--geimser-shadow-sm) !important;
+  margin-bottom: 14px !important;
+}
+
+/* ─── SCROLLBAR DISCRETA ─────────────────────────────────────── */
+#app *::-webkit-scrollbar { width: 5px !important; height: 5px !important; }
+#app *::-webkit-scrollbar-track { background: transparent !important; }
+#app *::-webkit-scrollbar-thumb {
+  background: rgba(0,31,61,0.16) !important;
+  border-radius: 99px !important;
+}
+#app .navigation *::-webkit-scrollbar-thumb,
+#app .appSidebar *::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15) !important;
+}
+
+/* ─── BOTÓN SOPORTE REMOTO ───────────────────────────────────── */
+.geimser-remote-button {
+  background: linear-gradient(160deg, #0070d2, #0057a8) !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  letter-spacing: 0.01em !important;
+  box-shadow: 0 4px 16px rgba(0,87,168,0.35) !important;
+  transition: box-shadow 0.15s, transform 0.12s !important;
+}
+.geimser-remote-button:hover {
+  background: linear-gradient(160deg, #0080f0, #0067c0) !important;
+  box-shadow: 0 6px 22px rgba(0,87,168,0.46) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ─── SHORTCUTS GEIMSER ──────────────────────────────────────── */
+.geimser-sidebar-shortcut {
+  border-radius: 8px !important;
+  min-height: 42px !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: #a8bcce !important;
+  gap: 12px !important;
+  padding: 0 14px !important;
+  transition: background 0.12s, color 0.12s !important;
+}
+.geimser-sidebar-shortcut:hover,
+.geimser-sidebar-shortcut.is-active {
+  background: rgba(0,112,210,0.16) !important;
+  border-left-color: #f5a623 !important;
+  color: #ffffff !important;
+}
+
+/* ─── MODALES ─────────────────────────────────────────────────── */
+#app .modal-content,
+#app .modal-body,
+#app .modal-header,
+#app .modal-footer,
+#app [role="dialog"] {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-radius: 14px !important;
+}
+
+#app .modal-header {
+  background: #f8fafc !important;
+  border-bottom: 1px solid rgba(0,31,61,0.08) !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  padding: 18px 22px !important;
+  border-radius: 14px 14px 0 0 !important;
+}
+
+/* ─── BADGES ─────────────────────────────────────────────────── */
+#app .badge,
+#app [class*="badge"],
+#app [class*="Badge"] {
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  padding: 2px 8px !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* ─── TOOLTIPS ───────────────────────────────────────────────── */
+#app [class*="tooltip"],
+#app [class*="Tooltip"] {
+  background: #1a2035 !important;
+  color: #e9f1fb !important;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 5px 10px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.24) !important;
+}
+
+/* ─── TABS ────────────────────────────────────────────────────── */
+#app [role="tablist"],
+#app .nav-tabs {
+  border-bottom: 2px solid rgba(0,31,61,0.08) !important;
+  gap: 2px !important;
+}
+
+#app [role="tab"],
+#app .nav-tabs .nav-link {
+  border-radius: 8px 8px 0 0 !important;
+  color: #6b7280 !important;
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  padding: 9px 18px !important;
+  transition: color 0.13s, background 0.13s !important;
+}
+
+#app [role="tab"]:hover,
+#app .nav-tabs .nav-link:hover {
+  color: #0057a8 !important;
+  background: rgba(0,87,168,0.05) !important;
+}
+
+#app [role="tab"][aria-selected="true"],
+#app .nav-tabs .active,
+#app .nav-tabs .is-active {
+  background: #ffffff !important;
+  color: #0057a8 !important;
+  border-bottom: 2px solid #0057a8 !important;
+  font-weight: 700 !important;
+}
+
+/* ─── TEXTOS BLANCOS HEREDADOS EN FONDOS CLAROS ─────────────── */
+#app .content span[style*="color: rgb(255, 255, 255)"],
+#app .content span[style*="color: white"],
+#app .main span[style*="color: rgb(255, 255, 255)"],
+#app .main span[style*="color: white"] {
+  color: #111827 !important;
 }

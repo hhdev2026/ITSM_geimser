@@ -260,32 +260,34 @@
     var session = currentSession();
     if (!session) return false;
 
-    var hasAdminDock = Array.from(document.querySelectorAll("#app a, #app button, #app [role='link'], #app [role='button']")).some(function (el) {
-      var label = [
-        el.getAttribute("href"),
-        el.getAttribute("title"),
-        el.getAttribute("aria-label"),
-        el.textContent
-      ].join(" ");
-
-      return /#manage|administrar|admin/i.test(label);
-    });
-
-    if (hasAdminDock) return true;
-
+    // --- 1. Verificación basada en permisos de sesión (fuente de verdad) ---
     var names = [];
     collectSessionNames(session.permissions, names, 0);
     collectSessionNames(session.roles, names, 0);
     collectSessionNames(session.role, names, 0);
-    collectSessionNames(session, names, 0);
 
     var text = names.join(" ").toLowerCase();
-    var hasAdmin = /(^|[\s._-])admin($|[\s._-])/.test(text);
-    // "agente" es el nombre del rol en el español de Zammad — debe coincidir con o sin la "e" final
-    var hasResolver = /ticket\.agent|ticket\.group|agente|agentes|(^|[\s._-])(agent|resolver|resolutor|soporte|support)($|[\s._-])/.test(text);
-    var isOnlyCustomer = /ticket\.customer/.test(text) && !hasAdmin && !hasResolver;
 
-    return (hasAdmin || hasResolver) && !isOnlyCustomer;
+    // Si el usuario SOLO tiene permiso de cliente, denegar inmediatamente
+    // sin importar nada más en el DOM.
+    var isExplicitCustomer = /ticket\.customer/.test(text) && !/ticket\.agent|admin/.test(text);
+    if (isExplicitCustomer) return false;
+
+    var hasAdmin = /(^|[\s._-])admin($|[\s._-])/.test(text);
+    var hasResolver = /ticket\.agent|ticket\.group|agente|agentes|(^|[\s._-])(agent|resolver|resolutor|soporte|support)($|[\s._-])/.test(text);
+
+    if (hasAdmin || hasResolver) return true;
+
+    // --- 2. Fallback DOM: solo si la sesión no fue suficientemente explícita ---
+    // Verificar si la UI actual corresponde a un portal de cliente
+    // (texto visible solo en la vista de cliente → denegar acceso)
+    var contentText = (document.querySelector("#app .content, #app .main") || {}).textContent || "";
+    var looksLikeCustomerPortal = /crear tu primer ticket|tickets de mi organización|¡bienvenido!/i.test(contentText);
+    if (looksLikeCustomerPortal) return false;
+
+    // Verificar presencia de link de admin en el dock (solo admins lo ven)
+    var hasAdminLink = document.querySelector("#app a[href='#manage'], #app a[href*='#manage/']") !== null;
+    return hasAdminLink;
   }
 
   function findSidebarSurface() {
