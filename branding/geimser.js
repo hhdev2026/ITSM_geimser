@@ -947,6 +947,47 @@
     return "/geimser/mesh/login?next=" + encodeURIComponent(path || "/");
   }
 
+  function meshAgentInstallUrl() {
+    return meshLoginUrl("/meshagents");
+  }
+
+  function clientPlatformLabel() {
+    var ua = navigator.userAgent || "";
+    if (/Windows/i.test(ua)) return "Windows";
+    if (/Macintosh|Mac OS X/i.test(ua)) return "macOS";
+    if (/Linux/i.test(ua)) return "Linux";
+    return "este equipo";
+  }
+
+  function remoteInstallInstructions() {
+    return [
+      "Instalacion agente remoto Geimser",
+      "",
+      "1. Abre el instalador desde Geimser ITSM.",
+      "2. En MeshCentral entra a Mis Dispositivos y descarga el agente para " + clientPlatformLabel() + ".",
+      "3. Ejecuta el instalador una sola vez en el equipo que necesita soporte.",
+      "4. Acepta los permisos del sistema operativo.",
+      "5. Cuando el equipo aparezca online, vuelve a Geimser ITSM y usa Tomar control."
+    ].join("\n");
+  }
+
+  function maybePromptRemoteInstall(modal, assets) {
+    if (!internalSidebarAccess() || assets.length) return;
+
+    try {
+      var key = "geimserRemoteInstallPromptSeen";
+      if (window.localStorage && localStorage.getItem(key) === "true") return;
+      if (window.localStorage) localStorage.setItem(key, "true");
+    } catch (_error) {
+      // Best effort only; the prompt should never block normal navigation.
+    }
+
+    window.setTimeout(function () {
+      if (!document.body.contains(modal)) return;
+      openRemoteModal("registrar");
+    }, 350);
+  }
+
   function remoteAssetStatusLabel(status) {
     return status === "online" ? "Online" : "Offline";
   }
@@ -1052,10 +1093,18 @@
     if (!assets.length) {
       container.innerHTML = [
         '<div class="geimser-remote-empty">',
-        '  <strong>No hay equipos sincronizados todavia.</strong>',
-        '  <span>Instala el agente en Windows. Cuando el equipo aparezca online en MeshCentral, tambien quedara registrado aqui como activo remoto.</span>',
+        '  <strong>Este navegador no tiene equipos Mesh sincronizados todavia.</strong>',
+        '  <span>Instala el agente Geimser en el equipo del usuario. Cuando aparezca online en MeshCentral, tambien quedara registrado aqui como activo remoto.</span>',
+        '  <button type="button" data-remote-empty-install>Instalar agente</button>',
         '</div>'
       ].join("");
+      var installButton = container.querySelector("[data-remote-empty-install]");
+      if (installButton) {
+        installButton.addEventListener("click", function () {
+          if (modal.GeimserSetFlow) modal.GeimserSetFlow("registrar");
+        });
+      }
+      maybePromptRemoteInstall(modal, assets);
       return;
     }
 
@@ -1113,6 +1162,34 @@
     }).catch(function () {
       container.innerHTML = '<div class="geimser-remote-empty is-error"><strong>No pudimos sincronizar la CMDB remota.</strong><span>Abre MeshCentral con el boton Instalador/Completo mientras revisamos la conexion.</span></div>';
     });
+  }
+
+  var remoteInstallAutocheckStarted = false;
+
+  function checkRemoteInstallFirstRun() {
+    if (remoteInstallAutocheckStarted || !internalSidebarAccess()) return;
+
+    try {
+      if (window.localStorage && localStorage.getItem("geimserRemoteInstallPromptSeen") === "true") return;
+    } catch (_error) {
+      return;
+    }
+
+    remoteInstallAutocheckStarted = true;
+    window.setTimeout(function () {
+      fetch("/geimser/remote/assets", {
+        credentials: "same-origin",
+        headers: { "Accept": "application/json" }
+      }).then(function (response) {
+        if (!response.ok) throw new Error("remote assets autocheck failed");
+        return response.json();
+      }).then(function (payload) {
+        var modal = ensureRemoteModal();
+        maybePromptRemoteInstall(modal, (payload && payload.assets) || []);
+      }).catch(function () {
+        remoteInstallAutocheckStarted = false;
+      });
+    }, 1400);
   }
 
   function remoteAssetSummary(assets) {
@@ -1631,6 +1708,23 @@
       '        <span>Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.</span>',
       '      </div>',
       '      <section class="geimser-remote-assets" aria-label="Activos remotos sincronizados"></section>',
+      '      <section class="geimser-remote-install" aria-label="Instalacion de agente remoto" hidden>',
+      '        <div class="geimser-remote-install-card">',
+      '          <div>',
+      '            <strong>Instalar agente en ' + escapeHtml(clientPlatformLabel()) + '</strong>',
+      '            <span>El navegador no puede instalarlo en silencio. Abre MeshCentral, descarga el agente y ejecútalo una vez en el equipo.</span>',
+      '          </div>',
+      '          <div class="geimser-remote-install-actions">',
+      '            <a class="geimser-remote-agent-download" target="_blank" rel="noopener">Abrir descarga del agente</a>',
+      '            <button type="button" class="geimser-remote-copy-install">Copiar pasos</button>',
+      '          </div>',
+      '        </div>',
+      '        <ol class="geimser-remote-install-steps">',
+      '          <li>En MeshCentral abre <strong>Mis Dispositivos</strong>.</li>',
+      '          <li>Usa <strong>Agregar agente</strong> y elige el sistema operativo del equipo.</li>',
+      '          <li>Ejecuta el instalador y espera que el equipo aparezca online.</li>',
+      '        </ol>',
+      '      </section>',
       '      <div class="geimser-remote-frame-shell">',
       '        <iframe class="geimser-remote-frame" title="Centro remoto Geimser ITSM"></iframe>',
       '      </div>',
@@ -1644,8 +1738,8 @@
       var detail = "Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.";
 
       if (flow === "registrar") {
-        title = "Descargar instalador Windows";
-        detail = "En Mis Dispositivos crea o abre un grupo. Luego usa Agregar agente, selecciona Windows y descarga el instalador.";
+        title = "Descargar agente remoto";
+        detail = "Abre la descarga del agente, elige el sistema operativo y ejecuta el instalador una sola vez en el equipo.";
       } else if (flow === "enviar") {
         title = "Enviar al notebook";
         detail = "Adjunta el .exe generado al ticket o correo. El usuario lo ejecuta una vez y el equipo aparecerá online.";
@@ -1662,6 +1756,7 @@
       modal.querySelector(".geimser-remote-banner span").textContent = detail;
       modal.querySelector(".geimser-remote-frame").src = meshLoginUrl("/");
       modal.querySelector(".geimser-remote-assets").hidden = flow !== "equipos";
+      modal.querySelector(".geimser-remote-install").hidden = flow === "equipos";
       modal.querySelector(".geimser-remote-frame-shell").classList.toggle("is-compact", flow === "equipos");
       if (flow === "equipos") {
         loadRemoteAssets(modal);
@@ -1678,6 +1773,22 @@
 
     modal.querySelector(".geimser-remote-register").addEventListener("click", function () {
       setFlow("registrar");
+    });
+
+    modal.querySelector(".geimser-remote-agent-download").href = meshAgentInstallUrl();
+    modal.querySelector(".geimser-remote-copy-install").addEventListener("click", function () {
+      var button = this;
+      var text = remoteInstallInstructions();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          button.textContent = "Pasos copiados";
+          window.setTimeout(function () { button.textContent = "Copiar pasos"; }, 1800);
+        }).catch(function () {
+          window.prompt("Copia estos pasos", text);
+        });
+      } else {
+        window.prompt("Copia estos pasos", text);
+      }
     });
 
     modal.addEventListener("click", function (event) {
@@ -1957,6 +2068,7 @@
     normalizeTextContrast();
     normalizeDynamicTableHeaders();
     ensureRemoteButton();
+    checkRemoteInstallFirstRun();
     syncCmdbRoute();
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();

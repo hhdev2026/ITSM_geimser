@@ -1868,6 +1868,100 @@ html[data-theme="dark"] #app {
   display: none;
 }
 
+.geimser-remote-install[hidden] {
+  display: none;
+}
+
+.geimser-remote-install {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #d9e2ec;
+  background: #f8fafc;
+}
+
+.geimser-remote-install-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid rgba(0, 75, 141, 0.18);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(16, 32, 51, 0.06);
+}
+
+.geimser-remote-install-card strong {
+  display: block;
+  color: #102033;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 850;
+}
+
+.geimser-remote-install-card span {
+  display: block;
+  max-width: 640px;
+  margin-top: 4px;
+  color: #536171;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.geimser-remote-install-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.geimser-remote-install-actions a,
+.geimser-remote-install-actions button,
+.geimser-remote-empty button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(0, 75, 141, 0.22);
+  border-radius: 8px;
+  background: #004b8d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.geimser-remote-install-actions button {
+  background: #ffffff;
+  color: #004b8d;
+}
+
+.geimser-remote-install-actions a:hover,
+.geimser-remote-empty button:hover {
+  background: #005daa;
+}
+
+.geimser-remote-install-actions button:hover {
+  background: #eef6ff;
+}
+
+.geimser-remote-install-steps {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0 0 0 20px;
+  color: #34495e;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.geimser-remote-install-steps strong {
+  color: #102033;
+  font-weight: 800;
+}
+
 .geimser-remote-assets-head {
   display: flex;
   align-items: baseline;
@@ -3097,6 +3191,10 @@ html[data-theme="dark"] #app {
   line-height: 1.4;
 }
 
+.geimser-remote-empty button {
+  margin-top: 12px;
+}
+
 .geimser-remote-empty.is-error {
   border-color: #f4b4a8;
   background: #fff5f2;
@@ -3142,6 +3240,15 @@ html[data-theme="dark"] #app {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .geimser-remote-install-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .geimser-remote-install-actions {
+    justify-content: flex-start;
   }
 }
 
