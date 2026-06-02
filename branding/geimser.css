@@ -3175,3 +3175,196 @@ html[data-theme="dark"] #app {
 #app [class*="activity"] .js-avatar {
   color: #071c2b !important;
 }
+
+/* =============================================================
+   POPOVERS / DROPDOWNS DE PERFIL — contraste garantizado
+   El wildcard nav (*) ponía texto claro sobre fondo blanco.
+   Estas reglas específicas lo anulan con mayor especificidad.
+   ============================================================= */
+
+/* Cualquier popover, dropdown o menú flotante dentro del sidebar/nav */
+#app .navigation .dropdown-menu,
+#app .navigation .dropdown,
+#app .navigation .popover,
+#app .navigation [role="menu"],
+#app .navigation [role="listbox"],
+#app .sidebar .dropdown-menu,
+#app .sidebar .dropdown,
+#app .sidebar .popover,
+#app .sidebar [role="menu"],
+#app .sidebar [role="listbox"],
+#app .appSidebar .dropdown-menu,
+#app .appSidebar .dropdown,
+#app .appSidebar .popover,
+#app .appSidebar [role="menu"],
+#app .mainNavigation .dropdown-menu,
+#app .mainNavigation .dropdown,
+#app .mainNavigation .popover,
+#app .mainNavigation [role="menu"],
+#app [class*="Navigation"] .dropdown-menu,
+#app [class*="Navigation"] .dropdown,
+#app [class*="Navigation"] .popover,
+#app [class*="Navigation"] [role="menu"],
+#app [class*="navigation"] .dropdown-menu,
+#app [class*="navigation"] .dropdown,
+#app [class*="navigation"] .popover,
+#app [class*="navigation"] [role="menu"],
+/* Selectores de Zammad Vue (UserMenu, ProfileMenu, etc.) */
+#app [class*="popover"],
+#app [class*="Popover"],
+#app [class*="userMenu"],
+#app [class*="UserMenu"],
+#app [class*="profileMenu"],
+#app [class*="ProfileMenu"],
+#app [class*="accountMenu"],
+#app [class*="AccountMenu"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #1d1d1f !important;
+  border-color: rgba(0, 31, 61, 0.14) !important;
+  box-shadow: 0 14px 40px rgba(0, 31, 61, 0.18) !important;
+}
+
+#app .navigation .dropdown-menu *,
+#app .navigation .dropdown *,
+#app .navigation .popover *,
+#app .navigation [role="menu"] *,
+#app .navigation [role="listbox"] *,
+#app .sidebar .dropdown-menu *,
+#app .sidebar .dropdown *,
+#app .sidebar .popover *,
+#app .sidebar [role="menu"] *,
+#app .appSidebar .dropdown-menu *,
+#app .appSidebar .dropdown *,
+#app .appSidebar .popover *,
+#app .appSidebar [role="menu"] *,
+#app .mainNavigation .dropdown-menu *,
+#app .mainNavigation .dropdown *,
+#app .mainNavigation .popover *,
+#app .mainNavigation [role="menu"] *,
+#app [class*="Navigation"] .dropdown-menu *,
+#app [class*="Navigation"] .dropdown *,
+#app [class*="Navigation"] .popover *,
+#app [class*="Navigation"] [role="menu"] *,
+#app [class*="navigation"] .dropdown-menu *,
+#app [class*="navigation"] .popover *,
+#app [class*="navigation"] [role="menu"] *,
+#app [class*="popover"] *,
+#app [class*="Popover"] *,
+#app [class*="userMenu"] *,
+#app [class*="UserMenu"] *,
+#app [class*="profileMenu"] *,
+#app [class*="ProfileMenu"] *,
+#app [class*="accountMenu"] *,
+#app [class*="AccountMenu"] * {
+  color: #1d1d1f !important;
+  background-color: transparent !important;
+}
+
+/* Links dentro de popovers/dropdowns */
+#app [class*="popover"] a,
+#app [class*="Popover"] a,
+#app [class*="userMenu"] a,
+#app [class*="UserMenu"] a,
+#app [class*="profileMenu"] a,
+#app [class*="ProfileMenu"] a,
+#app .navigation .dropdown-menu a,
+#app .sidebar .dropdown-menu a,
+#app .appSidebar .dropdown-menu a,
+#app .mainNavigation .dropdown-menu a {
+  color: #004b8d !important;
+}
+
+/* Items hover en popovers */
+#app [class*="popover"] li:hover,
+#app [class*="popover"] [role="menuitem"]:hover,
+#app [class*="userMenu"] li:hover,
+#app [class*="userMenu"] [role="menuitem"]:hover,
+#app .navigation .dropdown-menu li:hover,
+#app .navigation .dropdown-menu a:hover {
+  background: #eef6ff !important;
+  color: #004b8d !important;
+}
+
+/* =============================================================
+   CONTRASTE EN PÁGINAS DE ADMINISTRACIÓN / USUARIOS
+   Asegura que el panel de usuarios de Zammad sea siempre legible.
+   ============================================================= */
+
+#app .manage-users table,
+#app [class*="UserList"] table,
+#app [class*="userList"] table,
+#app .users-table table,
+#app [class*="manage"] table {
+  background: #ffffff !important;
+  color: #1d1d1f !important;
+}
+
+#app .manage-users thead th,
+#app [class*="UserList"] thead th,
+#app [class*="userList"] thead th {
+  background: #eef3f8 !important;
+  color: #1f2937 !important;
+}
+
+#app .manage-users tbody td,
+#app [class*="UserList"] tbody td,
+#app [class*="userList"] tbody td {
+  color: #1d1d1f !important;
+  border-color: rgba(0, 31, 61, 0.08) !important;
+}
+
+/* =============================================================
+   CONTRASTE EN MODALES — evitar texto claro sobre fondo claro
+   ============================================================= */
+
+#app .modal-content,
+#app .modal-body,
+#app .modal-header,
+#app .modal-footer,
+#app [role="dialog"] {
+  background: #ffffff !important;
+  color: #1d1d1f !important;
+}
+
+#app .modal-content *,
+#app .modal-body *,
+#app [role="dialog"] * {
+  color: #1d1d1f !important;
+}
+
+#app .modal-content a,
+#app .modal-body a,
+#app [role="dialog"] a {
+  color: #004b8d !important;
+}
+
+#app .modal-header {
+  border-bottom-color: rgba(0, 31, 61, 0.12) !important;
+}
+
+/* =============================================================
+   FIX ITEM ACTIVO EN SIDEBAR — garantiza contraste WCAG AA
+   #4bb3f0 bg con #071c2b texto: ratio ~8.6:1 ✓
+   ============================================================= */
+
+#app .navigation .is-active > *,
+#app .sidebar .is-active > *,
+#app .appSidebar .is-active > *,
+#app .mainNavigation .is-active > *,
+#app .geimser-nav-surface .is-active > * {
+  color: #071c2b !important;
+}
+
+/* =============================================================
+   CORRECCIÓN ESPECÍFICA: texto blanco sobre fondos claros
+   Zammad a veces deja spans con color: white heredado
+   en superficies claras (#f5f7fb, #ffffff, etc.)
+   ============================================================= */
+
+#app .content span[style*="color: rgb(255, 255, 255)"],
+#app .content span[style*="color: white"],
+#app .main span[style*="color: rgb(255, 255, 255)"],
+#app .main span[style*="color: white"] {
+  color: #1d1d1f !important;
+}

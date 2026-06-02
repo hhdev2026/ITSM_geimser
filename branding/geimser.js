@@ -281,7 +281,8 @@
 
     var text = names.join(" ").toLowerCase();
     var hasAdmin = /(^|[\s._-])admin($|[\s._-])/.test(text);
-    var hasResolver = /ticket\.agent|(^|[\s._-])(agent|resolver|resolutor|soporte|support)($|[\s._-])/.test(text);
+    // "agente" es el nombre del rol en el español de Zammad — debe coincidir con o sin la "e" final
+    var hasResolver = /ticket\.agent|ticket\.group|agente|agentes|(^|[\s._-])(agent|resolver|resolutor|soporte|support)($|[\s._-])/.test(text);
     var isOnlyCustomer = /ticket\.customer/.test(text) && !hasAdmin && !hasResolver;
 
     return (hasAdmin || hasResolver) && !isOnlyCustomer;
@@ -330,7 +331,10 @@
   function ensureInternalSidebarShortcuts() {
     var existing = document.querySelector(".geimser-sidebar-shortcuts");
     if (!internalSidebarAccess()) {
-      if (existing) existing.remove();
+      // Solo eliminar si la sesión ya está disponible; si no, esperar para no
+      // borrar prematuramente antes de que Zammad termine de cargar el perfil.
+      var sessionReady = Boolean(currentSession());
+      if (sessionReady && existing) existing.remove();
       return;
     }
 
@@ -624,6 +628,14 @@
 
     Array.from(app.querySelectorAll(".geimser-nav-surface a, .geimser-nav-surface button, .geimser-nav-surface span, .geimser-nav-surface div, .geimser-nav-surface li")).forEach(function (el) {
       if (!(el.textContent || "").trim() && !el.matches("a, button, [role='button']")) return;
+      // Excluir dropdowns, popovers y menús flotantes que tienen fondo claro —
+      // si se les aplica color claro, el texto queda invisible sobre fondo blanco.
+      if (el.closest(
+        ".dropdown-menu, .popover, [role='menu'], [role='dialog'], [role='listbox']," +
+        "[class*='popover'], [class*='Popover'], [class*='dropdown'], [class*='Dropdown']," +
+        "[class*='menu'], [class*='Menu'], [class*='overlay'], [class*='Overlay']," +
+        ".geimser-sidebar-shortcuts"
+      )) return;
       var isActive = Boolean(el.closest(".is-active, .active, [aria-current='page']"));
       setImportantStyle(el, "color", isActive ? "#071c2b" : "#e9f1f8");
     });
