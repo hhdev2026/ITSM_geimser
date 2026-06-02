@@ -1719,7 +1719,9 @@
       Boolean(document.querySelector(".hero-unit"));
     var existing = document.querySelector(".geimser-remote-button");
 
-    if (isPublicScreen) {
+    // Solo admin y resolutores pueden ver el botón de toma remota;
+    // los usuarios que solo crean tickets (clientes) no deben verlo.
+    if (isPublicScreen || !internalSidebarAccess()) {
       if (existing) existing.remove();
       return;
     }
