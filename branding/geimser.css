@@ -61,8 +61,8 @@ img[alt="Geimser ITSM"] {
   top: auto;
   bottom: 68px;
   left: 12px;
-  /* z-index reducido: los popups/dropdowns del perfil deben quedar SOBRE el logo */
-  z-index: 4000 !important;
+  /* z-index mínimo: debe quedar debajo de absolutamente todo lo interactivo */
+  z-index: 50 !important;
   display: block !important;
   align-items: center;
   width: 40px;

@@ -394,6 +394,65 @@
     }
   }
 
+  function forcePopupContrast() {
+    // Selecciona todos los popups/dropdowns visibles en el DOM
+    var popupSelectors = [
+      ".dropdown-menu", ".popover", "[role='menu']", "[role='listbox']",
+      "[role='dialog']", "[class*='userMenu']", "[class*='UserMenu']",
+      "[class*='profileMenu']", "[class*='ProfileMenu']",
+      "[class*='contextMenu']", "[class*='ContextMenu']",
+      "[class*='accountMenu']", "[class*='floatingMenu']",
+      ".js-profileSettings", ".js-profileMenu", ".js-accountMenu"
+    ].join(", ");
+
+    Array.from(document.querySelectorAll(popupSelectors)).forEach(function (popup) {
+      var rect = popup.getBoundingClientRect();
+      if (rect.width < 60 || rect.height < 30) return; // oculto o vacío
+
+      // Fuerza blanco en el popup completo via inline style (gana sobre cualquier CSS)
+      popup.style.setProperty("background", "#ffffff", "important");
+      popup.style.setProperty("background-color", "#ffffff", "important");
+      popup.style.setProperty("color", "#111827", "important");
+      popup.style.setProperty("border", "1px solid rgba(0,31,61,0.12)", "important");
+      popup.style.setProperty("border-radius", "12px", "important");
+      popup.style.setProperty("box-shadow", "0 8px 32px rgba(0,0,0,0.16)", "important");
+      popup.style.setProperty("z-index", "9999", "important");
+      popup.style.setProperty("overflow", "hidden", "important");
+
+      // Fuerza cada hijo también
+      Array.from(popup.querySelectorAll("*")).forEach(function (child) {
+        // Skip elementos de formulario
+        if (child.matches("input, textarea, select, option")) return;
+
+        var tag = child.tagName.toLowerCase();
+        // Separadores
+        if (tag === "hr" || child.classList.contains("divider")) {
+          child.style.setProperty("background", "rgba(0,31,61,0.08)", "important");
+          child.style.setProperty("border-color", "rgba(0,31,61,0.08)", "important");
+          return;
+        }
+        // Avatares — mantener color naranja
+        if (child.matches(".avatar, [class*='avatar'], [class*='Avatar']")) {
+          child.style.setProperty("background", "#f5a623", "important");
+          child.style.setProperty("color", "#ffffff", "important");
+          return;
+        }
+        // Toggle switches — no tocar su estado visual
+        if (child.matches("[class*='toggle'], [role='switch'], [type='checkbox']")) return;
+
+        child.style.setProperty("background-color", "transparent", "important");
+        child.style.setProperty("color", "#111827", "important");
+      });
+
+      // Links y botones dentro del popup
+      Array.from(popup.querySelectorAll("a, button:not([role='switch'])")).forEach(function (el) {
+        el.style.setProperty("color", "#1a2035", "important");
+        el.style.setProperty("background-color", "transparent", "important");
+        el.style.removeProperty("background");
+      });
+    });
+  }
+
   function fixSidebarSearchDropdowns() {
     var sidebar = findSidebarSurface();
     if (!sidebar) return;
@@ -2155,6 +2214,7 @@
     ensureRemoteButton();
     checkRemoteInstallFirstRun();
     syncCmdbRoute();
+    forcePopupContrast();
     fixSidebarSearchDropdowns();
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();
