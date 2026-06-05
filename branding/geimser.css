@@ -4517,8 +4517,8 @@ html[data-theme="dark"] #app {
   --geimser-popup-text: #f8fbff;
   --geimser-popup-muted: #b8c4d4;
   --geimser-popup-border: rgba(210, 225, 245, 0.16);
-  --geimser-popup-hover: rgba(75, 179, 240, 0.16);
-  --geimser-popup-link: #8fd3ff;
+  --geimser-popup-hover: #20344f;
+  --geimser-popup-link: #ffffff;
 }
 
 #app .geimser-profile-popup {
@@ -4759,6 +4759,9 @@ html[data-theme="dark"] #app {
   min-width: 280px !important;
   max-height: none !important;
   overflow: visible !important;
+  position: relative !important;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
 }
 
 #app .geimser-profile-popup a,
@@ -4770,7 +4773,29 @@ html[data-theme="dark"] #app {
 #app .geimser-profile-popup [class*="SignOut"] {
   visibility: visible !important;
   opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
   color: var(--geimser-popup-text) !important;
+}
+
+#app .geimser-profile-popup a:hover,
+#app .geimser-profile-popup button:not([role="switch"]):hover,
+#app .geimser-profile-popup [role="menuitem"]:hover,
+#app .geimser-profile-popup [role="option"]:hover,
+#app .geimser-profile-popup li:hover {
+  background: var(--geimser-popup-hover) !important;
+  background-color: var(--geimser-popup-hover) !important;
+  color: var(--geimser-popup-link) !important;
+}
+
+#app .geimser-profile-popup a:hover *,
+#app .geimser-profile-popup button:not([role="switch"]):hover *,
+#app .geimser-profile-popup [role="menuitem"]:hover *,
+#app .geimser-profile-popup [role="option"]:hover *,
+#app .geimser-profile-popup li:hover * {
+  color: var(--geimser-popup-link) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
 }
 
 #app .geimser-profile-popup a[href*="logout"],
@@ -4781,4 +4806,22 @@ html[data-theme="dark"] #app {
   border-top: 1px solid var(--geimser-popup-border) !important;
   margin-top: 6px !important;
   color: #b42318 !important;
+}
+
+#app .geimser-profile-popup[data-geimser-popup-theme="dark"] a[href*="logout"],
+#app .geimser-profile-popup[data-geimser-popup-theme="dark"] a[href*="sign_out"],
+#app .geimser-profile-popup[data-geimser-popup-theme="dark"] button[class*="logout"],
+#app .geimser-profile-popup[data-geimser-popup-theme="dark"] button[class*="Logout"],
+#app .geimser-profile-popup[data-geimser-popup-theme="dark"] [data-method="delete"] {
+  color: #ffb4a8 !important;
+}
+
+#app .geimser-profile-popup a[href*="logout"]:hover,
+#app .geimser-profile-popup a[href*="sign_out"]:hover,
+#app .geimser-profile-popup button[class*="logout"]:hover,
+#app .geimser-profile-popup button[class*="Logout"]:hover,
+#app .geimser-profile-popup [data-method="delete"]:hover {
+  background: #b42318 !important;
+  background-color: #b42318 !important;
+  color: #ffffff !important;
 }

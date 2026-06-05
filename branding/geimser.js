@@ -452,6 +452,39 @@
     });
   }
 
+  function ensureProfileLogoutFallback() {
+    if (window.__geimserProfileLogoutFallbackInstalled) return;
+    window.__geimserProfileLogoutFallbackInstalled = true;
+
+    document.addEventListener("click", function (event) {
+      var item = event.target && event.target.closest
+        ? event.target.closest(".geimser-profile-popup a, .geimser-profile-popup button, .geimser-profile-popup [role='menuitem'], .geimser-profile-popup li")
+        : null;
+      if (!item) return;
+
+      var text = (item.textContent || "").replace(/\s+/g, " ").trim();
+      var href = item.getAttribute && (item.getAttribute("href") || "");
+      var isLogout = /cerrar sesi[oó]n|logout|sign out/i.test(text + " " + href);
+      if (!isLogout) return;
+
+      if (/logout|sign_out|signout/i.test(href)) return;
+
+      var nativeLogout = document.querySelector("a[href*='logout'], a[href*='sign_out'], a[href*='signout'], form[action*='logout'] button, form[action*='sign_out'] button");
+      if (nativeLogout && nativeLogout !== item) {
+        window.setTimeout(function () {
+          nativeLogout.click();
+        }, 80);
+        return;
+      }
+
+      window.setTimeout(function () {
+        if (!/#logout/i.test(window.location.hash || "")) {
+          window.location.hash = "#logout";
+        }
+      }, 80);
+    });
+  }
+
   function fixSidebarSearchDropdowns() {
     var sidebar = findSidebarSurface();
     if (!sidebar) return;
@@ -2212,6 +2245,7 @@
     checkRemoteInstallFirstRun();
     syncCmdbRoute();
     forcePopupContrast();
+    ensureProfileLogoutFallback();
     fixSidebarSearchDropdowns();
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();
