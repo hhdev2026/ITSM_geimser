@@ -32,11 +32,37 @@ ensure_env_secret() {
   printf 'Se genero %s para esta instalacion.\n' "$name"
 }
 
+ensure_env_value() {
+  local name="$1"
+  local default_value="$2"
+  local value
+
+  value="${!name:-}"
+  if [ -n "$value" ]; then
+    if ! awk -F= -v key="$name" '$1 == key {found=1} END {exit !found}' .env 2>/dev/null; then
+      printf '\n%s=%s\n' "$name" "$value" >> .env
+    fi
+    export "${name}=${value}"
+    return
+  fi
+
+  value="$(awk -F= -v key="$name" '$1 == key {sub(/^[^=]*=/, ""); print; exit}' .env 2>/dev/null || true)"
+  if [ -n "$value" ]; then
+    export "${name}=${value}"
+    return
+  fi
+
+  printf '\n%s=%s\n' "$name" "$default_value" >> .env
+  export "${name}=${default_value}"
+}
+
 GENERATED_ADMIN_PASSWORD=""
 touch .env
 ensure_env_secret GEIMSER_CMDB_TOKEN
 ensure_env_secret GEIMSER_ADMIN_PASSWORD
 ensure_env_secret MESH_LOGIN_KEY 80
+ensure_env_value MESH_HOSTNAME remoto.geimser.cl
+ensure_env_value MESH_PUBLIC_URL https://remoto.geimser.cl
 
 if ! docker info >/dev/null 2>&1; then
   if command -v colima >/dev/null 2>&1; then

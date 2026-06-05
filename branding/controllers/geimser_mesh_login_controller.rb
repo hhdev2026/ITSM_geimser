@@ -88,14 +88,36 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   def mesh_target_url(login)
-    public_url = ENV.fetch('MESH_PUBLIC_URL') do
-      "https://#{ENV.fetch('MESH_HOSTNAME', 'remoto.geimser.cl')}"
-    end
-
-    uri = URI.parse(public_url)
+    uri = URI.parse(mesh_public_url)
     uri.path = safe_next_path
     uri.query = URI.encode_www_form('login' => login)
     uri.to_s
+  end
+
+  def mesh_public_url
+    public_url = ENV['MESH_PUBLIC_URL'].to_s.strip
+    public_url = "https://#{ENV['MESH_HOSTNAME']}" if public_url.blank? && ENV['MESH_HOSTNAME'].present?
+    public_url = 'https://remoto.geimser.cl' if public_url.blank?
+    public_url = "https://#{public_url}" if public_url !~ %r{\Ahttps?://}i
+
+    uri = URI.parse(public_url)
+    itsm_hosts = [
+      request.host,
+      ENV['ZAMMAD_FQDN'].to_s.split(':').first,
+      'itsm.geimser.cl',
+    ].compact_blank
+
+    if uri.host.blank? || itsm_hosts.include?(uri.host)
+      uri.host = 'remoto.geimser.cl'
+    end
+
+    uri.scheme = 'https'
+    uri.path = ''
+    uri.query = nil
+    uri.fragment = nil
+    uri.to_s.sub(%r{/\z}, '')
+  rescue URI::InvalidURIError
+    'https://remoto.geimser.cl'
   end
 
   def safe_next_path
