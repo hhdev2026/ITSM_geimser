@@ -949,19 +949,11 @@ html[data-theme="dark"] #app {
   color: inherit;
 }
 
-#app .activity-stream,
-#app .activityStream,
-#app .activity-list,
-#app .activityList,
 #app .geimser-activity-surface {
   background: #1b3a6b !important;
   color: #ffffff !important;
 }
 
-#app .activity-stream *,
-#app .activityStream *,
-#app .activity-list *,
-#app .activityList *,
 #app .geimser-activity-surface * {
   color: #ffffff !important;
 }
@@ -4590,6 +4582,38 @@ html[data-theme="dark"] #app {
 #app.geimser-route-profile .navigation:not(.geimser-nav-surface) *,
 #app.geimser-route-profile .sidebar:not(.geimser-nav-surface) * {
   color: inherit !important;
+}
+
+#app.geimser-route-profile .activity-stream,
+#app.geimser-route-profile .activityStream,
+#app.geimser-route-profile .activity-list,
+#app.geimser-route-profile .activityList,
+#app.geimser-route-profile [class*="Activity"],
+#app.geimser-route-profile [class*="activity"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  min-width: min(280px, 100%) !important;
+  max-width: 100% !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+#app.geimser-route-profile .activity-stream *,
+#app.geimser-route-profile .activityStream *,
+#app.geimser-route-profile .activity-list *,
+#app.geimser-route-profile .activityList *,
+#app.geimser-route-profile [class*="Activity"] *,
+#app.geimser-route-profile [class*="activity"] * {
+  color: inherit !important;
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
 }
 
 /* ─── RESET RAIZ PARA PANTALLAS NATIVAS ZAMMAD ──────────────── */
