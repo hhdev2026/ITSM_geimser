@@ -4767,6 +4767,27 @@ html[data-theme="dark"] #app {
   color: #ffffff !important;
 }
 
+/* Dashboard tabs: Zammad renders this control on a dark segmented surface.
+   Keep labels readable instead of inheriting the light-page text color. */
+#app .dashboard .tabs--big,
+#app .dashboard .tabs--big .tab,
+#app .content .dashboard .tabs--big,
+#app .content .dashboard .tabs--big .tab {
+  color: #f8fbff !important;
+}
+
+#app .dashboard .tabs--big .tab *,
+#app .content .dashboard .tabs--big .tab * {
+  color: #f8fbff !important;
+}
+
+#app .dashboard .tabs--big .tab.active,
+#app .dashboard .tabs--big .tab.is-active,
+#app .content .dashboard .tabs--big .tab.active,
+#app .content .dashboard .tabs--big .tab.is-active {
+  color: #ffffff !important;
+}
+
 /* ─── CAPA DE COMPATIBILIDAD ZAMMAD ────────────────────────────
    Mantiene las mejoras visuales fuera del flujo y stacking nativos. */
 #app .geimser-nav-surface {
