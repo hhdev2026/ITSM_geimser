@@ -709,9 +709,7 @@ html[data-theme="dark"] #app {
 #app .sidebar,
 #app .appSidebar,
 #app .mainNavigation,
-#app .geimser-nav-surface,
-#app [class*="Navigation"],
-#app [class*="navigation"] {
+#app .geimser-nav-surface {
   background: #20232b !important;
   color: #d9e2ec !important;
 }
@@ -720,9 +718,7 @@ html[data-theme="dark"] #app {
 #app .sidebar *,
 #app .appSidebar *,
 #app .mainNavigation *,
-#app .geimser-nav-surface *,
-#app [class*="Navigation"] *,
-#app [class*="navigation"] * {
+#app .geimser-nav-surface * {
   color: #d9e2ec !important;
 }
 
@@ -822,13 +818,7 @@ html[data-theme="dark"] #app {
 #app .mainNavigation .form-control,
 #app .geimser-nav-surface input,
 #app .geimser-nav-surface textarea,
-#app .geimser-nav-surface .form-control,
-#app [class*="Navigation"] input,
-#app [class*="Navigation"] textarea,
-#app [class*="Navigation"] .form-control,
-#app [class*="navigation"] input,
-#app [class*="navigation"] textarea,
-#app [class*="navigation"] .form-control {
+#app .geimser-nav-surface .form-control {
   background: #f8fbff !important;
   background-color: #f8fbff !important;
   border-color: rgba(143, 211, 255, 0.42) !important;
@@ -846,11 +836,7 @@ html[data-theme="dark"] #app {
 #app .mainNavigation input::placeholder,
 #app .mainNavigation textarea::placeholder,
 #app .geimser-nav-surface input::placeholder,
-#app .geimser-nav-surface textarea::placeholder,
-#app [class*="Navigation"] input::placeholder,
-#app [class*="Navigation"] textarea::placeholder,
-#app [class*="navigation"] input::placeholder,
-#app [class*="navigation"] textarea::placeholder {
+#app .geimser-nav-surface textarea::placeholder {
   color: #667085 !important;
   -webkit-text-fill-color: #667085 !important;
   opacity: 1 !important;
@@ -951,9 +937,7 @@ html[data-theme="dark"] #app {
 #app .appSidebar .is-active,
 #app .mainNavigation .is-active,
 #app .geimser-nav-surface .is-active,
-#app .geimser-nav-surface .active,
-#app [class*="Navigation"] .is-active,
-#app [class*="navigation"] .is-active {
+#app .geimser-nav-surface .active {
   background: #4bb3f0 !important;
   color: #071c2b !important;
 }
@@ -965,9 +949,7 @@ html[data-theme="dark"] #app {
 #app .appSidebar .is-active *,
 #app .mainNavigation .is-active *,
 #app .geimser-nav-surface .is-active *,
-#app .geimser-nav-surface .active *,
-#app [class*="Navigation"] .is-active *,
-#app [class*="navigation"] .is-active * {
+#app .geimser-nav-surface .active * {
   color: #071c2b !important;
 }
 
@@ -1070,10 +1052,8 @@ html[data-theme="dark"] #app {
 #app .appSidebar img[src*="logo"],
 #app .mainNavigation img[src*="zammad"],
 #app .mainNavigation img[src*="logo"],
-#app [class*="navigation"] img[src*="zammad"],
-#app [class*="navigation"] img[src*="logo"],
-#app [class*="Navigation"] img[src*="zammad"],
-#app [class*="Navigation"] img[src*="logo"] {
+#app .geimser-nav-surface img[src*="zammad"],
+#app .geimser-nav-surface img[src*="logo"] {
   display: none !important;
 }
 
@@ -1171,14 +1151,7 @@ html[data-theme="dark"] #app {
 #app .sidebar a,
 #app .appSidebar a,
 #app .mainNavigation a,
-#app [class*="Navigation"] a,
-#app [class*="navigation"] a,
-#app aside a,
-#app nav a,
-#app .settings a,
-#app .admin a,
-#app [class*="sidebar"] a,
-#app [class*="Sidebar"] a {
+#app .geimser-nav-surface a {
   color: #8fd3ff !important;
   font-weight: 520;
 }
@@ -1187,14 +1160,7 @@ html[data-theme="dark"] #app {
 #app .sidebar a:hover,
 #app .appSidebar a:hover,
 #app .mainNavigation a:hover,
-#app [class*="Navigation"] a:hover,
-#app [class*="navigation"] a:hover,
-#app aside a:hover,
-#app nav a:hover,
-#app .settings a:hover,
-#app .admin a:hover,
-#app [class*="sidebar"] a:hover,
-#app [class*="Sidebar"] a:hover {
+#app .geimser-nav-surface a:hover {
   color: #ffffff !important;
 }
 
@@ -1225,8 +1191,8 @@ html[data-theme="dark"] #app {
 #app .sidebar .active a,
 #app .appSidebar .is-active a,
 #app .mainNavigation .is-active a,
-#app [class*="Navigation"] .is-active a,
-#app [class*="navigation"] .is-active a {
+#app .geimser-nav-surface .is-active a,
+#app .geimser-nav-surface .active a {
   color: #062a42 !important;
 }
 
@@ -4043,9 +4009,7 @@ html[data-theme="dark"] #app {
 #app .navigation,
 #app .appSidebar,
 #app .mainNavigation,
-#app .geimser-nav-surface,
-#app [class*="Navigation"],
-#app [class*="navigation"] {
+#app .geimser-nav-surface {
   background: var(--geimser-sidebar-bg, #0f1117) !important;
   background-image: linear-gradient(180deg, #141720 0%, #0f1117 100%) !important;
   border-right: 1px solid rgba(255,255,255,0.05) !important;
@@ -4664,13 +4628,25 @@ html[data-theme="dark"] #app {
   color: inherit !important;
 }
 
-#app .geimser-profile-popup .geimser-popup-empty-block {
-  display: none !important;
-}
-
 #app .geimser-profile-popup small,
 #app .geimser-profile-popup [class*="muted"],
 #app .geimser-profile-popup [class*="hint"],
 #app .geimser-profile-popup [class*="meta"] {
   color: var(--geimser-popup-muted) !important;
+}
+
+/* Ruta Perfil: Zammad reutiliza nombres como navigation/sidebar dentro
+   de paneles internos. Solo .geimser-nav-surface es el sidebar real. */
+#app.geimser-route-profile .navigation:not(.geimser-nav-surface),
+#app.geimser-route-profile .sidebar:not(.geimser-nav-surface) {
+  background: transparent !important;
+  background-image: none !important;
+  border-color: rgba(0, 31, 61, 0.10) !important;
+  box-shadow: none !important;
+  color: var(--text-normal, #111827) !important;
+}
+
+#app.geimser-route-profile .navigation:not(.geimser-nav-surface) *,
+#app.geimser-route-profile .sidebar:not(.geimser-nav-surface) * {
+  color: inherit !important;
 }

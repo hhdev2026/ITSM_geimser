@@ -296,14 +296,17 @@
 
     return Array.from(app.querySelectorAll(
       ".navigation, .sidebar, .appSidebar, .mainNavigation, .geimser-nav-surface, [class*='Navigation'], [class*='navigation'], [class*='Sidebar'], [class*='sidebar']"
-    )).find(function (el) {
-      var rect = el.getBoundingClientRect();
-      return rect.left >= -1 &&
-        rect.left < 18 &&
-        rect.width >= 120 &&
-        rect.width <= 360 &&
-        rect.height >= window.innerHeight * 0.55;
-    });
+    )).find(isRealSidebarSurface);
+  }
+
+  function isRealSidebarSurface(el) {
+    if (!el || !el.getBoundingClientRect) return false;
+    var rect = el.getBoundingClientRect();
+    return rect.left >= -1 &&
+      rect.left < 18 &&
+      rect.width >= 120 &&
+      rect.width <= 380 &&
+      rect.height >= window.innerHeight * 0.55;
   }
 
   function sidebarReferenceItem(sidebar) {
@@ -394,6 +397,12 @@
     }
   }
 
+  function markRouteState() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+    app.classList.toggle("geimser-route-profile", /^#profile(?:\/|$)/.test(window.location.hash || ""));
+  }
+
   function forcePopupContrast() {
     var popupSelectors = [
       "[role='menu']", ".dropdown-menu",
@@ -423,13 +432,6 @@
         Boolean(popup.querySelector("[aria-checked='true'], input[type='checkbox']:checked"));
     }
 
-    function hasVisiblePayload(el) {
-      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
-      return Boolean(text) ||
-        el.matches("a, button, input, select, textarea, img, svg, [role='switch'], [role='button'], [role='menuitem']") ||
-        Boolean(el.querySelector("a, button, input, select, textarea, img, svg, [role='switch'], [role='button'], [role='menuitem']"));
-    }
-
     Array.from(document.querySelectorAll(popupSelectors)).forEach(function (popup) {
       var rect = popup.getBoundingClientRect();
       if (rect.width < 60 || rect.height < 30) return;
@@ -437,76 +439,11 @@
 
       popup.classList.add("geimser-popup-surface");
       popup.classList.add("geimser-profile-popup");
-      popup.dataset.geimserPopupTheme = isDarkPopup(popup) ? "dark" : "light";
+      var popupTheme = isDarkPopup(popup) ? "dark" : "light";
+      if (popup.dataset.geimserPopupTheme !== popupTheme) {
+        popup.dataset.geimserPopupTheme = popupTheme;
+      }
 
-      var dark = popup.dataset.geimserPopupTheme === "dark";
-      var surface = dark ? "#10141f" : "#ffffff";
-      var surfaceSoft = dark ? "#161d2b" : "#f8fafc";
-      var text = dark ? "#f8fbff" : "#111827";
-      var muted = dark ? "#b8c4d4" : "#5b6676";
-      var border = dark ? "rgba(210, 225, 245, 0.16)" : "rgba(0,31,61,0.12)";
-      var hover = dark ? "rgba(75, 179, 240, 0.16)" : "#edf6ff";
-      var link = dark ? "#8fd3ff" : "#004b8d";
-
-      popup.style.setProperty("--geimser-popup-bg", surface);
-      popup.style.setProperty("--geimser-popup-bg-soft", surfaceSoft);
-      popup.style.setProperty("--geimser-popup-text", text);
-      popup.style.setProperty("--geimser-popup-muted", muted);
-      popup.style.setProperty("--geimser-popup-border", border);
-      popup.style.setProperty("--geimser-popup-hover", hover);
-      popup.style.setProperty("--geimser-popup-link", link);
-      popup.style.setProperty("background", surface, "important");
-      popup.style.setProperty("background-color", surface, "important");
-      popup.style.setProperty("color", text, "important");
-      popup.style.setProperty("border", "1px solid " + border, "important");
-      popup.style.setProperty("border-radius", "12px", "important");
-      popup.style.setProperty("z-index", "9999", "important");
-      popup.style.setProperty("overflow", "auto", "important");
-
-      Array.from(popup.querySelectorAll("*")).forEach(function (child) {
-        if (child.matches("input, textarea, select, option, img, canvas, video")) return;
-
-        child.classList.remove("geimser-popup-empty-block");
-        var childRect = child.getBoundingClientRect();
-        if (!hasVisiblePayload(child) && childRect.height > 18 && child.children.length === 0) {
-          child.classList.add("geimser-popup-empty-block");
-          return;
-        }
-
-        var tag = child.tagName.toLowerCase();
-        if (tag === "hr" || child.classList.contains("divider")) {
-          child.style.setProperty("background", border, "important");
-          child.style.setProperty("border-color", border, "important");
-          return;
-        }
-
-        if (child.matches(".avatar, [class*='avatar'], [class*='Avatar']")) {
-          child.style.setProperty("background", "#f5a623", "important");
-          child.style.setProperty("color", "#ffffff", "important");
-          child.style.setProperty("width", "40px", "important");
-          child.style.setProperty("height", "40px", "important");
-          child.style.setProperty("min-width", "40px", "important");
-          child.style.setProperty("min-height", "40px", "important");
-          return;
-        }
-
-        if (child.matches("[class*='toggle'], [role='switch'], [type='checkbox']")) return;
-
-        child.style.setProperty("background-color", "transparent", "important");
-        child.style.setProperty("color", text, "important");
-      });
-
-      Array.from(popup.querySelectorAll("a, button:not([role='switch'])")).forEach(function (el) {
-        el.style.setProperty("color", text, "important");
-        el.style.setProperty("background-color", "transparent", "important");
-        el.style.removeProperty("background");
-      });
-
-      Array.from(popup.querySelectorAll("img")).forEach(function (img) {
-        img.style.setProperty("max-width", "112px", "important");
-        img.style.setProperty("max-height", "48px", "important");
-        img.style.setProperty("object-fit", "contain", "important");
-      });
     });
   }
 
@@ -689,7 +626,8 @@
   }
 
   function isInsideNavigation(el) {
-    return Boolean(el.closest(".navigation, .sidebar, .appSidebar, .mainNavigation, [class*='Navigation'], [class*='navigation'], .geimser-sidebar-footer, .geimser-sidebar-dock"));
+    var nav = el.closest(".navigation, .sidebar, .appSidebar, .mainNavigation, .geimser-nav-surface, .geimser-sidebar-footer, .geimser-sidebar-dock");
+    return Boolean(nav && (nav.matches(".geimser-sidebar-footer, .geimser-sidebar-dock") || isRealSidebarSurface(nav)));
   }
 
   function normalizeTextContrast() {
@@ -790,17 +728,17 @@
     var app = document.querySelector("#app");
     if (!app) return;
 
-    var navNodes = Array.from(app.querySelectorAll(
-      ".navigation, .sidebar, .appSidebar, .mainNavigation, aside, nav, [class*='Navigation'], [class*='navigation'], [class*='Sidebar'], [class*='sidebar']"
-    ));
-
-    navNodes.forEach(function (nav) {
-      var rect = nav.getBoundingClientRect();
-      if (rect.width < 40 || rect.left > 540) return;
-      nav.classList.add("geimser-nav-surface");
+    Array.from(app.querySelectorAll(".geimser-nav-surface")).forEach(function (nav) {
+      if (!isRealSidebarSurface(nav)) {
+        nav.classList.remove("geimser-nav-surface");
+      }
     });
 
-    Array.from(app.querySelectorAll(".geimser-nav-surface a, .geimser-nav-surface button, .geimser-nav-surface span, .geimser-nav-surface div, .geimser-nav-surface li")).forEach(function (el) {
+    var sidebar = findSidebarSurface();
+    if (!sidebar) return;
+    sidebar.classList.add("geimser-nav-surface");
+
+    Array.from(sidebar.querySelectorAll("a, button, span, div, li")).forEach(function (el) {
       if (!(el.textContent || "").trim() && !el.matches("a, button, [role='button']")) return;
       // Excluir dropdowns, popovers y menús flotantes que tienen fondo claro —
       // si se les aplica color claro, el texto queda invisible sobre fondo blanco.
@@ -2255,6 +2193,7 @@
     var app = document.querySelector("#app");
     if (!app) return;
 
+    markRouteState();
     removeZammadBranding();
     normalizeVisibleBrandText();
     ensureSidebarBrand();
