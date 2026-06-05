@@ -400,7 +400,12 @@
   function markRouteState() {
     var app = document.querySelector("#app");
     if (!app) return;
-    app.classList.toggle("geimser-route-profile", /^#profile(?:\/|$)/.test(window.location.hash || ""));
+    var hash = window.location.hash || "";
+    var isProfile = /^#profile(?:\/|$)/.test(hash);
+    var isTicketCreate = /^#ticket\/create(?:\/|$)/.test(hash);
+    app.classList.toggle("geimser-route-profile", isProfile);
+    app.classList.toggle("geimser-route-ticket-create", isTicketCreate);
+    app.classList.toggle("geimser-route-native", isProfile || isTicketCreate);
   }
 
   function forcePopupContrast() {
@@ -2201,12 +2206,8 @@
     removeLegacyCmdbOverlay();
     normalizeSidebarFooter();
     styleSidebarDockControls();
-    normalizeSidebarFloatingUi();
     normalizeNavigationContrast();
     normalizeSidebarTicketLabels();
-    markSurfaces();
-    normalizeTextContrast();
-    normalizeDynamicTableHeaders();
     ensureRemoteButton();
     checkRemoteInstallFirstRun();
     syncCmdbRoute();
@@ -2215,32 +2216,6 @@
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();
     ensurePasswordVisibilityToggle();
-    forceActivityContrast();
-    enforceGlobalContrast();
-
-    var textRegex = /(TIEMPO DE ESPERA|ANIMO|CANAL DE DISTRIBUCI|ASIGNADOS|TICKETS EN PROCESO|REABIERTOS|Promedio|Total:|tickets)/i;
-    var panels = Array.from(document.querySelectorAll("#app div, #app section, #app article")).filter(function (el) {
-      var rect = el.getBoundingClientRect();
-      var text = (el.textContent || "").trim();
-      return rect.width > 220 && rect.height > 70 && textRegex.test(text);
-    });
-
-    panels.forEach(function (el) {
-      var rect = el.getBoundingClientRect();
-      if (rect.width > window.innerWidth * 0.75 && rect.height > window.innerHeight * 0.75) return;
-      el.style.background = "#ffffff";
-      el.style.backgroundColor = "#ffffff";
-      el.style.color = "#1d1d1f";
-      el.style.borderColor = "rgba(0, 31, 61, 0.12)";
-      el.style.boxShadow = "0 8px 24px rgba(0, 31, 61, 0.08)";
-    });
-
-    var lightContainers = document.querySelectorAll("#app .content, #app .main, #app .dashboard, #app .overview");
-    lightContainers.forEach(function (el) {
-      el.style.background = "#f5f7fb";
-      el.style.backgroundColor = "#f5f7fb";
-      el.style.color = "#1d1d1f";
-    });
   }
 
   window.GeimserContrastAudit = function () {
@@ -2255,7 +2230,7 @@
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ["class", "style", "data-theme", "aria-selected", "aria-current"]
+    attributeFilter: ["class", "data-theme", "aria-selected", "aria-current"]
   };
 
   function observeChanges() {
