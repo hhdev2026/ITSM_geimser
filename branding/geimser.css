@@ -4589,7 +4589,8 @@ html[data-theme="dark"] #app {
 #app.geimser-route-profile .activity-list,
 #app.geimser-route-profile .activityList,
 #app.geimser-route-profile [class*="Activity"],
-#app.geimser-route-profile [class*="activity"] {
+#app.geimser-route-profile [class*="activity"],
+#app.geimser-route-activity-flow .geimser-activity-surface {
   background: #ffffff !important;
   background-color: #ffffff !important;
   color: #111827 !important;
@@ -4607,7 +4608,8 @@ html[data-theme="dark"] #app {
 #app.geimser-route-profile .activity-list *,
 #app.geimser-route-profile .activityList *,
 #app.geimser-route-profile [class*="Activity"] *,
-#app.geimser-route-profile [class*="activity"] * {
+#app.geimser-route-profile [class*="activity"] *,
+#app.geimser-route-activity-flow .geimser-activity-surface * {
   color: inherit !important;
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;

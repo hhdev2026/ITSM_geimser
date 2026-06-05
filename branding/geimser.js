@@ -349,10 +349,67 @@
     if (!app) return;
     var hash = window.location.hash || "";
     var isProfile = /^#profile(?:\/|$)/.test(hash);
+    var hasActivityFlow = /\bFlujo de Actividad\b/i.test((app.textContent || "").replace(/\s+/g, " "));
     var isTicketCreate = /^#ticket\/create(?:\/|$)/.test(hash);
-    app.classList.toggle("geimser-route-profile", isProfile);
+    app.classList.toggle("geimser-route-profile", isProfile || hasActivityFlow);
     app.classList.toggle("geimser-route-ticket-create", isTicketCreate);
-    app.classList.toggle("geimser-route-native", isProfile || isTicketCreate);
+    app.classList.toggle("geimser-route-native", isProfile || hasActivityFlow || isTicketCreate);
+    app.classList.toggle("geimser-route-activity-flow", hasActivityFlow);
+  }
+
+  function repairActivityFlowLayout() {
+    var app = document.querySelector("#app");
+    if (!app || !app.classList.contains("geimser-route-activity-flow")) return;
+
+    var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+    var propsToClear = [
+      "background",
+      "background-color",
+      "color",
+      "width",
+      "min-width",
+      "max-width",
+      "writing-mode",
+      "text-orientation",
+      "word-break",
+      "overflow-wrap",
+      "white-space",
+    ];
+
+    function resetNode(el) {
+      if (!el || el === app || el === document.body || el === document.documentElement) return;
+      el.classList.remove("geimser-activity-surface");
+      propsToClear.forEach(function (prop) {
+        el.style.removeProperty(prop);
+      });
+      el.style.setProperty("writing-mode", "horizontal-tb", "important");
+      el.style.setProperty("text-orientation", "mixed", "important");
+      el.style.setProperty("word-break", "normal", "important");
+      el.style.setProperty("overflow-wrap", "break-word", "important");
+      el.style.setProperty("white-space", "normal", "important");
+    }
+
+    var anchors = Array.from(app.querySelectorAll("h1, h2, h3, header, aside, section, article, div")).filter(function (el) {
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (!/\bFlujo de Actividad\b/i.test(text)) return false;
+      var rect = el.getBoundingClientRect();
+      return rect.width > 20 && rect.height > 20 && rect.left > 220 && rect.left < viewportWidth - 20;
+    });
+
+    anchors.forEach(function (anchor) {
+      var current = anchor;
+      var depth = 0;
+      while (current && current !== app && depth < 8) {
+        var rect = current.getBoundingClientRect();
+        var text = (current.textContent || "").replace(/\s+/g, " ").trim();
+        if (rect.left > 220 && /\bFlujo de Actividad\b/i.test(text)) {
+          resetNode(current);
+          Array.from(current.querySelectorAll(".geimser-activity-surface, [style]")).forEach(resetNode);
+        }
+        current = current.parentElement;
+        depth += 1;
+      }
+    });
   }
 
   function forcePopupContrast() {
@@ -2166,6 +2223,7 @@
     if (!app) return;
 
     markRouteState();
+    repairActivityFlowLayout();
     removeZammadBranding();
     normalizeVisibleBrandText();
     markNavigationSurface();
