@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="/assets/images/geimser-logo-mark.png" />
   <link rel="apple-touch-icon" href="/assets/images/geimser-logo-mark.png" />
   <%= stylesheet_link_tag "application", :media => 'all' %>
-  <link rel="stylesheet" href="/assets/geimser.css?v=66" media="all" />
+  <link rel="stylesheet" href="/assets/geimser.css?v=67" media="all" />
   <%= stylesheet_link_tag "application-print", :media => 'print' %>
   <%= javascript_tag nonce: true do -%>
     if(window.MSInputMethodContext && document.documentMode){
@@ -19,8 +19,12 @@
     }
 
     try {
-      localStorage.setItem('theme', 'light');
-      document.documentElement.dataset.theme = 'light';
+      var savedTheme = localStorage.getItem('theme');
+      if (!savedTheme) {
+        savedTheme = 'light';
+        localStorage.setItem('theme', savedTheme);
+      }
+      document.documentElement.dataset.theme = savedTheme;
     } catch (e) { };
   <% end -%>
   <% if Rails.configuration.assets.debug %>
@@ -28,7 +32,7 @@
   <% else %>
     <%= javascript_include_tag "application", nonce: true, :defer => 'defer' %>
   <% end %>
-  <script src="/assets/geimser.js?v=48" nonce="<%= content_security_policy_nonce %>" defer></script>
+  <script src="/assets/geimser.js?v=49" nonce="<%= content_security_policy_nonce %>" defer></script>
 
   <%# Statically include external files with a nonce here to conform to CSP properly. %>
   <%# Required by form channel configuration preview. %>

@@ -512,7 +512,6 @@ body:has(.hero-unit) .hero-unit ~ hr {
 }
 
 html,
-html[data-theme="dark"],
 html[data-theme="light"],
 body,
 #app {
@@ -532,8 +531,18 @@ body,
 
 html[data-theme="dark"] body,
 html[data-theme="dark"] #app {
-  background: #f5f7fb !important;
-  color: #1d1d1f !important;
+  --background-primary: #0f1117;
+  --background-secondary: #161b25;
+  --background-tertiary: #202737;
+  --background-modifier-accent: rgba(210, 225, 245, 0.16);
+  --background-modifier-accent-light: rgba(75, 179, 240, 0.14);
+  --border: rgba(210, 225, 245, 0.16);
+  --text-normal: #f8fbff;
+  --text-muted: #b8c4d4;
+  --text-light: #d7e3f0;
+  --text-link: #8fd3ff;
+  --text-inverted: #0f1117;
+  color-scheme: dark !important;
 }
 
 #app,
@@ -4521,70 +4530,97 @@ html[data-theme="dark"] #app {
    nombres internos de Zammad ni del rol del usuario. */
 #app .geimser-popup-surface,
 #app .geimser-profile-popup {
+  --geimser-popup-bg: #ffffff;
+  --geimser-popup-bg-soft: #f8fafc;
+  --geimser-popup-text: #111827;
+  --geimser-popup-muted: #5b6676;
+  --geimser-popup-border: rgba(0, 31, 61, 0.12);
+  --geimser-popup-hover: #edf6ff;
+  --geimser-popup-link: #004b8d;
   box-sizing: border-box !important;
   z-index: 9999 !important;
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color: #111827 !important;
-  border: 1px solid rgba(0, 31, 61, 0.12) !important;
+  background: var(--geimser-popup-bg) !important;
+  background-color: var(--geimser-popup-bg) !important;
+  color: var(--geimser-popup-text) !important;
+  border: 1px solid var(--geimser-popup-border) !important;
   border-radius: 12px !important;
   box-shadow: 0 18px 46px rgba(0, 20, 50, 0.20), 0 4px 12px rgba(0, 20, 50, 0.10) !important;
 }
 
+#app .geimser-profile-popup[data-geimser-popup-theme="dark"] {
+  --geimser-popup-bg: #10141f;
+  --geimser-popup-bg-soft: #161d2b;
+  --geimser-popup-text: #f8fbff;
+  --geimser-popup-muted: #b8c4d4;
+  --geimser-popup-border: rgba(210, 225, 245, 0.16);
+  --geimser-popup-hover: rgba(75, 179, 240, 0.16);
+  --geimser-popup-link: #8fd3ff;
+}
+
 #app .geimser-profile-popup {
-  width: min(376px, calc(100vw - 28px)) !important;
-  min-width: min(280px, calc(100vw - 28px)) !important;
+  width: min(320px, calc(100vw - 28px)) !important;
+  min-width: min(248px, calc(100vw - 28px)) !important;
   max-width: calc(100vw - 28px) !important;
-  max-height: calc(100vh - 28px) !important;
-  padding: 8px !important;
+  max-height: min(420px, calc(100vh - 28px)) !important;
+  padding: 6px !important;
   overflow: auto !important;
 }
 
 #app .geimser-profile-popup,
-#app .geimser-profile-popup *,
-#app .geimser-profile-popup [class*="profile"],
-#app .geimser-profile-popup [class*="Profile"],
-#app .geimser-profile-popup [class*="user"],
-#app .geimser-profile-popup [class*="User"],
-#app .geimser-profile-popup [class*="account"],
-#app .geimser-profile-popup [class*="Account"] {
-  color: #111827 !important;
+#app .geimser-profile-popup * {
+  box-sizing: border-box !important;
+  color: var(--geimser-popup-text) !important;
 }
 
-#app .geimser-profile-popup li,
+#app .geimser-profile-popup > *,
+#app .geimser-profile-popup li {
+  max-width: 100% !important;
+}
+
+#app .geimser-profile-popup li {
+  display: block !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
 #app .geimser-profile-popup a,
 #app .geimser-profile-popup button:not([role="switch"]),
 #app .geimser-profile-popup [role="menuitem"],
 #app .geimser-profile-popup [role="option"] {
-  min-height: 40px !important;
-  padding: 9px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-height: 38px !important;
+  padding: 8px 10px !important;
   border-radius: 8px !important;
   background: transparent !important;
   background-color: transparent !important;
-  color: #111827 !important;
+  color: var(--geimser-popup-text) !important;
   font-size: 14px !important;
-  font-weight: 600 !important;
+  font-weight: 650 !important;
   line-height: 1.35 !important;
 }
 
-#app .geimser-profile-popup li:hover,
 #app .geimser-profile-popup a:hover,
 #app .geimser-profile-popup button:not([role="switch"]):hover,
 #app .geimser-profile-popup [role="menuitem"]:hover,
 #app .geimser-profile-popup [role="option"]:hover {
-  background: #edf6ff !important;
-  background-color: #edf6ff !important;
-  color: #004b8d !important;
+  background: var(--geimser-popup-hover) !important;
+  background-color: var(--geimser-popup-hover) !important;
+  color: var(--geimser-popup-link) !important;
 }
 
 #app .geimser-profile-popup [class*="header"],
 #app .geimser-profile-popup [class*="Header"],
-#app .geimser-profile-popup li:first-child,
-#app .geimser-profile-popup li:first-child:has(.avatar),
-#app .geimser-profile-popup li:first-child:has([class*="avatar"]) {
-  background: #f8fafc !important;
-  background-color: #f8fafc !important;
-  color: #111827 !important;
+#app .geimser-profile-popup :has(> .avatar),
+#app .geimser-profile-popup :has(> [class*="avatar"]) {
+  background: var(--geimser-popup-bg-soft) !important;
+  background-color: var(--geimser-popup-bg-soft) !important;
+  color: var(--geimser-popup-text) !important;
   border-radius: 8px !important;
 }
 
@@ -4618,12 +4654,23 @@ html[data-theme="dark"] #app {
 
 #app .geimser-profile-popup hr,
 #app .geimser-profile-popup .divider {
-  background: rgba(0, 31, 61, 0.10) !important;
-  border-color: rgba(0, 31, 61, 0.10) !important;
+  background: var(--geimser-popup-border) !important;
+  border-color: var(--geimser-popup-border) !important;
   margin: 6px 4px !important;
 }
 
 #app .geimser-profile-popup [role="switch"],
 #app .geimser-profile-popup input[type="checkbox"] {
   color: inherit !important;
+}
+
+#app .geimser-profile-popup .geimser-popup-empty-block {
+  display: none !important;
+}
+
+#app .geimser-profile-popup small,
+#app .geimser-profile-popup [class*="muted"],
+#app .geimser-profile-popup [class*="hint"],
+#app .geimser-profile-popup [class*="meta"] {
+  color: var(--geimser-popup-muted) !important;
 }
