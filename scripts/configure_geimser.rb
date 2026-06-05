@@ -90,7 +90,7 @@ remote_attributes = [
     position: 1560,
     data_type: 'autocompletion_ajax_external_data_source',
     data_option: {
-      search_url: "#{ENV.fetch('ZAMMAD_HTTP_TYPE', 'http')}://#{ENV.fetch('ZAMMAD_FQDN', 'localhost:8080')}/geimser/cmdb/search?token=#{ENV.fetch('GEIMSER_CMDB_TOKEN', 'geimser-cmdb-local')}&query=#{'#{search.term}'}",
+      search_url: "#{ENV.fetch('ZAMMAD_HTTP_TYPE', 'http')}://#{ENV.fetch('ZAMMAD_FQDN', 'localhost:8080')}/geimser/cmdb/search?token=#{ENV.fetch('GEIMSER_CMDB_TOKEN')}&query=#{'#{search.term}'}",
       search_result_list_key: '',
       search_result_value_key: 'value',
       search_result_label_key: 'label',
@@ -133,14 +133,12 @@ remote_attributes.each do |remote_attribute|
     screens: {
       create_middle: {
         'ticket.agent' => { null: true, item_class: 'column' },
-        'ticket.customer' => { null: true, item_class: 'column' },
       },
       edit: {
         'ticket.agent' => { null: true },
-        'ticket.customer' => { null: true },
       },
       view: {
-        '-all-' => { shown: true },
+        'ticket.agent' => { shown: true },
       },
     },
     position: remote_attribute[:position],
@@ -158,20 +156,27 @@ end
 
 ObjectManager::Attribute.migration_execute
 
-admin_password = ENV.fetch('GEIMSER_ADMIN_PASSWORD', 'GeimserM1!2026')
 organization = Organization.create_if_not_exists(name: 'Geimser', active: true)
-admin = User.create_or_update(
+admin_attributes = {
   login: 'admin@geimser.local',
   firstname: 'Admin',
   lastname: 'Geimser',
   email: 'admin@geimser.local',
-  password: admin_password,
   active: true,
   organization_id: organization.id,
   roles: [Role.find_by(name: 'Admin'), Role.find_by(name: 'Agent')].compact,
   created_by_id: 1,
   updated_by_id: 1,
-)
+}
+
+admin_password = ENV['GEIMSER_ADMIN_PASSWORD'].to_s.presence
+if User.find_by(login: admin_attributes[:login]).nil?
+  raise 'GEIMSER_ADMIN_PASSWORD is required for the initial admin user.' if admin_password.blank?
+
+  admin_attributes[:password] = admin_password
+end
+
+admin = User.create_or_update(**admin_attributes)
 
 group = Group.find_by(name: 'Users') || Group.first
 if group

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+failures=0
+
+reject() {
+  local pattern="$1"
+  local file="$2"
+  local reason="$3"
+
+  if rg -n "$pattern" "$file"; then
+    printf 'ERROR: %s\n' "$reason" >&2
+    failures=$((failures + 1))
+  fi
+}
+
+reject '#app[[:space:]]+\.content:has\(h1\)' branding/geimser.css \
+  'No se debe cambiar el layout de todas las vistas que contienen un titulo.'
+reject '^[[:space:]]*normalizeSidebarFooter\(\);' branding/geimser.js \
+  'No se deben clasificar footers por coordenadas.'
+reject '^[[:space:]]*styleSidebarDockControls\(\);' branding/geimser.js \
+  'No se deben aplicar estilos inline a controles detectados por coordenadas.'
+reject '^[[:space:]]*normalizeNavigationContrast\(\);' branding/geimser.js \
+  'No se debe recolorear todo el sidebar en cada mutacion del DOM.'
+reject '^[[:space:]]*fixSidebarSearchDropdowns\(\);' branding/geimser.js \
+  'No se deben reposicionar resultados de busqueda mediante estilos inline.'
+reject 'skip_before_action[[:space:]]+:authentication_check' branding/controllers/geimser_mesh_login_controller.rb \
+  'Ninguna ruta CMDB personalizada debe omitir autenticacion.'
+reject "ENV\\.fetch\\('GEIMSER_CMDB_TOKEN',[[:space:]]*'geimser-cmdb-local'\\)" branding/controllers/geimser_mesh_login_controller.rb \
+  'El token CMDB no puede tener un valor predeterminado conocido.'
+reject "ENV\\.fetch\\('GEIMSER_ADMIN_PASSWORD',[[:space:]]*'[^']+'\\)" scripts/configure_geimser.rb \
+  'La clave administrativa no puede tener un valor predeterminado.'
+if perl -0777 -ne 'exit(/#app \.geimser-profile-popup\s*\{[^}]*position:\s*relative/s ? 0 : 1)' branding/geimser.css; then
+  printf 'ERROR: El popup de perfil no debe perder el posicionamiento flotante nativo.\n' >&2
+  failures=$((failures + 1))
+fi
+
+if perl -0777 -ne 'exit(/remote_attributes = \[.*?remote_attributes\.each.*?\x27ticket\.customer\x27\s*=>/s ? 0 : 1)' scripts/configure_geimser.rb; then
+  printf 'ERROR: Los clientes no deben ver ni editar campos de soporte remoto.\n' >&2
+  failures=$((failures + 1))
+fi
+
+if git ls-files --error-unmatch .env >/dev/null 2>&1; then
+  printf 'ERROR: .env contiene secretos y no debe estar versionado.\n' >&2
+  failures=$((failures + 1))
+fi
+
+if ! rg -q 'ensure_env_secret MESH_LOGIN_KEY 80' scripts/install_geimser.sh; then
+  printf 'ERROR: Las instalaciones nuevas deben generar una clave Mesh unica.\n' >&2
+  failures=$((failures + 1))
+fi
+
+node --check branding/geimser.js
+ruby -c scripts/configure_geimser.rb >/dev/null
+ruby -c branding/initializers/geimser_mesh_cmdb.rb >/dev/null
+
+if (( failures > 0 )); then
+  exit 1
+fi
+
+printf 'Frontend safety checks: OK\n'

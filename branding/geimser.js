@@ -32,16 +32,6 @@
     }
   }
 
-  function closeVisibleTranslationPrompt() {
-    var buttons = document.querySelectorAll("a, button");
-    buttons.forEach(function (button) {
-      var text = (button.textContent || "").trim();
-      if (/^(No,?\s*gracias|No Thanks!)$/i.test(text)) {
-        button.click();
-      }
-    });
-  }
-
   function isInSidebarHeader(rect) {
     return rect.left >= 0 && rect.left < 280 && rect.top >= 0 && rect.top < 58;
   }
@@ -60,7 +50,7 @@
       el.id
     ].join(" ");
 
-    return /zammad|logo|brand|organization|product/i.test(label) || rect.left > 170;
+    return /zammad|product[-_\s]?logo/i.test(label);
   }
 
   function removeZammadBranding() {
@@ -94,27 +84,10 @@
       document.title = replaceBrand(document.title);
     }
 
-    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    var nodes = [];
-    var node;
-
-    while ((node = walker.nextNode())) {
-      if (!node.parentElement || node.parentElement.closest("script, style, textarea")) continue;
-      if (/\b(?:ITSM Geimser|Zammad)\b/i.test(node.nodeValue || "")) {
-        nodes.push(node);
-      }
-    }
-
-    nodes.forEach(function (textNode) {
-      textNode.nodeValue = replaceBrand(textNode.nodeValue);
-    });
-
-    document.querySelectorAll("[title], [aria-label], [alt], [placeholder]").forEach(function (el) {
-      ["title", "aria-label", "alt", "placeholder"].forEach(function (attr) {
+    document.querySelectorAll("img[alt], img[title], .company-logo[aria-label]").forEach(function (el) {
+      ["title", "aria-label", "alt"].forEach(function (attr) {
         var value = el.getAttribute(attr);
-        if (value && /\b(?:ITSM Geimser|Zammad)\b/i.test(value)) {
-          el.setAttribute(attr, replaceBrand(value));
-        }
+        if (value) el.setAttribute(attr, replaceBrand(value));
       });
     });
   }
@@ -256,38 +229,23 @@
     });
   }
 
-  function internalSidebarAccess() {
+  function sessionPermissionText() {
     var session = currentSession();
-    if (!session) return false;
+    if (!session) return "";
 
-    // --- 1. Verificación basada en permisos de sesión (fuente de verdad) ---
     var names = [];
     collectSessionNames(session.permissions, names, 0);
     collectSessionNames(session.roles, names, 0);
     collectSessionNames(session.role, names, 0);
+    return names.join(" ").toLowerCase();
+  }
 
-    var text = names.join(" ").toLowerCase();
+  function adminSidebarAccess() {
+    return /(^|[\s._-])admin($|[\s._-])/.test(sessionPermissionText());
+  }
 
-    // Si el usuario SOLO tiene permiso de cliente, denegar inmediatamente
-    // sin importar nada más en el DOM.
-    var isExplicitCustomer = /ticket\.customer/.test(text) && !/ticket\.agent|admin/.test(text);
-    if (isExplicitCustomer) return false;
-
-    var hasAdmin = /(^|[\s._-])admin($|[\s._-])/.test(text);
-    var hasResolver = /ticket\.agent|ticket\.group|agente|agentes|(^|[\s._-])(agent|resolver|resolutor|soporte|support)($|[\s._-])/.test(text);
-
-    if (hasAdmin || hasResolver) return true;
-
-    // --- 2. Fallback DOM: solo si la sesión no fue suficientemente explícita ---
-    // Verificar si la UI actual corresponde a un portal de cliente
-    // (texto visible solo en la vista de cliente → denegar acceso)
-    var contentText = (document.querySelector("#app .content, #app .main") || {}).textContent || "";
-    var looksLikeCustomerPortal = /crear tu primer ticket|tickets de mi organización|¡bienvenido!/i.test(contentText);
-    if (looksLikeCustomerPortal) return false;
-
-    // Verificar presencia de link de admin en el dock (solo admins lo ven)
-    var hasAdminLink = document.querySelector("#app a[href='#manage'], #app a[href*='#manage/']") !== null;
-    return hasAdminLink;
+  function internalSidebarAccess() {
+    return /ticket\.agent|(^|[\s._-])admin($|[\s._-])/.test(sessionPermissionText());
   }
 
   function findSidebarSurface() {
@@ -304,38 +262,20 @@
     var rect = el.getBoundingClientRect();
     return rect.left >= -1 &&
       rect.left < 18 &&
-      rect.width >= 120 &&
+      rect.width >= 44 &&
       rect.width <= 380 &&
       rect.height >= window.innerHeight * 0.55;
   }
 
   function sidebarReferenceItem(sidebar) {
-    var items = Array.from(sidebar.querySelectorAll("a, button, [role='button'], li, div")).filter(function (el) {
-      if (el.closest(".geimser-sidebar-shortcuts, .geimser-sidebar-footer, .geimser-sidebar-dock")) return false;
-      var rect = el.getBoundingClientRect();
-      var sidebarRect = sidebar.getBoundingClientRect();
-      return rect.left >= sidebarRect.left - 2 &&
-        rect.right <= sidebarRect.right + 8 &&
-        rect.top >= sidebarRect.top &&
-        rect.top < Math.min(sidebarRect.top + 360, window.innerHeight - 160) &&
-        rect.height >= 28 &&
-        rect.width >= 80;
-    });
-
-    var overview = items.find(function (el) {
-      return /vision general|visión general|overview/i.test((el.textContent || "").replace(/\s+/g, " ").trim());
-    });
-
-    var dashboard = items.find(function (el) {
-      return /panel principal|dashboard/i.test((el.textContent || "").replace(/\s+/g, " ").trim());
-    });
-
-    return overview || dashboard || null;
+    return sidebar.querySelector('a[href="#ticket/view"], a[href^="#ticket/view/"]') ||
+      sidebar.querySelector('a[href="#dashboard"]') ||
+      null;
   }
 
   function ensureInternalSidebarShortcuts() {
     var existing = document.querySelector(".geimser-sidebar-shortcuts");
-    if (!internalSidebarAccess()) {
+    if (!adminSidebarAccess()) {
       // Solo eliminar si la sesión ya está disponible; si no, esperar para no
       // borrar prematuramente antes de que Zammad termine de cargar el perfil.
       var sessionReady = Boolean(currentSession());
@@ -345,7 +285,10 @@
 
     var sidebar = findSidebarSurface();
     if (!sidebar) return;
-    var sidebarRect = sidebar.getBoundingClientRect();
+    if (sidebar.getBoundingClientRect().width < 120) {
+      if (existing) existing.remove();
+      return;
+    }
 
     if (!existing) {
       existing = document.createElement("nav");
@@ -367,17 +310,21 @@
       ].join("");
     }
 
-    existing.style.setProperty("--geimser-sidebar-left", Math.max(0, sidebarRect.left) + "px");
-    existing.style.setProperty("--geimser-sidebar-width", sidebarRect.width + "px");
-    existing.classList.add("is-fixed");
-
     var reference = sidebarReferenceItem(sidebar);
     var insertionNode = reference && reference.parentElement && /^(LI|DD|DT)$/i.test(reference.parentElement.tagName)
       ? reference.parentElement
       : reference;
 
-    if (existing.parentElement !== document.body) {
-      document.body.appendChild(existing);
+    existing.classList.remove("is-fixed");
+    existing.style.removeProperty("--geimser-sidebar-left");
+    existing.style.removeProperty("--geimser-sidebar-width");
+
+    if (insertionNode && insertionNode.parentElement) {
+      if (existing.previousElementSibling !== insertionNode) {
+        insertionNode.insertAdjacentElement("afterend", existing);
+      }
+    } else if (existing.parentElement !== sidebar) {
+      sidebar.appendChild(existing);
     }
 
     var hash = window.location.hash || "";
@@ -433,8 +380,7 @@
       return document.documentElement.dataset.theme === "dark" ||
         savedTheme === "dark" ||
         document.documentElement.classList.contains("dark") ||
-        document.body.classList.contains("dark") ||
-        Boolean(popup.querySelector("[aria-checked='true'], input[type='checkbox']:checked"));
+        document.body.classList.contains("dark");
     }
 
     Array.from(document.querySelectorAll(popupSelectors)).forEach(function (popup) {
@@ -762,7 +708,7 @@
     });
   }
 
-  function normalizeNavigationContrast() {
+  function markNavigationSurface() {
     var app = document.querySelector("#app");
     if (!app) return;
 
@@ -775,20 +721,6 @@
     var sidebar = findSidebarSurface();
     if (!sidebar) return;
     sidebar.classList.add("geimser-nav-surface");
-
-    Array.from(sidebar.querySelectorAll("a, button, span, div, li")).forEach(function (el) {
-      if (!(el.textContent || "").trim() && !el.matches("a, button, [role='button']")) return;
-      // Excluir dropdowns, popovers y menús flotantes que tienen fondo claro —
-      // si se les aplica color claro, el texto queda invisible sobre fondo blanco.
-      if (el.closest(
-        ".dropdown-menu, .popover, [role='menu'], [role='dialog'], [role='listbox']," +
-        "[class*='popover'], [class*='Popover'], [class*='dropdown'], [class*='Dropdown']," +
-        "[class*='menu'], [class*='Menu'], [class*='overlay'], [class*='Overlay']," +
-        ".geimser-sidebar-shortcuts"
-      )) return;
-      var isActive = Boolean(el.closest(".is-active, .active, [aria-current='page']"));
-      setImportantStyle(el, "color", isActive ? "#071c2b" : "#e9f1f8");
-    });
   }
 
   function normalizeSidebarTicketLabels() {
@@ -1796,7 +1728,7 @@
   function syncCmdbRoute() {
     var view = document.querySelector(".geimser-cmdb-view");
     if ((window.location.hash || "") === "#geimser/cmdb") {
-      if (!internalSidebarAccess()) {
+      if (!adminSidebarAccess()) {
         if (view) view.classList.remove("is-open");
         window.location.hash = "#dashboard";
         return;
@@ -1808,7 +1740,7 @@
 
     var userView = document.querySelector(".geimser-user-cmdb-view");
     if ((window.location.hash || "") === "#geimser/users-cmdb") {
-      if (!internalSidebarAccess()) {
+      if (!adminSidebarAccess()) {
         if (userView) userView.classList.remove("is-open");
         window.location.hash = "#dashboard";
         return;
@@ -2007,9 +1939,9 @@
       Boolean(document.querySelector(".hero-unit"));
     var existing = document.querySelector(".geimser-remote-button");
 
-    // Solo admin y resolutores pueden ver el botón de toma remota;
-    // los usuarios que solo crean tickets (clientes) no deben verlo.
-    if (isPublicScreen || !internalSidebarAccess()) {
+    // MeshCentral usa una identidad administrativa compartida. Hasta que
+    // exista una identidad separada para resolutores, el acceso es solo Admin.
+    if (isPublicScreen || !adminSidebarAccess()) {
       if (existing) existing.remove();
       return;
     }
@@ -2018,6 +1950,7 @@
 
     if (existing) {
       existing.textContent = isTicketScreen ? "Toma remota" : "Soporte remoto";
+      existing.dataset.geimserRemoteFlow = isTicketScreen ? "equipos" : "registrar";
       return;
     }
 
@@ -2025,8 +1958,9 @@
     button.type = "button";
     button.className = "geimser-remote-button";
     button.textContent = isTicketScreen ? "Toma remota" : "Soporte remoto";
+    button.dataset.geimserRemoteFlow = isTicketScreen ? "equipos" : "registrar";
     button.addEventListener("click", function () {
-      openRemoteModal(isTicketScreen ? "equipos" : "registrar");
+      openRemoteModal(button.dataset.geimserRemoteFlow || "registrar");
     });
     document.body.appendChild(button);
   }
@@ -2234,19 +2168,16 @@
     markRouteState();
     removeZammadBranding();
     normalizeVisibleBrandText();
+    markNavigationSurface();
     ensureSidebarBrand();
     ensureInternalSidebarShortcuts();
     removeLegacyCmdbOverlay();
-    normalizeSidebarFooter();
-    styleSidebarDockControls();
-    normalizeNavigationContrast();
     normalizeSidebarTicketLabels();
     ensureRemoteButton();
     checkRemoteInstallFirstRun();
     syncCmdbRoute();
     forcePopupContrast();
     ensureProfileLogoutFallback();
-    fixSidebarSearchDropdowns();
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();
     ensurePasswordVisibilityToggle();
@@ -2281,7 +2212,6 @@
       if (observer) observer.disconnect();
       patchTranslationPrompt();
       rememberTranslationPromptDismissal();
-      closeVisibleTranslationPrompt();
       applyGeimserUi();
       applying = false;
       observeChanges();
@@ -2293,7 +2223,6 @@
     attempts += 1;
     patchTranslationPrompt();
     rememberTranslationPromptDismissal();
-    closeVisibleTranslationPrompt();
     applyGeimserUi();
 
     if (attempts > 80) {

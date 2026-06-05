@@ -7,7 +7,8 @@ require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
   before_action :authentication_check
-  skip_before_action :authentication_check, only: :search
+  before_action :require_internal_user!
+  before_action :require_admin!, only: %i[show users]
 
   def show
     key = mesh_login_key
@@ -110,11 +111,32 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   def valid_cmdb_token?
-    expected = ENV.fetch('GEIMSER_CMDB_TOKEN', 'geimser-cmdb-local')
+    expected = ENV['GEIMSER_CMDB_TOKEN'].to_s
+    return false if expected.blank?
+
     token = params[:token].to_s.presence || request.authorization.to_s.sub(/\ABearer\s+/i, '')
     ActiveSupport::SecurityUtils.secure_compare(token, expected)
   rescue StandardError
     false
+  end
+
+  def require_internal_user!
+    return if current_user_has_permission?('ticket.agent') || current_user_has_permission?('admin')
+
+    render plain: 'Forbidden', status: :forbidden
+  end
+
+  def require_admin!
+    return if current_user_has_permission?('admin')
+
+    render plain: 'Forbidden', status: :forbidden
+  end
+
+  def current_user_has_permission?(permission)
+    user = current_user
+    return false if user.blank?
+
+    user.permissions?(permission)
   end
 
   def cmdb_search_result(record)

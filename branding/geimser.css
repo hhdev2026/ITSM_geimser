@@ -81,7 +81,7 @@ img[alt="Geimser ITSM"] {
 }
 
 .geimser-sidebar-brand.is-compact {
-  z-index: 10000 !important;
+  z-index: 20 !important;
   display: block !important;
   width: 40px;
   background: url("/assets/images/geimser-logo-mark.png") center / contain no-repeat;
@@ -100,7 +100,7 @@ img[alt="Geimser ITSM"] {
   position: fixed;
   top: 178px;
   left: var(--geimser-sidebar-left, 0);
-  z-index: 9999;
+  z-index: 40;
   width: var(--geimser-sidebar-width, 305px);
   max-width: 360px;
   margin: 0;
@@ -705,19 +705,11 @@ html[data-theme="dark"] #app {
   border-color: rgba(0, 31, 61, 0.16) !important;
 }
 
-#app .navigation,
-#app .sidebar,
-#app .appSidebar,
-#app .mainNavigation,
 #app .geimser-nav-surface {
   background: #20232b !important;
   color: #d9e2ec !important;
 }
 
-#app .navigation *,
-#app .sidebar *,
-#app .appSidebar *,
-#app .mainNavigation *,
 #app .geimser-nav-surface * {
   color: #d9e2ec !important;
 }
@@ -725,18 +717,10 @@ html[data-theme="dark"] #app {
 /* Sidebar: NO usamos overflow-x clip en el contenedor principal —
    eso cortaba los dropdowns de búsqueda. El box-sizing aplica solo
    a elementos internos que no sean panels flotantes. */
-#app .navigation,
-#app .sidebar,
-#app .appSidebar,
-#app .mainNavigation,
 #app .geimser-nav-surface {
   box-sizing: border-box !important;
 }
 
-#app .navigation *,
-#app .sidebar *,
-#app .appSidebar *,
-#app .mainNavigation *,
 #app .geimser-nav-surface * {
   box-sizing: border-box !important;
 }
@@ -785,7 +769,7 @@ html[data-theme="dark"] #app {
   position: absolute !important;
   left: 0 !important;
   right: 0 !important;
-  z-index: 99999 !important;
+  z-index: 1050 !important;
   max-height: 60vh !important;
   overflow-y: auto !important;
   background: #ffffff !important;
@@ -930,24 +914,12 @@ html[data-theme="dark"] #app {
   color: #ffffff !important;
 }
 
-#app .navigation .is-active,
-#app .navigation .active,
-#app .sidebar .is-active,
-#app .sidebar .active,
-#app .appSidebar .is-active,
-#app .mainNavigation .is-active,
 #app .geimser-nav-surface .is-active,
 #app .geimser-nav-surface .active {
   background: #4bb3f0 !important;
   color: #071c2b !important;
 }
 
-#app .navigation .is-active *,
-#app .navigation .active *,
-#app .sidebar .is-active *,
-#app .sidebar .active *,
-#app .appSidebar .is-active *,
-#app .mainNavigation .is-active *,
 #app .geimser-nav-surface .is-active *,
 #app .geimser-nav-surface .active * {
   color: #071c2b !important;
@@ -981,9 +953,7 @@ html[data-theme="dark"] #app {
 #app .activityStream,
 #app .activity-list,
 #app .activityList,
-#app .geimser-activity-surface,
-#app [class*="Activity"],
-#app [class*="activity"] {
+#app .geimser-activity-surface {
   background: #1b3a6b !important;
   color: #ffffff !important;
 }
@@ -992,9 +962,7 @@ html[data-theme="dark"] #app {
 #app .activityStream *,
 #app .activity-list *,
 #app .activityList *,
-#app .geimser-activity-surface *,
-#app [class*="Activity"] *,
-#app [class*="activity"] * {
+#app .geimser-activity-surface * {
   color: #ffffff !important;
 }
 
@@ -1618,9 +1586,10 @@ html[data-theme="dark"] #app {
 
 .geimser-remote-button {
   position: fixed;
-  right: 22px;
-  bottom: 22px;
-  z-index: 9000;
+  left: 12px;
+  right: auto;
+  bottom: 76px;
+  z-index: 900;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -1642,7 +1611,7 @@ html[data-theme="dark"] #app {
 .geimser-remote-modal {
   position: fixed;
   inset: 0;
-  z-index: 10000;
+  z-index: 1200;
   display: none;
   background: rgba(12, 17, 29, 0.64);
 }
@@ -2151,7 +2120,7 @@ html[data-theme="dark"] #app {
 .geimser-cmdb-view {
   position: fixed;
   inset: 0;
-  z-index: 9998;
+  z-index: 1200;
   display: none;
   padding: 24px;
   background: rgba(10, 20, 32, 0.56);
@@ -2483,7 +2452,7 @@ html[data-theme="dark"] #app {
 .geimser-user-cmdb-view {
   position: fixed;
   inset: 0;
-  z-index: 99995;
+  z-index: 1200;
   display: none;
   padding: 18px;
   background: #eef3f8;
@@ -3304,34 +3273,32 @@ html[data-theme="dark"] #app {
   }
 }
 
-#app .activity-body,
-#app .activity-message,
-#app .activity-text,
-#app .activity-time,
-#app .humanTimeFromNow.activity-time,
-#app .activity-body *,
-#app .activity-message *,
-#app .activity-text *,
-#app .activity-time * {
+#app .geimser-activity-surface .activity-body,
+#app .geimser-activity-surface .activity-message,
+#app .geimser-activity-surface .activity-text,
+#app .geimser-activity-surface .activity-time,
+#app .geimser-activity-surface .humanTimeFromNow.activity-time,
+#app .geimser-activity-surface .activity-body *,
+#app .geimser-activity-surface .activity-message *,
+#app .geimser-activity-surface .activity-text *,
+#app .geimser-activity-surface .activity-time * {
   color: #ffffff !important;
   text-shadow: none !important;
 }
 
-#app .activity-body a,
-#app .activity-message a,
-#app .activity-text a {
+#app .geimser-activity-surface .activity-body a,
+#app .geimser-activity-surface .activity-message a,
+#app .geimser-activity-surface .activity-text a {
   color: #d9efff !important;
 }
 
-#app .activity-time,
-#app .humanTimeFromNow.activity-time {
+#app .geimser-activity-surface .activity-time,
+#app .geimser-activity-surface .humanTimeFromNow.activity-time {
   color: #d7e7f6 !important;
 }
 
-#app .activity .avatar,
-#app [class*="activity"] .avatar,
-#app .activity .js-avatar,
-#app [class*="activity"] .js-avatar {
+#app .geimser-activity-surface .activity .avatar,
+#app .geimser-activity-surface .activity .js-avatar {
   color: #071c2b !important;
 }
 
@@ -3345,11 +3312,9 @@ html[data-theme="dark"] #app {
 
 /* Base: fondo blanco + texto oscuro en TODO dropdown/popover/menú */
 #app .dropdown-menu,
-#app .dropdown,
 #app .popover,
 #app [role="menu"],
 #app [role="listbox"],
-#app [role="dialog"],
 #app [class*="popover"],
 #app [class*="Popover"],
 #app [class*="userMenu"],
@@ -3372,11 +3337,9 @@ html[data-theme="dark"] #app {
 
 /* Todos los hijos heredan texto oscuro */
 #app .dropdown-menu *,
-#app .dropdown *,
 #app .popover *,
 #app [role="menu"] *,
 #app [role="listbox"] *,
-#app [role="dialog"] *,
 #app [class*="popover"] *,
 #app [class*="Popover"] *,
 #app [class*="userMenu"] *,
@@ -4006,9 +3969,6 @@ html[data-theme="dark"] #app {
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ─── SIDEBAR PRINCIPAL ─────────────────────────────────────── */
-#app .navigation,
-#app .appSidebar,
-#app .mainNavigation,
 #app .geimser-nav-surface {
   background: var(--geimser-sidebar-bg, #0f1117) !important;
   background-image: linear-gradient(180deg, #141720 0%, #0f1117 100%) !important;
@@ -4017,17 +3977,12 @@ html[data-theme="dark"] #app {
 }
 
 /* Items de nav — texto legible */
-#app .navigation *,
-#app .appSidebar *,
-#app .mainNavigation *,
 #app .geimser-nav-surface * {
   color: #c9d5e3 !important;
 }
 
 /* Links del sidebar */
-#app .navigation a,
-#app .appSidebar a,
-#app .mainNavigation a {
+#app .geimser-nav-surface a {
   color: #c9d5e3 !important;
   font-weight: 500 !important;
   font-size: 13.5px !important;
@@ -4035,31 +3990,25 @@ html[data-theme="dark"] #app {
 }
 
 /* Hover items sidebar */
-#app .navigation a:hover,
-#app .appSidebar a:hover,
-#app .mainNavigation a:hover {
+#app .geimser-nav-surface a:hover {
   background: rgba(255,255,255,0.07) !important;
   color: #ffffff !important;
 }
 
 /* Item activo — highlight azul con acento naranja */
-#app .navigation .is-active,
-#app .navigation .active,
-#app .appSidebar .is-active,
-#app .mainNavigation .is-active {
+#app .geimser-nav-surface .is-active,
+#app .geimser-nav-surface .active {
   background: rgba(0,112,210,0.18) !important;
   border-left: 3px solid #f5a623 !important;
 }
 
-#app .navigation .is-active *,
-#app .navigation .active *,
-#app .appSidebar .is-active *,
-#app .mainNavigation .is-active * {
+#app .geimser-nav-surface .is-active *,
+#app .geimser-nav-surface .active * {
   color: #ffffff !important;
 }
 
 /* ─── MENÚ DE PERFIL / POPUP DE USUARIO ─────────────────────── */
-/* z-index alto para que quede SOBRE el logo Geimser (z-index: 4000) */
+/* Menús por encima del sidebar, dentro de una escala de capas controlada. */
 #app .dropdown-menu,
 #app [role="menu"],
 #app [role="listbox"],
@@ -4073,7 +4022,7 @@ html[data-theme="dark"] #app {
 #app [class*="accountMenu"],
 #app .js-profileMenu,
 #app .js-accountMenu {
-  z-index: 9500 !important;
+  z-index: 1050 !important;
   background: #ffffff !important;
   border: 1px solid rgba(0,31,61,0.10) !important;
   border-radius: 12px !important;
@@ -4196,14 +4145,6 @@ html[data-theme="dark"] #app {
 #app .ticketZoom,
 #app .page {
   background: #f0f2f5 !important;
-}
-
-/* ─── PANTALLA DE BIENVENIDA ─────────────────────────────────── */
-/* Detecta el texto de bienvenida y le da un estilo moderno */
-#app .content:has(h1),
-#app .main:has(h1) {
-  display: flex !important;
-  align-items: flex-start !important;
 }
 
 /* Card de bienvenida cuando no hay tickets */
@@ -4502,7 +4443,7 @@ html[data-theme="dark"] #app {
   --geimser-popup-hover: #edf6ff;
   --geimser-popup-link: #004b8d;
   box-sizing: border-box !important;
-  z-index: 9999 !important;
+  z-index: 1100 !important;
   background: var(--geimser-popup-bg) !important;
   background-color: var(--geimser-popup-bg) !important;
   color: var(--geimser-popup-text) !important;
@@ -4756,11 +4697,11 @@ html[data-theme="dark"] #app {
 }
 
 #app .geimser-profile-popup {
-  min-width: 280px !important;
-  max-height: none !important;
-  overflow: visible !important;
-  position: relative !important;
-  z-index: 2147483647 !important;
+  min-width: min(280px, calc(100vw - 24px)) !important;
+  max-height: min(420px, calc(100dvh - 24px)) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  z-index: 1100 !important;
   pointer-events: auto !important;
 }
 
@@ -4824,4 +4765,94 @@ html[data-theme="dark"] #app {
   background: #b42318 !important;
   background-color: #b42318 !important;
   color: #ffffff !important;
+}
+
+/* ─── CAPA DE COMPATIBILIDAD ZAMMAD ────────────────────────────
+   Mantiene las mejoras visuales fuera del flujo y stacking nativos. */
+#app .geimser-nav-surface {
+  overflow-x: visible !important;
+}
+
+#app .geimser-nav-surface .dropdown-menu,
+#app .geimser-nav-surface [role="menu"],
+#app .geimser-nav-surface [role="listbox"],
+#app .geimser-sidebar-overlay {
+  z-index: 1050 !important;
+  max-width: min(360px, calc(100vw - 16px)) !important;
+  max-height: min(480px, calc(100dvh - 24px)) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+#app .geimser-profile-popup {
+  width: min(320px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  overscroll-behavior: contain;
+}
+
+#app .modal-content button,
+#app .modal-content .btn,
+#app [role="dialog"] button,
+#app [role="dialog"] .btn {
+  color: inherit;
+}
+
+#app .modal-content .btn--primary,
+#app .modal-content .button--primary,
+#app .modal-content .btn-primary,
+#app [role="dialog"] .btn--primary,
+#app [role="dialog"] .button--primary,
+#app [role="dialog"] .btn-primary {
+  color: #ffffff !important;
+}
+
+#app .ticketZoom > .content,
+#app .ticketZoom > .main,
+#app .ticketZoom > .main-content,
+#app .ticketZoom [role="alert"],
+#app .ticketZoom .alert {
+  color: #1d1d1f !important;
+  text-shadow: none !important;
+}
+
+.geimser-remote-modal,
+.geimser-user-cmdb-view,
+.geimser-cmdb-view {
+  z-index: 1200;
+}
+
+@media (max-width: 860px) {
+  .geimser-sidebar-shortcuts.is-fixed {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .geimser-sidebar-brand,
+  .geimser-sidebar-brand.is-compact {
+    bottom: 58px;
+    width: 32px;
+    height: 36px;
+  }
+
+  #app .geimser-profile-popup {
+    max-height: calc(100dvh - 16px) !important;
+  }
+
+  .geimser-remote-button {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .geimser-sidebar-brand,
+  .geimser-sidebar-brand.is-compact {
+    display: none !important;
+  }
+
+  #app .geimser-profile-popup {
+    width: calc(100vw - 16px) !important;
+    min-width: 0 !important;
+    max-width: calc(100vw - 16px) !important;
+  }
 }
