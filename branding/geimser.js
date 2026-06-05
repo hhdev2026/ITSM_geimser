@@ -405,9 +405,22 @@
       ".js-profileSettings", ".js-profileMenu", ".js-accountMenu"
     ].join(", ");
 
+    function looksLikeProfilePopup(popup) {
+      var className = String(popup.className || "");
+      var text = (popup.textContent || "").replace(/\s+/g, " ").trim();
+      return /profile|userMenu|accountMenu|js-profile|js-account/i.test(className) ||
+        /Modo oscuro|Perfil|Cerrar sesi[oó]n|Mi cuenta|Profile|Dark mode|Sign out|Logout/i.test(text);
+    }
+
     Array.from(document.querySelectorAll(popupSelectors)).forEach(function (popup) {
       var rect = popup.getBoundingClientRect();
       if (rect.width < 60 || rect.height < 30) return; // oculto o vacío
+      if (popup.matches("[role='dialog']") && (rect.width > 520 || rect.height > 640)) return;
+
+      popup.classList.add("geimser-popup-surface");
+      if (looksLikeProfilePopup(popup)) {
+        popup.classList.add("geimser-profile-popup");
+      }
 
       // Fuerza blanco en el popup completo via inline style (gana sobre cualquier CSS)
       popup.style.setProperty("background", "#ffffff", "important");
@@ -417,12 +430,12 @@
       popup.style.setProperty("border-radius", "12px", "important");
       popup.style.setProperty("box-shadow", "0 8px 32px rgba(0,0,0,0.16)", "important");
       popup.style.setProperty("z-index", "9999", "important");
-      popup.style.setProperty("overflow", "hidden", "important");
+      popup.style.setProperty("overflow", "visible", "important");
 
       // Fuerza cada hijo también
       Array.from(popup.querySelectorAll("*")).forEach(function (child) {
         // Skip elementos de formulario
-        if (child.matches("input, textarea, select, option")) return;
+        if (child.matches("input, textarea, select, option, img, canvas, video")) return;
 
         var tag = child.tagName.toLowerCase();
         // Separadores
@@ -435,6 +448,10 @@
         if (child.matches(".avatar, [class*='avatar'], [class*='Avatar']")) {
           child.style.setProperty("background", "#f5a623", "important");
           child.style.setProperty("color", "#ffffff", "important");
+          child.style.setProperty("width", "40px", "important");
+          child.style.setProperty("height", "40px", "important");
+          child.style.setProperty("min-width", "40px", "important");
+          child.style.setProperty("min-height", "40px", "important");
           return;
         }
         // Toggle switches — no tocar su estado visual
@@ -449,6 +466,12 @@
         el.style.setProperty("color", "#1a2035", "important");
         el.style.setProperty("background-color", "transparent", "important");
         el.style.removeProperty("background");
+      });
+
+      Array.from(popup.querySelectorAll("img")).forEach(function (img) {
+        img.style.setProperty("max-width", "112px", "important");
+        img.style.setProperty("max-height", "48px", "important");
+        img.style.setProperty("object-fit", "contain", "important");
       });
     });
   }

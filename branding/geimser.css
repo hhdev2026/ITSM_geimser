@@ -4515,3 +4515,115 @@ html[data-theme="dark"] #app {
 #app .main span[style*="color: white"] {
   color: #111827 !important;
 }
+
+/* ─── PERFIL / CUENTA — contraste estable por perfil ───────────
+   El JS marca el popup real con estas clases para no depender de
+   nombres internos de Zammad ni del rol del usuario. */
+#app .geimser-popup-surface,
+#app .geimser-profile-popup {
+  box-sizing: border-box !important;
+  z-index: 9999 !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid rgba(0, 31, 61, 0.12) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 18px 46px rgba(0, 20, 50, 0.20), 0 4px 12px rgba(0, 20, 50, 0.10) !important;
+}
+
+#app .geimser-profile-popup {
+  width: min(376px, calc(100vw - 28px)) !important;
+  min-width: min(280px, calc(100vw - 28px)) !important;
+  max-width: calc(100vw - 28px) !important;
+  max-height: calc(100vh - 28px) !important;
+  padding: 8px !important;
+  overflow: auto !important;
+}
+
+#app .geimser-profile-popup,
+#app .geimser-profile-popup *,
+#app .geimser-profile-popup [class*="profile"],
+#app .geimser-profile-popup [class*="Profile"],
+#app .geimser-profile-popup [class*="user"],
+#app .geimser-profile-popup [class*="User"],
+#app .geimser-profile-popup [class*="account"],
+#app .geimser-profile-popup [class*="Account"] {
+  color: #111827 !important;
+}
+
+#app .geimser-profile-popup li,
+#app .geimser-profile-popup a,
+#app .geimser-profile-popup button:not([role="switch"]),
+#app .geimser-profile-popup [role="menuitem"],
+#app .geimser-profile-popup [role="option"] {
+  min-height: 40px !important;
+  padding: 9px 12px !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #111827 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+}
+
+#app .geimser-profile-popup li:hover,
+#app .geimser-profile-popup a:hover,
+#app .geimser-profile-popup button:not([role="switch"]):hover,
+#app .geimser-profile-popup [role="menuitem"]:hover,
+#app .geimser-profile-popup [role="option"]:hover {
+  background: #edf6ff !important;
+  background-color: #edf6ff !important;
+  color: #004b8d !important;
+}
+
+#app .geimser-profile-popup [class*="header"],
+#app .geimser-profile-popup [class*="Header"],
+#app .geimser-profile-popup li:first-child,
+#app .geimser-profile-popup li:first-child:has(.avatar),
+#app .geimser-profile-popup li:first-child:has([class*="avatar"]) {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: #111827 !important;
+  border-radius: 8px !important;
+}
+
+#app .geimser-profile-popup .avatar,
+#app .geimser-profile-popup [class*="avatar"],
+#app .geimser-profile-popup [class*="Avatar"] {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  max-width: 40px !important;
+  max-height: 40px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 40px !important;
+  border-radius: 50% !important;
+  background: #f28c18 !important;
+  background-color: #f28c18 !important;
+  color: #ffffff !important;
+  overflow: hidden !important;
+}
+
+#app .geimser-profile-popup img {
+  max-width: 112px !important;
+  max-height: 48px !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+#app .geimser-profile-popup hr,
+#app .geimser-profile-popup .divider {
+  background: rgba(0, 31, 61, 0.10) !important;
+  border-color: rgba(0, 31, 61, 0.10) !important;
+  margin: 6px 4px !important;
+}
+
+#app .geimser-profile-popup [role="switch"],
+#app .geimser-profile-popup input[type="checkbox"] {
+  color: inherit !important;
+}
