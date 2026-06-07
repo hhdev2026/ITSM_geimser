@@ -3,6 +3,7 @@
   --geimser-blue-mid: #0070d2;
   --geimser-blue-deep: #003d7a;
   --geimser-orange: #f5a623;
+  --geimser-orange-text: #8a4f00;
   --geimser-orange-dark: #d4881a;
   --geimser-surface: #f0f2f5;
   --geimser-panel: #ffffff;
@@ -217,7 +218,7 @@ a,
 
 a:hover,
 .link:hover {
-  color: var(--geimser-orange);
+  color: var(--geimser-blue-deep);
 }
 
 .btn--primary,
@@ -400,7 +401,7 @@ input[type="submit"]:hover {
 }
 
 .hero-unit a:hover {
-  color: var(--geimser-orange);
+  color: var(--geimser-blue-deep);
 }
 
 .splash,
@@ -685,7 +686,7 @@ html[data-theme="dark"] #app {
 #app .geimser-app-surface a:hover,
 #app .geimser-app-surface .link:hover,
 #app .modal-content a:hover {
-  color: #f5a623 !important;
+  color: #003d7a !important;
 }
 
 #app .content input,
@@ -1060,7 +1061,7 @@ html[data-theme="dark"] #app {
 #app .geimser-sidebar-footer [class*="avatar"],
 #app .geimser-sidebar-footer [class*="Avatar"] {
   background: #f28c18 !important;
-  color: #ffffff !important;
+  color: #071c2b !important;
 }
 
 #app .geimser-sidebar-dock,
@@ -1104,7 +1105,7 @@ html[data-theme="dark"] #app {
 #app .geimser-sidebar-dock-item [class*="avatar"],
 #app .geimser-sidebar-dock-item [class*="Avatar"] {
   background: #f28c18 !important;
-  color: #ffffff !important;
+  color: #071c2b !important;
 }
 
 #app .navigation a,
@@ -1576,7 +1577,7 @@ html[data-theme="dark"] #app {
   border-color: rgba(0, 31, 61, 0.22) !important;
 }
 
-.geimser-remote-button {
+.geimser-context-remote-button {
   position: fixed;
   left: 12px;
   right: auto;
@@ -1596,7 +1597,7 @@ html[data-theme="dark"] #app {
   cursor: pointer;
 }
 
-.geimser-remote-button:hover {
+.geimser-context-remote-button:hover {
   background: #005daa;
 }
 
@@ -2107,19 +2108,6 @@ html[data-theme="dark"] #app {
   font-size: 11px;
   font-weight: 650;
   line-height: 1.1;
-}
-
-.geimser-cmdb-view {
-  position: fixed;
-  inset: 0;
-  z-index: 1200;
-  display: none;
-  padding: 24px;
-  background: rgba(10, 20, 32, 0.56);
-}
-
-.geimser-cmdb-view.is-open {
-  display: block;
 }
 
 .geimser-cmdb-shell {
@@ -3096,10 +3084,6 @@ html[data-theme="dark"] #app {
 }
 
 @media (max-width: 860px) {
-  .geimser-cmdb-view {
-    padding: 10px;
-  }
-
   .geimser-cmdb-shell {
     height: calc(100vh - 20px);
   }
@@ -3901,7 +3885,7 @@ html[data-theme="dark"] #app {
 }
 
 /* --- BOTÓN SOPORTE REMOTO — nivel superior --- */
-.geimser-remote-button {
+.geimser-context-remote-button {
   background: linear-gradient(135deg, #005daa, #004b8d) !important;
   border-radius: 10px !important;
   box-shadow: 0 4px 16px rgba(0, 75, 141, 0.32), 0 2px 4px rgba(0, 75, 141, 0.16) !important;
@@ -3910,7 +3894,7 @@ html[data-theme="dark"] #app {
   transition: box-shadow 0.15s ease, transform 0.10s ease !important;
 }
 
-.geimser-remote-button:hover {
+.geimser-context-remote-button:hover {
   background: linear-gradient(135deg, #0069bf, #005daa) !important;
   box-shadow: 0 6px 20px rgba(0, 75, 141, 0.40), 0 2px 6px rgba(0, 75, 141, 0.20) !important;
   transform: translateY(-1px) !important;
@@ -4306,7 +4290,7 @@ html[data-theme="dark"] #app {
 }
 
 /* ─── BOTÓN SOPORTE REMOTO ───────────────────────────────────── */
-.geimser-remote-button {
+.geimser-context-remote-button {
   background: linear-gradient(160deg, #0070d2, #0057a8) !important;
   border-radius: 10px !important;
   font-size: 13px !important;
@@ -4315,7 +4299,7 @@ html[data-theme="dark"] #app {
   box-shadow: 0 4px 16px rgba(0,87,168,0.35) !important;
   transition: box-shadow 0.15s, transform 0.12s !important;
 }
-.geimser-remote-button:hover {
+.geimser-context-remote-button:hover {
   background: linear-gradient(160deg, #0080f0, #0067c0) !important;
   box-shadow: 0 6px 22px rgba(0,87,168,0.46) !important;
   transform: translateY(-2px) !important;
@@ -4576,7 +4560,7 @@ html[data-theme="dark"] #app {
   background-image: none !important;
   border-color: rgba(0, 31, 61, 0.10) !important;
   box-shadow: none !important;
-  color: var(--text-normal, #111827) !important;
+  color: #111827 !important;
 }
 
 #app.geimser-route-profile .navigation:not(.geimser-nav-surface) *,
@@ -4863,8 +4847,7 @@ html[data-theme="dark"] #app {
 }
 
 .geimser-remote-modal,
-.geimser-user-cmdb-view,
-.geimser-cmdb-view {
+.geimser-user-cmdb-view {
   z-index: 1200;
 }
 
@@ -4886,7 +4869,7 @@ html[data-theme="dark"] #app {
     max-height: calc(100dvh - 16px) !important;
   }
 
-  .geimser-remote-button {
+  .geimser-context-remote-button {
     display: none;
   }
 }
@@ -4902,4 +4885,373 @@ html[data-theme="dark"] #app {
     min-width: 0 !important;
     max-width: calc(100vw - 16px) !important;
   }
+}
+
+/* ─── GEIMSER UX CONSOLIDATION LAYER ───────────────────────────
+   These rules intentionally sit last: they preserve readability and
+   remove duplicate operational entry points after earlier legacy layers. */
+#app .content a:hover,
+#app .main a:hover,
+#app .modal-content a:hover,
+#app .geimser-app-surface a:hover,
+.hero-unit a:hover,
+a:hover,
+.link:hover {
+  color: #003d7a !important;
+}
+
+#app .content a:not(.btn):not([class*="button"]):not([class*="Button"]):hover {
+  border-bottom-color: rgba(0, 61, 122, 0.48) !important;
+}
+
+#app .navigation input[type="search"]::placeholder,
+#app .navigation input[type="text"]::placeholder,
+#app .appSidebar input[type="search"]::placeholder,
+#app .appSidebar input[type="text"]::placeholder,
+#app .mainNavigation input[type="search"]::placeholder,
+#app .mainNavigation input[type="text"]::placeholder,
+#app .geimser-sidebar-search-control::placeholder {
+  color: #c9d5e3 !important;
+  -webkit-text-fill-color: #c9d5e3 !important;
+  opacity: 1 !important;
+}
+
+#app .geimser-sidebar-footer .avatar,
+#app .geimser-sidebar-footer [class*="avatar"],
+#app .geimser-sidebar-footer [class*="Avatar"],
+#app .geimser-sidebar-dock-item .avatar,
+#app .geimser-sidebar-dock-item [class*="avatar"],
+#app .geimser-sidebar-dock-item [class*="Avatar"],
+#app .geimser-profile-popup .avatar,
+#app .geimser-profile-popup [class*="avatar"],
+#app .geimser-profile-popup [class*="Avatar"] {
+  background: #f28c18 !important;
+  background-color: #f28c18 !important;
+  color: #071c2b !important;
+  text-shadow: none !important;
+}
+
+#app .btn--primary:hover,
+#app .button--primary:hover,
+#app .btn-primary:hover,
+#app button[type="submit"]:hover,
+#app input[type="submit"]:hover,
+.geimser-context-remote-button:hover {
+  background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
+  color: #ffffff !important;
+}
+
+.geimser-sidebar-shortcut[data-geimser-shortcut="users-cmdb"] {
+  display: none !important;
+}
+
+.geimser-sidebar-shortcut[data-geimser-shortcut="cmdb"] span:last-child {
+  font-size: 0 !important;
+}
+
+.geimser-sidebar-shortcut[data-geimser-shortcut="cmdb"] span:last-child::after {
+  content: "CMDB ITSM";
+  font-size: 13.5px;
+}
+
+#app .geimser-activity-surface,
+#app.geimser-route-activity-flow .geimser-activity-surface,
+#app .geimser-activity-surface article,
+#app .geimser-activity-surface li,
+#app .geimser-activity-surface [class*="item"],
+#app .geimser-activity-surface [class*="Item"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app .geimser-activity-surface *,
+#app.geimser-route-activity-flow .geimser-activity-surface * {
+  color: inherit !important;
+  text-shadow: none !important;
+}
+
+#app .geimser-activity-surface a,
+#app .geimser-activity-surface .link {
+  color: #003d7a !important;
+}
+
+#app .geimser-activity-surface small,
+#app .geimser-activity-surface time,
+#app .geimser-activity-surface [class*="meta"],
+#app .geimser-activity-surface [class*="Meta"],
+#app .geimser-activity-surface [class*="time"],
+#app .geimser-activity-surface [class*="Time"] {
+  color: #4b5563 !important;
+}
+
+#app .geimser-activity-surface .avatar,
+#app .geimser-activity-surface [class*="avatar"],
+#app .geimser-activity-surface [class*="Avatar"] {
+  background: #f28c18 !important;
+  background-color: #f28c18 !important;
+  color: #071c2b !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entries,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entry {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional h1,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional h2,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional h3,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional p,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional span,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional div,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional time,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional small {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional a,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .link {
+  color: #003d7a !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional small,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional time,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="meta"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="Meta"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="time"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="Time"] {
+  color: #4b5563 !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .avatar,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="avatar"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="Avatar"] {
+  background: #f28c18 !important;
+  background-color: #f28c18 !important;
+  color: #071c2b !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-avatar {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  color: #111827 !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-avatar .avatar,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-avatar [class*="avatar"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-avatar [class*="Avatar"] {
+  align-items: center !important;
+  background: #f28c18 !important;
+  background-color: #f28c18 !important;
+  border-radius: 50% !important;
+  color: #071c2b !important;
+  display: inline-flex !important;
+  height: 40px !important;
+  justify-content: center !important;
+  max-height: 40px !important;
+  max-width: 40px !important;
+  min-height: 40px !important;
+  min-width: 40px !important;
+  overflow: hidden !important;
+  width: 40px !important;
+}
+
+#app.geimser-route-cmdb .sidebar.NavBarAdmin,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin * {
+  color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-cmdb .sidebar.NavBarAdmin h1,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin h2,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin h3,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin h4 {
+  color: #ffffff !important;
+}
+
+#app.geimser-route-cmdb .sidebar.NavBarAdmin a,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin .link {
+  color: #e9f1f8 !important;
+}
+
+#app.geimser-route-cmdb .sidebar.NavBarAdmin a:hover,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin .link:hover {
+  color: #ffffff !important;
+}
+
+#app.geimser-route-cmdb .sidebar.NavBarAdmin .is-active a,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin .active a {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+#app.geimser-route-cmdb .geimser-native-cmdb-assets-head,
+#app.geimser-route-cmdb .geimser-native-cmdb-assets-head * {
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-cmdb .geimser-native-cmdb-assets-head span {
+  color: #bfe7ff !important;
+}
+
+#app.geimser-route-cmdb .geimser-native-cmdb-settings,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings table,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings tbody,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings tr,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings td,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings th,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings .settings-list-row-control,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings .settings-list-control-cell {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-cmdb .geimser-native-cmdb-settings th {
+  background: #eef3f8 !important;
+  background-color: #eef3f8 !important;
+  color: #334155 !important;
+}
+
+#app.geimser-route-cmdb .geimser-native-cmdb-settings input,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings select,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings textarea {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+#app.geimser-route-cmdb .geimser-native-cmdb-settings .btn--primary,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings .btn-primary,
+#app.geimser-route-cmdb .geimser-native-cmdb-settings button[type="submit"] {
+  background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
+  background-color: #0057a8 !important;
+  color: #ffffff !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .sidebar,
+#app.geimser-route-ticket .ticketZoom .ticketZoom-sidebar,
+#app.geimser-route-ticket .ticketZoom [class*="sidebar"],
+#app.geimser-route-ticket .ticketZoom [class*="Sidebar"] {
+  color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .sidebar label,
+#app.geimser-route-ticket .ticketZoom .sidebar .formGroup-label,
+#app.geimser-route-ticket .ticketZoom .sidebar [class*="label"],
+#app.geimser-route-ticket .ticketZoom .sidebar [class*="Label"],
+#app.geimser-route-ticket .ticketZoom [class*="sidebar"] label,
+#app.geimser-route-ticket .ticketZoom [class*="sidebar"] .formGroup-label,
+#app.geimser-route-ticket .ticketZoom [class*="sidebar"] [class*="label"],
+#app.geimser-route-ticket .ticketZoom [class*="sidebar"] [class*="Label"] {
+  color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .sidebar input,
+#app.geimser-route-ticket .ticketZoom .sidebar select,
+#app.geimser-route-ticket .ticketZoom .sidebar textarea,
+#app.geimser-route-ticket .ticketZoom [class*="sidebar"] input,
+#app.geimser-route-ticket .ticketZoom [class*="sidebar"] select,
+#app.geimser-route-ticket .ticketZoom [class*="sidebar"] textarea {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-content,
+#app.geimser-route-ticket .ticketZoom .textBubble,
+#app.geimser-route-ticket .ticketZoom .js-writeArea,
+#app.geimser-route-ticket .ticketZoom .article-attachment {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-content *,
+#app.geimser-route-ticket .ticketZoom .textBubble *,
+#app.geimser-route-ticket .ticketZoom .js-writeArea *,
+#app.geimser-route-ticket .ticketZoom .article-attachment * {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .geimser-context-remote-button {
+  background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
+  background-color: #0057a8 !important;
+  color: #ffffff !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attributeBar,
+#app.geimser-route-ticket .ticketZoom .attributeBar-inner,
+#app.geimser-route-ticket .ticketZoom .attributeBar .buttonDropdown,
+#app.geimser-route-ticket .ticketZoom .attributeBar .btn,
+#app.geimser-route-ticket .ticketZoom .attributeBar button {
+  color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attributeBar .btn--primary,
+#app.geimser-route-ticket .ticketZoom .attributeBar .btn-primary,
+#app.geimser-route-ticket .ticketZoom .attributeBar button[type="submit"] {
+  background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
+  background-color: #0057a8 !important;
+  color: #ffffff !important;
+}
+
+#app.geimser-route-ticket .attributeBar,
+#app.geimser-route-ticket .attributeBar *,
+#app.geimser-route-ticket .attributeBar-inner,
+#app.geimser-route-ticket .attributeBar-inner *,
+#app.geimser-route-ticket .buttonDropdown,
+#app.geimser-route-ticket .buttonDropdown *,
+#app.geimser-route-ticket .tabsSidebar-tab {
+  color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .attributeBar .btn--primary,
+#app.geimser-route-ticket .attributeBar .btn-primary,
+#app.geimser-route-ticket .attributeBar button[type="submit"] {
+  background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
+  background-color: #0057a8 !important;
+  color: #ffffff !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .formGroup-label,
+#app.geimser-route-ticket .ticketZoom .formGroup-label *,
+#app.geimser-route-ticket .ticketZoom .text-muted,
+#app.geimser-route-ticket .ticketZoom .tabsSidebar-tab,
+#app.geimser-route-ticket .ticketZoom .tabsSidebar-tab-count {
+  color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attachmentPlaceholder-label,
+#app.geimser-route-ticket .ticketZoom .attachmentPlaceholder-hint {
+  color: #111827 !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .formGroup-label,
+#app.geimser-route-ticket .tabsSidebar .formGroup-label *,
+#app.geimser-route-ticket .tabsSidebar .text-muted,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-headline,
+#app.geimser-route-ticket .tabsSidebar .tabsSidebar-tab-count,
+#app.geimser-route-ticket .tabsSidebar label,
+#app.geimser-route-ticket .tabsSidebar label * {
+  color: #e9f1f8 !important;
+  text-shadow: none !important;
 }

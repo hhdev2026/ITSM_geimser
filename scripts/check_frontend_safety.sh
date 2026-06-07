@@ -16,6 +16,17 @@ reject() {
   fi
 }
 
+reject_any() {
+  local pattern="$1"
+  local reason="$2"
+  shift 2
+
+  if rg -n "$pattern" "$@"; then
+    printf 'ERROR: %s\n' "$reason" >&2
+    failures=$((failures + 1))
+  fi
+}
+
 reject '#app[[:space:]]+\.content:has\(h1\)' branding/geimser.css \
   'No se debe cambiar el layout de todas las vistas que contienen un titulo.'
 reject '^[[:space:]]*normalizeSidebarFooter\(\);' branding/geimser.js \
@@ -32,6 +43,21 @@ reject "ENV\\.fetch\\('GEIMSER_CMDB_TOKEN',[[:space:]]*'geimser-cmdb-local'\\)" 
   'El token CMDB no puede tener un valor predeterminado conocido.'
 reject "ENV\\.fetch\\('GEIMSER_ADMIN_PASSWORD',[[:space:]]*'[^']+'\\)" scripts/configure_geimser.rb \
   'La clave administrativa no puede tener un valor predeterminado.'
+reject_any '(^|[;{])[[:space:]]*(color|-webkit-text-fill-color)[[:space:]]*:[[:space:]]*(var\(--geimser-orange|#f28c18|#f5a623|#f59e0b|orange)\b' \
+  'El naranja Geimser no debe usarse como color de texto; reservarlo para acentos, bordes o fondos con texto contrastado.' \
+  branding/geimser.css
+reject_any "(style\\.(color|webkitTextFillColor)[[:space:]]*=|setProperty\\(['\\\"](color|-webkit-text-fill-color)['\\\"],[[:space:]]*)['\\\"](#f28c18|#f5a623|#f59e0b|orange)" \
+  'El naranja Geimser no debe aplicarse por JavaScript como color de texto.' \
+  branding/geimser.js
+reject_any '#geimser/cmdb' \
+  'No debe existir la ruta legacy #geimser/cmdb; CMDB debe entrar por la vista nativa #system/integration/idoit.' \
+  branding/geimser.js branding/routes/geimser_mesh_login.rb
+reject_any '\.geimser-cmdb-view' \
+  'No se debe renderizar ni estilizar una segunda CMDB visual; mantener una sola CMDB visible.' \
+  branding/geimser.js branding/geimser.css
+reject_any '\.geimser-remote-button|geimser-remote-button' \
+  'La toma remota no debe depender de un boton flotante global; debe ser contextual al ticket o activo CMDB.' \
+  branding/geimser.js branding/geimser.css
 if perl -0777 -ne 'exit(/#app \.geimser-profile-popup\s*\{[^}]*position:\s*relative/s ? 0 : 1)' branding/geimser.css; then
   printf 'ERROR: El popup de perfil no debe perder el posicionamiento flotante nativo.\n' >&2
   failures=$((failures + 1))
