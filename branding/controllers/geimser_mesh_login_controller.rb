@@ -89,8 +89,9 @@ class GeimserMeshLoginController < ApplicationController
 
   def mesh_target_url(login)
     uri = URI.parse(mesh_public_url)
-    uri.path = safe_next_path
-    uri.query = URI.encode_www_form('login' => login)
+    destination = safe_next_uri
+    uri.path = destination.path
+    uri.query = URI.encode_www_form(URI.decode_www_form(destination.query.to_s) + [['login', login]])
     uri.to_s
   end
 
@@ -120,16 +121,29 @@ class GeimserMeshLoginController < ApplicationController
     'https://remoto.geimser.cl'
   end
 
-  def safe_next_path
+  def safe_next_uri
     requested = params[:next].to_s
-    return '/' if requested.blank?
+    return URI.parse('/') if requested.blank?
 
     uri = URI.parse(requested)
-    return '/' if uri.host.present? || uri.scheme.present?
+    return URI.parse('/') if uri.host.present? || uri.scheme.present?
 
-    uri.path.presence || '/'
-  rescue URI::InvalidURIError
-    '/'
+    path = uri.path.presence || '/'
+    return URI.parse('/meshagents') if path == '/meshagents'
+    return URI.parse('/') if path != '/'
+
+    query = URI.decode_www_form(uri.query.to_s).to_h.slice('gotonode', 'viewmode', 'hide', 'geimserautoconnect')
+    node_token = query['gotonode'].to_s
+    return URI.parse('/') if node_token.blank? || node_token !~ /\A[A-Za-z0-9@$_=-]+\z/
+
+    URI.parse("/?#{URI.encode_www_form(
+      'gotonode' => node_token,
+      'viewmode' => '12',
+      'hide' => '16',
+      'geimserautoconnect' => '1',
+    )}")
+  rescue URI::InvalidURIError, ArgumentError
+    URI.parse('/')
   end
 
   def valid_cmdb_token?

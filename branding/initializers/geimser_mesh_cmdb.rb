@@ -245,8 +245,20 @@ class GeimserMeshCmdb
       nil
     end
 
-    def mesh_login_path_for(_node_id)
-      "/geimser/mesh/login?next=#{URI.encode_www_form_component('/')}"
+    def mesh_login_path_for(node_id)
+      next_path = '/'
+      node_token = node_id.to_s.split('/', 3).last
+
+      if node_token.present?
+        next_path = "/?#{URI.encode_www_form(
+          'gotonode' => node_token,
+          'viewmode' => '12',
+          'hide' => '16',
+          'geimserautoconnect' => '1',
+        )}"
+      end
+
+      "/geimser/mesh/login?next=#{URI.encode_www_form_component(next_path)}"
     end
 
     def absolute_session_url(path)
