@@ -134,12 +134,12 @@ class GeimserMeshLoginController < ApplicationController
 
     query = URI.decode_www_form(uri.query.to_s).to_h.slice('gotonode', 'viewmode', 'hide', 'geimserautoconnect')
     node_token = query['gotonode'].to_s
-    return URI.parse('/') if node_token.blank? || node_token !~ %r{\A(?:node//)?[A-Za-z0-9@$_=-]+\z}
+    return URI.parse('/') if node_token.blank? || node_token !~ /\A[A-Za-z0-9@$_=-]+\z/
 
     URI.parse("/?#{URI.encode_www_form(
       'gotonode' => node_token,
       'viewmode' => '11',
-      'hide' => '16',
+      'hide' => '15',
       'geimserautoconnect' => '1',
     )}")
   rescue URI::InvalidURIError, ArgumentError
