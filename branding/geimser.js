@@ -574,6 +574,54 @@
     });
   }
 
+  function normalizeProfileContrast() {
+    var app = document.querySelector("#app");
+    if (!app || !app.classList.contains("geimser-route-profile")) return;
+
+    Array.from(app.querySelectorAll(".content, .content > div, .content > section, .content > article, .main, .main-content, .page")).forEach(function (el) {
+      if (el.classList.contains("geimser-nav-surface") || el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
+      el.style.setProperty("background", "#ffffff", "important");
+      el.style.setProperty("background-color", "#ffffff", "important");
+      el.style.setProperty("color", "#111827", "important");
+      el.style.setProperty("text-shadow", "none", "important");
+    });
+
+    Array.from(app.querySelectorAll(".content h1, .content h2, .content h3, .content h4, .content p, .content span, .content div, .content label, .content small, .content a, .content li, .content button")).forEach(function (el) {
+      if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
+
+      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
+      if (!text && !el.matches("button, a")) return;
+
+      var muted = el.matches("small, label, [class*='muted'], [class*='hint'], [class*='meta'], [class*='Meta']") ||
+        /CORREO ELECTR[ÓO]NICO|NOTA|FRECUENCIA|TICKETS ABIERTOS|CERRAR TICKETS/i.test(text);
+      var link = el.matches("a, .link");
+      var color = link ? "#003d7a" : (muted ? "#4b5563" : "#111827");
+      el.style.setProperty("color", color, "important");
+      el.style.setProperty("-webkit-text-fill-color", color, "important");
+      el.style.setProperty("text-shadow", "none", "important");
+    });
+
+    Array.from(app.querySelectorAll(".content .tabs, .content .nav-tabs, .content [role='tablist'], .content .tab, .content .tabs li, .content .nav-tabs li, .content [role='tab']")).forEach(function (el) {
+      var active = Boolean(el.matches(".active, .is-active, [aria-selected='true']") || el.closest(".active, .is-active, [aria-selected='true']"));
+      var bg = active ? "#eef3f8" : "#ffffff";
+      var color = active ? "#111827" : "#4b5563";
+      el.style.setProperty("background", bg, "important");
+      el.style.setProperty("background-color", bg, "important");
+      el.style.setProperty("color", color, "important");
+      el.style.setProperty("-webkit-text-fill-color", color, "important");
+      el.style.setProperty("text-shadow", "none", "important");
+    });
+
+    Array.from(app.querySelectorAll(".content .avatar, .content [class*='avatar'], .content [class*='Avatar']")).forEach(function (el) {
+      if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
+      el.style.setProperty("background", "#f28c18", "important");
+      el.style.setProperty("background-color", "#f28c18", "important");
+      el.style.setProperty("color", "#071c2b", "important");
+      el.style.setProperty("-webkit-text-fill-color", "#071c2b", "important");
+      el.style.setProperty("text-shadow", "none", "important");
+    });
+  }
+
   function repairActivityFlowLayout() {
     var app = document.querySelector("#app");
     if (!app || !app.classList.contains("geimser-route-activity-flow")) return;
@@ -2122,6 +2170,7 @@
     normalizeCmdbAdminNavigation();
     normalizeNativeControlContrast();
     normalizeTicketContrast();
+    normalizeProfileContrast();
     repairActivityFlowLayout();
     removeZammadBranding();
     normalizeVisibleBrandText();

@@ -4157,6 +4157,101 @@ html[data-theme="dark"] #app {
   white-space: normal !important;
 }
 
+/* Profile page: Zammad can reuse dark ticket/sidebar colors here. Force a
+   light, readable account detail surface. */
+#app.geimser-route-profile .content,
+#app.geimser-route-profile .main,
+#app.geimser-route-profile .main-content,
+#app.geimser-route-profile .page {
+  background: #f4f6fa !important;
+  background-color: #f4f6fa !important;
+  color: #111827 !important;
+}
+
+#app.geimser-route-profile .content > .centered,
+#app.geimser-route-profile .content > .container,
+#app.geimser-route-profile .content > .main,
+#app.geimser-route-profile .content > section,
+#app.geimser-route-profile .content > article,
+#app.geimser-route-profile .content > div:not(.geimser-nav-surface):not(.geimser-profile-popup) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid rgba(0, 31, 61, 0.10) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 32px rgba(0, 31, 61, 0.10) !important;
+}
+
+#app.geimser-route-profile .content :not(.geimser-nav-surface):not(.geimser-nav-surface *):not(.geimser-profile-popup):not(.geimser-profile-popup *) {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-profile .content small,
+#app.geimser-route-profile .content time,
+#app.geimser-route-profile .content label,
+#app.geimser-route-profile .content [class*="muted"],
+#app.geimser-route-profile .content [class*="hint"],
+#app.geimser-route-profile .content [class*="meta"],
+#app.geimser-route-profile .content [class*="Meta"] {
+  color: #4b5563 !important;
+}
+
+#app.geimser-route-profile .content a,
+#app.geimser-route-profile .content .link {
+  color: #003d7a !important;
+}
+
+#app.geimser-route-profile .avatar,
+#app.geimser-route-profile [class*="avatar"],
+#app.geimser-route-profile [class*="Avatar"] {
+  background: #f28c18 !important;
+  background-color: #f28c18 !important;
+  color: #071c2b !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-profile .content .tabs,
+#app.geimser-route-profile .content .nav-tabs,
+#app.geimser-route-profile .content [role="tablist"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid rgba(0, 31, 61, 0.16) !important;
+  border-radius: 8px !important;
+  color: #111827 !important;
+  overflow: hidden !important;
+}
+
+#app.geimser-route-profile .content .tab,
+#app.geimser-route-profile .content .tabs li,
+#app.geimser-route-profile .content .nav-tabs li,
+#app.geimser-route-profile .content [role="tab"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #4b5563 !important;
+}
+
+#app.geimser-route-profile .content .tab.active,
+#app.geimser-route-profile .content .tab.is-active,
+#app.geimser-route-profile .content .tabs li.active,
+#app.geimser-route-profile .content .tabs li.is-active,
+#app.geimser-route-profile .content .nav-tabs li.active,
+#app.geimser-route-profile .content [role="tab"][aria-selected="true"] {
+  background: #eef3f8 !important;
+  background-color: #eef3f8 !important;
+  color: #111827 !important;
+}
+
+#app.geimser-route-profile .content canvas,
+#app.geimser-route-profile .content svg,
+#app.geimser-route-profile .content [class*="chart"],
+#app.geimser-route-profile .content [class*="Chart"],
+#app.geimser-route-profile .content [class*="report"],
+#app.geimser-route-profile .content [class*="Report"] {
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
 /* ─── RESET RAIZ PARA PANTALLAS NATIVAS ZAMMAD ──────────────── */
 #app.geimser-route-native .content,
 #app.geimser-route-native .main,
