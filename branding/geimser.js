@@ -338,15 +338,19 @@
     if (!app) return;
     var hash = window.location.hash || "";
     var isProfile = /^#profile(?:\/|$)/.test(hash);
-    var hasActivityFlow = /\bFlujo de Actividad\b/i.test((app.textContent || "").replace(/\s+/g, " "));
+    var pageText = (app.textContent || "").replace(/\s+/g, " ");
+    var hasActivityFlow = /\bFlujo de Actividad\b/i.test(pageText);
+    var hasProfileDetail = /CORREO ELECTR[ÓO]NICO/i.test(pageText) &&
+      /Tickets de Usuario|Tickets de la organizaci[oó]n/i.test(pageText) &&
+      /FRECUENCIA|Tickets abiertos|Cerrar tickets/i.test(pageText);
     var isTicketCreate = /^#ticket\/create(?:\/|$)/.test(hash);
     var isTicket = /^#ticket(?:\/|$)/.test(hash);
     var isCmdb = hash === "#system/integration/idoit";
-    app.classList.toggle("geimser-route-profile", isProfile || hasActivityFlow);
+    app.classList.toggle("geimser-route-profile", isProfile || hasActivityFlow || hasProfileDetail);
     app.classList.toggle("geimser-route-ticket-create", isTicketCreate);
     app.classList.toggle("geimser-route-ticket", isTicket);
     app.classList.toggle("geimser-route-cmdb", isCmdb);
-    app.classList.toggle("geimser-route-native", isProfile || hasActivityFlow || isTicketCreate);
+    app.classList.toggle("geimser-route-native", isProfile || hasActivityFlow || hasProfileDetail || isTicketCreate);
     app.classList.toggle("geimser-route-activity-flow", hasActivityFlow);
   }
 

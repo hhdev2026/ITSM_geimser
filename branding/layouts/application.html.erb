@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="/assets/images/geimser-logo-mark.png" />
   <link rel="apple-touch-icon" href="/assets/images/geimser-logo-mark.png" />
   <%= stylesheet_link_tag "application", :media => 'all' %>
-  <link rel="stylesheet" href="/assets/geimser.css?v=87" media="all" />
+  <link rel="stylesheet" href="/assets/geimser.css?v=88" media="all" />
   <%= stylesheet_link_tag "application-print", :media => 'print' %>
   <%= javascript_tag nonce: true do -%>
     if(window.MSInputMethodContext && document.documentMode){
@@ -32,7 +32,7 @@
   <% else %>
     <%= javascript_include_tag "application", nonce: true, :defer => 'defer' %>
   <% end %>
-  <script src="/assets/geimser.js?v=70" nonce="<%= content_security_policy_nonce %>" defer></script>
+  <script src="/assets/geimser.js?v=71" nonce="<%= content_security_policy_nonce %>" defer></script>
 
   <%# Statically include external files with a nonce here to conform to CSP properly. %>
   <%# Required by form channel configuration preview. %>
