@@ -149,7 +149,9 @@ img[alt="Geimser ITSM"] {
 .geimser-sidebar-shortcut-icon-users::before,
 .geimser-sidebar-shortcut-icon-users::after,
 .geimser-sidebar-shortcut-icon-cmdb::before,
-.geimser-sidebar-shortcut-icon-cmdb::after {
+.geimser-sidebar-shortcut-icon-cmdb::after,
+.geimser-sidebar-shortcut-icon-remote::before,
+.geimser-sidebar-shortcut-icon-remote::after {
   content: "";
   position: absolute;
   box-sizing: border-box;
@@ -189,6 +191,25 @@ img[alt="Geimser ITSM"] {
   height: 10px;
   border: 2px solid currentColor;
   border-radius: 3px;
+}
+
+.geimser-sidebar-shortcut-icon-remote::before {
+  top: 5px;
+  left: 3px;
+  width: 22px;
+  height: 15px;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+}
+
+.geimser-sidebar-shortcut-icon-remote::after {
+  left: 9px;
+  bottom: 3px;
+  width: 10px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 999px;
+  box-shadow: 0 -4px 0 -1px currentColor;
 }
 
 input,

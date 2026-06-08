@@ -298,6 +298,9 @@
       existing = document.createElement("nav");
       existing.className = "geimser-sidebar-shortcuts";
       existing.setAttribute("aria-label", "Accesos internos Geimser ITSM");
+    }
+
+    if (!existing.querySelector('[data-geimser-shortcut="remote"]')) {
       existing.innerHTML = [
         '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="users" href="#manage/users">',
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-users" aria-hidden="true"></span>',
@@ -306,8 +309,20 @@
         '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="cmdb" href="#system/integration/idoit">',
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-cmdb" aria-hidden="true"></span>',
         '  <span>CMDB ITSM</span>',
-        '</a>'
+        '</a>',
+        '<button class="geimser-sidebar-shortcut" data-geimser-shortcut="remote" type="button">',
+        '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-remote" aria-hidden="true"></span>',
+        '  <span>Toma remota</span>',
+        '</button>'
       ].join("");
+    }
+
+    var remoteShortcut = existing.querySelector('[data-geimser-shortcut="remote"]');
+    if (remoteShortcut && !remoteShortcut.dataset.geimserBound) {
+      remoteShortcut.dataset.geimserBound = "true";
+      remoteShortcut.addEventListener("click", function () {
+        openRemoteModal("equipos");
+      });
     }
 
     var reference = sidebarReferenceItem(sidebar);
