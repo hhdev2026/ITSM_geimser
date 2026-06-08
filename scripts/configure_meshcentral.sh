@@ -56,7 +56,8 @@ config.domains[''].allowFraming = true;
 delete config.settings.loginCookieEncryptionKey;
 delete config.domains[''].loginKey;
 config.domains[''].newAccounts = process.env.MESH_ALLOW_NEW_ACCOUNTS === 'true';
-config.domains[''].title = 'Geimser ITSM Remote';
+config.domains[''].title = '';
+config.domains[''].title2 = '';
 config.domains[''].certUrl = 'https://' + host;
 
 fs.writeFileSync(path, JSON.stringify(config, null, 2));

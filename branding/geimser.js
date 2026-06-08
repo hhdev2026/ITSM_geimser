@@ -832,7 +832,7 @@
           window.location.hash = "#logout";
         }
       }, 80);
-    });
+    }, true);
   }
 
   function fixSidebarSearchDropdowns() {
@@ -1489,15 +1489,14 @@
   function maybePromptRemoteInstall(modal, assets, options) {
     if (!internalSidebarAccess() || assets.length) return;
     options = options || {};
+    if (!options.autocheck) return;
 
-    if (options.autocheck) {
-      try {
-        var key = "geimserRemoteInstallPromptSeenThisTab";
-        if (window.sessionStorage && sessionStorage.getItem(key) === "true") return;
-        if (window.sessionStorage) sessionStorage.setItem(key, "true");
-      } catch (_error) {
-        // Best effort only; the prompt should never block normal navigation.
-      }
+    try {
+      var key = "geimserRemoteInstallPromptSeenThisTab";
+      if (window.sessionStorage && sessionStorage.getItem(key) === "true") return;
+      if (window.sessionStorage) sessionStorage.setItem(key, "true");
+    } catch (_error) {
+      // Best effort only; the prompt should never block normal navigation.
     }
 
     window.setTimeout(function () {
@@ -1597,8 +1596,7 @@
         var sessionUrl = control.getAttribute("data-cmdb-session") || meshLoginUrl("/");
         var modal = ensureRemoteModal();
         openRemoteModal("equipos");
-        modal.querySelector(".geimser-remote-frame").src = sessionUrl;
-        modal.querySelector(".geimser-remote-open").href = sessionUrl;
+        openRemoteSession(modal, sessionUrl);
       });
     }
   }
@@ -1661,10 +1659,17 @@
     container.querySelectorAll("[data-remote-session]").forEach(function (button) {
       button.addEventListener("click", function () {
         var url = button.getAttribute("data-remote-session") || meshLoginUrl("/");
-        modal.querySelector(".geimser-remote-frame").src = url;
-        modal.querySelector(".geimser-remote-open").href = url;
+        openRemoteSession(modal, url);
       });
     });
+  }
+
+  function openRemoteSession(modal, url) {
+    var sessionUrl = url || meshLoginUrl("/");
+    modal.classList.add("is-session-active");
+    modal.classList.remove("is-equipment-flow", "is-install-flow");
+    modal.querySelector(".geimser-remote-frame").src = sessionUrl;
+    modal.querySelector(".geimser-remote-open").href = sessionUrl;
   }
 
   function loadRemoteAssets(modal) {
@@ -1791,8 +1796,7 @@
         var sessionUrl = button.getAttribute("data-cmdb-session") || meshLoginUrl("/");
         var modal = ensureRemoteModal();
         openRemoteModal("equipos");
-        modal.querySelector(".geimser-remote-frame").src = sessionUrl;
-        modal.querySelector(".geimser-remote-open").href = sessionUrl;
+        openRemoteSession(modal, sessionUrl);
       });
     });
 
@@ -1838,9 +1842,64 @@
     });
   }
 
+  function setRemoteFlow(modal, flow) {
+    var equipmentFlow = flow === "equipos";
+    modal.classList.remove("is-session-active");
+    modal.classList.toggle("is-equipment-flow", equipmentFlow);
+    modal.classList.toggle("is-install-flow", !equipmentFlow);
+    modal.querySelector(".geimser-remote-frame").src = meshLoginUrl("/");
+    modal.querySelector(".geimser-remote-assets").hidden = !equipmentFlow;
+    modal.querySelector(".geimser-remote-install").hidden = equipmentFlow;
+    if (equipmentFlow) {
+      loadRemoteAssets(modal);
+    }
+  }
+
+  function copyRemoteInstallSteps(button) {
+    var text = remoteInstallInstructions();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        button.textContent = "Pasos copiados";
+        window.setTimeout(function () { button.textContent = "Copiar pasos"; }, 1800);
+      }).catch(function () {
+        window.prompt("Copia estos pasos", text);
+      });
+    } else {
+      window.prompt("Copia estos pasos", text);
+    }
+  }
+
+  function ensureRemoteModalInteractions() {
+    if (window.__geimserRemoteModalInteractions) return;
+    window.__geimserRemoteModalInteractions = true;
+
+    window.addEventListener("click", function (event) {
+      var target = event.target;
+      var modal = target && target.closest ? target.closest(".geimser-remote-modal") : null;
+      if (!modal) return;
+
+      if (target === modal || target.closest(".geimser-remote-close")) {
+        modal.classList.remove("is-open");
+      } else if (target.closest(".geimser-remote-home")) {
+        setRemoteFlow(modal, "equipos");
+      } else if (target.closest(".geimser-remote-register")) {
+        setRemoteFlow(modal, "registrar");
+      } else if (target.closest(".geimser-remote-copy-install")) {
+        copyRemoteInstallSteps(target.closest(".geimser-remote-copy-install"));
+      } else {
+        var sessionButton = target.closest("[data-remote-session]");
+        if (sessionButton) {
+          openRemoteSession(modal, sessionButton.getAttribute("data-remote-session"));
+        }
+      }
+    });
+  }
+
   function ensureRemoteModal() {
+    ensureRemoteModalInteractions();
     var existing = document.querySelector(".geimser-remote-modal");
-    if (existing) return existing;
+    if (existing && existing.GeimserSetFlow) return existing;
+    if (existing) existing.remove();
 
     var remoteInviteText = [
       "Hola, necesitamos agregar tu equipo al centro remoto de Geimser ITSM.",
@@ -1858,37 +1917,15 @@
     modal.innerHTML = [
       '<div class="geimser-remote-panel" role="dialog" aria-label="Toma remota">',
       '  <div class="geimser-remote-header">',
-      '    <div class="geimser-remote-heading">',
-      '      <div class="geimser-remote-title">Soporte remoto</div>',
-      '      <div class="geimser-remote-subtitle">Conecta, registra equipos y toma control desde Geimser ITSM</div>',
-      '    </div>',
       '    <div class="geimser-remote-actions">',
       '      <button type="button" class="geimser-remote-home">Ver equipos</button>',
       '      <button type="button" class="geimser-remote-register">Instalador</button>',
-      '      <a class="geimser-remote-open" target="_blank" rel="noopener">Abrir completo</a>',
-      '      <button type="button" class="geimser-remote-close">Cerrar</button>',
+      '      <a class="geimser-remote-open" target="_blank" rel="noopener">Abrir aparte</a>',
+      '      <button type="button" class="geimser-remote-close" aria-label="Cerrar" title="Cerrar">&times;</button>',
       '    </div>',
       '  </div>',
       '  <div class="geimser-remote-body">',
-      '    <aside class="geimser-remote-workflow" aria-label="Flujo de soporte remoto">',
-      '      <button type="button" class="geimser-remote-flow is-active" data-remote-flow="equipos">',
-      '        <span>1</span><strong>Conectar</strong><small>Elige un equipo registrado y abre la sesión remota.</small>',
-      '      </button>',
-      '      <button type="button" class="geimser-remote-flow" data-remote-flow="registrar">',
-      '        <span>2</span><strong>Instalador</strong><small>Crea un grupo y descarga el agente para este sistema.</small>',
-      '      </button>',
-      '      <button type="button" class="geimser-remote-flow" data-remote-flow="enviar">',
-      '        <span>3</span><strong>Enviar</strong><small>Adjunta el instalador al ticket o correo del cliente.</small>',
-      '      </button>',
-      '      <button type="button" class="geimser-remote-flow" data-remote-flow="esperar">',
-      '        <span>4</span><strong>Tomar control</strong><small>Cuando el agente aparezca online, entra por Ver equipos.</small>',
-      '      </button>',
-      '    </aside>',
       '    <main class="geimser-remote-stage">',
-      '      <div class="geimser-remote-banner" role="status">',
-      '        <strong>Equipos registrados</strong>',
-      '        <span>Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.</span>',
-      '      </div>',
       '      <section class="geimser-remote-assets" aria-label="Activos remotos sincronizados"></section>',
       '      <section class="geimser-remote-install" aria-label="Instalacion de agente remoto" hidden>',
       '        <div class="geimser-remote-install-card">',
@@ -1916,78 +1953,11 @@
       '</div>'
     ].join("");
 
-    function setFlow(flow) {
-      var title = "Equipos registrados";
-      var detail = "Si el equipo ya existe, selecciónalo y abre escritorio remoto. Si no existe, usa Registrar equipo.";
-
-      if (flow === "registrar") {
-        title = "Descargar agente remoto";
-        detail = "No se detecto Mesh instalado. Abre la descarga del agente para " + clientPlatformLabel() + " y ejecuta el instalador una sola vez en el equipo.";
-      } else if (flow === "enviar") {
-        title = "Enviar al notebook";
-        detail = "Adjunta el instalador generado al ticket o correo. El usuario lo ejecuta una vez y el equipo aparecerá online.";
-      } else if (flow === "esperar") {
-        title = "Tomar control";
-        detail = "Cuando el agente quede online, vuelve a Ver equipos, abre el equipo y selecciona escritorio remoto.";
-      }
-
-      modal.querySelectorAll(".geimser-remote-flow").forEach(function (button) {
-        button.classList.toggle("is-active", button.getAttribute("data-remote-flow") === flow);
-      });
-
-      modal.querySelector(".geimser-remote-banner strong").textContent = title;
-      modal.querySelector(".geimser-remote-banner span").textContent = detail;
-      modal.querySelector(".geimser-remote-frame").src = meshLoginUrl("/");
-      modal.querySelector(".geimser-remote-assets").hidden = flow !== "equipos";
-      modal.querySelector(".geimser-remote-install").hidden = flow === "equipos";
-      modal.querySelector(".geimser-remote-frame-shell").classList.toggle("is-compact", flow === "equipos");
-      if (flow === "equipos") {
-        loadRemoteAssets(modal);
-      }
-    }
-
-    modal.querySelector(".geimser-remote-close").addEventListener("click", function () {
-      modal.classList.remove("is-open");
-    });
-
-    modal.querySelector(".geimser-remote-home").addEventListener("click", function () {
-      setFlow("equipos");
-    });
-
-    modal.querySelector(".geimser-remote-register").addEventListener("click", function () {
-      setFlow("registrar");
-    });
-
     modal.querySelector(".geimser-remote-agent-download").href = meshAgentInstallUrl();
     modal.querySelector(".geimser-remote-agent-full").href = meshDevicesUrl();
-    modal.querySelector(".geimser-remote-copy-install").addEventListener("click", function () {
-      var button = this;
-      var text = remoteInstallInstructions();
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () {
-          button.textContent = "Pasos copiados";
-          window.setTimeout(function () { button.textContent = "Copiar pasos"; }, 1800);
-        }).catch(function () {
-          window.prompt("Copia estos pasos", text);
-        });
-      } else {
-        window.prompt("Copia estos pasos", text);
-      }
-    });
-
-    modal.addEventListener("click", function (event) {
-      if (event.target === modal) {
-        modal.classList.remove("is-open");
-      }
-    });
-
-    modal.querySelectorAll(".geimser-remote-flow").forEach(function (button) {
-      button.addEventListener("click", function () {
-        setFlow(button.getAttribute("data-remote-flow"));
-      });
-    });
-
-    modal.GeimserSetFlow = setFlow;
+    modal.GeimserSetFlow = function (flow) {
+      setRemoteFlow(modal, flow);
+    };
     document.body.appendChild(modal);
     return modal;
   }

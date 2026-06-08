@@ -1661,69 +1661,61 @@ html[data-theme="dark"] #app {
 }
 
 .geimser-remote-modal.is-open {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
 }
 
 .geimser-remote-panel {
-  width: min(1320px, calc(100vw - 36px));
-  height: min(840px, calc(100vh - 36px));
+  width: 100vw;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: 0;
   background: #ffffff;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
-  font-size: 13px;
+  box-shadow: none;
+  font-size: 12px;
 }
 
 .geimser-remote-header {
-  min-height: 62px;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 18px 0 20px;
+  justify-content: flex-end;
+  padding: 0 8px;
   background: #20232b;
   color: #f3f7fb;
 }
 
-.geimser-remote-title {
-  color: #f3f7fb;
-  font-size: 15px;
-  line-height: 1.2;
-  font-weight: 750;
-}
-
-.geimser-remote-heading {
-  min-width: 220px;
-}
-
-.geimser-remote-subtitle {
-  margin-top: 2px;
-  color: #b9c7d5;
-  font-size: 11px;
-  line-height: 1.35;
-}
-
 .geimser-remote-actions {
+  width: 100%;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
 .geimser-remote-actions a,
 .geimser-remote-actions button {
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 30px;
+  padding: 0 10px;
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: #f3f7fb;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 650;
   text-decoration: none;
   cursor: pointer;
+}
+
+.geimser-remote-actions .geimser-remote-open {
+  margin-left: auto;
+}
+
+.geimser-remote-actions .geimser-remote-close {
+  width: 30px;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
 }
 
 .geimser-remote-actions a:hover,
@@ -1741,8 +1733,7 @@ html[data-theme="dark"] #app {
 .geimser-remote-body {
   flex: 1;
   min-height: 0;
-  display: grid;
-  grid-template-columns: 270px minmax(0, 1fr);
+  display: block;
   background: #f5f7fb;
 }
 
@@ -1858,6 +1849,7 @@ html[data-theme="dark"] #app {
 }
 
 .geimser-remote-stage {
+  height: 100%;
   min-width: 0;
   min-height: 0;
   display: flex;
@@ -1894,18 +1886,25 @@ html[data-theme="dark"] #app {
   background: #ffffff;
 }
 
-.geimser-remote-frame-shell.is-compact {
-  flex: 1 1 42%;
-  min-height: 260px;
-  border-top: 1px solid #d9e2ec;
+.geimser-remote-modal.is-equipment-flow .geimser-remote-frame-shell {
+  display: none;
+}
+
+.geimser-remote-modal.is-session-active .geimser-remote-assets,
+.geimser-remote-modal.is-session-active .geimser-remote-install {
+  display: none;
+}
+
+.geimser-remote-modal.is-session-active .geimser-remote-frame-shell {
+  display: block;
+  flex: 1 1 auto;
 }
 
 .geimser-remote-assets {
-  flex: 0 0 auto;
-  max-height: 290px;
+  flex: 1 1 auto;
+  max-height: none;
   overflow: auto;
-  padding: 14px 16px;
-  border-bottom: 1px solid #d9e2ec;
+  padding: 12px;
   background: #f8fafc;
 }
 
@@ -2032,7 +2031,7 @@ html[data-theme="dark"] #app {
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .geimser-remote-assets-head strong {
@@ -2049,18 +2048,18 @@ html[data-theme="dark"] #app {
 
 .geimser-remote-asset-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 8px;
 }
 
 .geimser-remote-asset {
   display: grid;
-  gap: 10px;
-  padding: 12px;
+  gap: 6px;
+  padding: 9px;
   border: 1px solid #d8e2ec;
-  border-radius: 8px;
+  border-radius: 6px;
   background: #ffffff;
-  box-shadow: 0 8px 18px rgba(16, 32, 51, 0.06);
+  box-shadow: 0 2px 6px rgba(16, 32, 51, 0.05);
 }
 
 .geimser-remote-asset.is-online {
@@ -2818,37 +2817,28 @@ html[data-theme="dark"] #app {
   transform-origin: top left;
 }
 
+.geimser-remote-modal.is-session-active .geimser-remote-frame {
+  position: relative;
+  top: -46px;
+  height: calc(125% + 58px);
+}
+
 @media (max-width: 760px) {
   .geimser-remote-panel {
-    width: calc(100vw - 16px);
-    height: calc(100vh - 16px);
+    width: 100vw;
+    height: 100dvh;
   }
 
   .geimser-remote-header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px;
+    padding: 6px;
   }
 
   .geimser-remote-actions {
     flex-wrap: wrap;
   }
 
-  .geimser-remote-body {
-    grid-template-columns: 1fr;
-  }
-
-  .geimser-remote-workflow {
-    max-height: 260px;
-    border-right: 0;
-    border-bottom: 1px solid rgba(0, 31, 61, 0.12);
-  }
-
-  .geimser-remote-banner {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 4px;
+  .geimser-remote-actions .geimser-remote-open {
+    margin-left: 0;
   }
 
   .geimser-remote-install-card {
