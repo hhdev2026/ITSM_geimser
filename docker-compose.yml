@@ -150,6 +150,17 @@ services:
     image: memcached:${MEMCACHE_VERSION:-1.6.42-alpine}
     restart: ${RESTART:-always}
 
+  meshcentral:
+    image: ghcr.io/ylianst/meshcentral:${MESH_VERSION:-latest}
+    restart: ${RESTART:-always}
+    environment:
+      NODE_ENV: production
+    ports:
+      - "${MESH_EXPOSE_PORT:-443}:443"
+    volumes:
+      - meshcentral-data:/opt/meshcentral/meshcentral-data
+      - meshcentral-web:/opt/meshcentral/meshcentral-web
+
   zammad-nginx:
     <<: *zammad-service
     command: ["zammad-nginx"]
@@ -213,4 +224,6 @@ volumes:
   zammad-storage:
     driver: local
   meshcentral-data:
+    driver: local
+  meshcentral-web:
     driver: local
