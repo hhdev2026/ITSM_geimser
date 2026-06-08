@@ -1125,7 +1125,7 @@
     var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
     var titleRegex = /Flujo de Actividad/i;
     var itemRegex = /(Admin Geimser|inici[oó] nueva sesi[oó]n|actualiz[oó] el usuario|cre[oó] el usuario|Lunes \d{1,2}:\d{2})/i;
-    var candidates = Array.from(app.querySelectorAll("aside, section, article, div, nav")).filter(function (el) {
+    var candidates = Array.from(app.querySelectorAll(".content.horizontal > .sidebar.optional, aside, section, article, nav")).filter(function (el) {
       var rect = el.getBoundingClientRect();
       if (rect.width < 180 || rect.height < 160) return false;
       if (rect.left < viewportWidth * 0.68) return false;
@@ -1153,7 +1153,7 @@
 
   function forceActivityContrast() {
     var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    var surfaces = Array.from(document.querySelectorAll("#app .geimser-activity-surface, #app aside, #app section, #app div")).filter(function (el) {
+    var surfaces = Array.from(document.querySelectorAll("#app .geimser-activity-surface, #app.geimser-route-activity-flow .content.horizontal > .sidebar.optional")).filter(function (el) {
       var rect = el.getBoundingClientRect();
       if (rect.width < 170 || rect.height < 150) return false;
       if (rect.left < viewportWidth * 0.68) return false;

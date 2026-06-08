@@ -4131,8 +4131,6 @@ html[data-theme="dark"] #app {
 #app.geimser-route-profile .activityStream,
 #app.geimser-route-profile .activity-list,
 #app.geimser-route-profile .activityList,
-#app.geimser-route-profile [class*="Activity"],
-#app.geimser-route-profile [class*="activity"],
 #app.geimser-route-activity-flow .geimser-activity-surface {
   background: #ffffff !important;
   background-color: #ffffff !important;
@@ -4150,8 +4148,6 @@ html[data-theme="dark"] #app {
 #app.geimser-route-profile .activityStream *,
 #app.geimser-route-profile .activity-list *,
 #app.geimser-route-profile .activityList *,
-#app.geimser-route-profile [class*="Activity"] *,
-#app.geimser-route-profile [class*="activity"] *,
 #app.geimser-route-activity-flow .geimser-activity-surface * {
   color: inherit !important;
   writing-mode: horizontal-tb !important;
@@ -4637,6 +4633,96 @@ a:hover,
   min-width: 40px !important;
   overflow: hidden !important;
   width: 40px !important;
+}
+
+/* Activity flow hard lock: keep Zammad's native timeline readable. */
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional {
+  box-sizing: border-box !important;
+  display: block !important;
+  flex: 0 0 min(390px, calc(100vw - 320px)) !important;
+  min-width: min(320px, calc(100vw - 320px)) !important;
+  width: min(390px, calc(100vw - 320px)) !important;
+  padding: 18px 20px !important;
+  border-left: 1px solid rgba(0, 31, 61, 0.10) !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entries,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional ul,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional ol {
+  box-sizing: border-box !important;
+  display: grid !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 14px 0 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entry,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional li[class*="activity"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional div[class*="activity-entry"] {
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: 42px minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 12px !important;
+  min-height: 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 10px 0 12px !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(0, 31, 61, 0.08) !important;
+  position: relative !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entry::before,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entry::after,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional li[class*="activity"]::before,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional li[class*="activity"]::after,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional div[class*="activity-entry"]::before,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional div[class*="activity-entry"]::after {
+  display: none !important;
+  content: none !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-avatar,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="activity-avatar"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="ActivityAvatar"] {
+  grid-column: 1 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  width: 42px !important;
+  min-width: 42px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: static !important;
+  transform: none !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-body,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-message,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-text,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="activity-body"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="activity-message"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="activity-text"] {
+  grid-column: 2 !important;
+  display: block !important;
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: 100% !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  position: static !important;
+  transform: none !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+  line-height: 1.38 !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .avatar.size-40,
