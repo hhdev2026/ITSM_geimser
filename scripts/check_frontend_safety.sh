@@ -52,11 +52,20 @@ reject_any "(style\\.(color|webkitTextFillColor)[[:space:]]*=|setProperty\\(['\\
 reject_any '#geimser/cmdb' \
   'No debe existir la ruta legacy #geimser/cmdb; CMDB debe entrar por la vista nativa #system/integration/idoit.' \
   branding/geimser.js branding/routes/geimser_mesh_login.rb
+reject_any '#geimser/users-cmdb|/geimser/cmdb/users' \
+  'No debe existir la ruta legacy de usuarios CMDB; el inventario debe entrar por la vista nativa #system/integration/idoit.' \
+  branding/geimser.js branding/routes/geimser_mesh_login.rb
 reject_any '\.geimser-cmdb-view' \
   'No se debe renderizar ni estilizar una segunda CMDB visual; mantener una sola CMDB visible.' \
   branding/geimser.js branding/geimser.css
+reject_any '\.geimser-user-cmdb-view|geimser-user-cmdb' \
+  'No se debe renderizar ni estilizar una vista paralela de usuarios CMDB.' \
+  branding/geimser.js branding/geimser.css
 reject_any '\.geimser-remote-button|geimser-remote-button' \
   'La toma remota no debe depender de un boton flotante global; debe ser contextual al ticket o activo CMDB.' \
+  branding/geimser.js branding/geimser.css
+reject_any '\.geimser-context-remote-button|geimser-context-remote-button' \
+  'La toma remota no debe depender de un boton fijo en body; debe vivir dentro del ticket o del activo CMDB.' \
   branding/geimser.js branding/geimser.css
 if perl -0777 -ne 'exit(/#app \.geimser-profile-popup\s*\{[^}]*position:\s*relative/s ? 0 : 1)' branding/geimser.css; then
   printf 'ERROR: El popup de perfil no debe perder el posicionamiento flotante nativo.\n' >&2

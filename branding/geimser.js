@@ -1,4 +1,7 @@
 (function () {
+  if (window.__geimserUiLoaded) return;
+  window.__geimserUiLoaded = true;
+
   function patchTranslationPrompt() {
     if (!window.App || !App.LocalStorage || App.LocalStorage.__geimserTranslationPatch) {
       return false;
@@ -330,12 +333,6 @@
     });
   }
 
-  function removeLegacyCmdbOverlay() {
-    if ((window.location.hash || "") === "#geimser/users-cmdb") {
-      window.location.hash = "#system/integration/idoit";
-    }
-  }
-
   function markRouteState() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -434,6 +431,112 @@
     });
   }
 
+  function normalizeNativeControlContrast() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    Array.from(app.querySelectorAll(".tabs, .tabs *, .tabs .tab, .tabs .tab *")).forEach(function (el) {
+      var bg = effectiveBackground(el);
+      var color = bg && luminance(bg) < 0.35 ? "#e9f1f8" : "#111827";
+      if (el.matches(".tab.active, .tab.is-active") || el.closest(".tab.active, .tab.is-active")) {
+        color = "#111827";
+      }
+      el.style.setProperty("color", color, "important");
+      el.style.setProperty("-webkit-text-fill-color", color, "important");
+      el.style.setProperty("text-shadow", "none", "important");
+    });
+
+    Array.from(app.querySelectorAll("h1, h2, h3, span, small, div")).forEach(function (el) {
+      if ((el.textContent || "").replace(/\s+/g, " ").trim() !== "Administración") return;
+      el.style.setProperty("color", "#4b5563", "important");
+      el.style.setProperty("-webkit-text-fill-color", "#4b5563", "important");
+      el.style.setProperty("text-shadow", "none", "important");
+    });
+
+    var adminSidebar = app.querySelector(".sidebar.NavBarAdmin");
+    if (adminSidebar) {
+      adminSidebar.style.setProperty("background", "#1b3a6b", "important");
+      adminSidebar.style.setProperty("background-color", "#1b3a6b", "important");
+      adminSidebar.style.setProperty("color", "#e9f1f8", "important");
+      adminSidebar.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
+      Array.from(adminSidebar.querySelectorAll("a, button, ul, span, div, li, strong, small")).forEach(function (el) {
+        var active = Boolean(el.matches("a.active, a.is-active, li.active, li.is-active, .js-item.active, .js-item.is-active") ||
+          el.closest("a.active, a.is-active, li.active, li.is-active, .js-item.active, .js-item.is-active"));
+        var color = active ? "#071c2b" : "#e9f1f8";
+        el.style.setProperty("color", color, "important");
+        el.style.setProperty("-webkit-text-fill-color", color, "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+
+      var focusPanel = adminSidebar.querySelector(".geimser-admin-focus-panel");
+      if (focusPanel) {
+        focusPanel.style.setProperty("background", "#1b3a6b", "important");
+        focusPanel.style.setProperty("background-color", "#1b3a6b", "important");
+      }
+      var focusToggle = adminSidebar.querySelector(".geimser-admin-focus-toggle");
+      if (focusToggle) {
+        focusToggle.style.setProperty("background", "#234d84", "important");
+        focusToggle.style.setProperty("background-color", "#234d84", "important");
+      }
+
+      Array.from(adminSidebar.querySelectorAll(".geimser-admin-focus-panel, .geimser-admin-focus-panel *, .geimser-admin-focus-toggle")).forEach(function (el) {
+        el.style.setProperty("color", "#ffffff", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+    }
+
+    if (app.classList.contains("geimser-route-ticket")) {
+      Array.from(app.querySelectorAll(".scrollPageHeader, .scrollPageHeader *, .ticketZoom .scrollPageHeader, .ticketZoom .scrollPageHeader *")).forEach(function (el) {
+        el.style.setProperty("color", "#e9f1f8", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+
+      Array.from(app.querySelectorAll(".tabsSidebar .sidebar-header-headline, .tabsSidebar label, .tabsSidebar label *, .tabsSidebar .text-muted, .tabsSidebar .list-item-name, .tabsSidebar .list-item-name *, .tabsSidebar .js-tag, .tabsSidebar .js-tag *")).forEach(function (el) {
+        el.style.setProperty("color", "#e9f1f8", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+
+      Array.from(app.querySelectorAll(".geimser-ticket-remote-action, .geimser-ticket-remote-action *")).forEach(function (el) {
+        el.style.setProperty("color", "#ffffff", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+
+      Array.from(app.querySelectorAll(".ticket-number-copy-header, .ticket-number-copy-header *, .ticket-number, .dropdown--actions, .dropdown--actions *, .js-secondaryActionButtonLabel")).forEach(function (el) {
+        el.style.setProperty("background", "#f5f7fb", "important");
+        el.style.setProperty("background-color", "#f5f7fb", "important");
+        el.style.setProperty("color", "#111827", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+    }
+
+    if (app.classList.contains("geimser-route-ticket-create")) {
+      Array.from(app.querySelectorAll(".tabs.type-tabs, .tabs.tabs-wide, .tabs.type-tabs *, .tabs.tabs-wide *, .tabs .tab, .tabs .tab *")).forEach(function (el) {
+        var active = Boolean(el.matches(".tab.active, .tab.is-active") || el.closest(".tab.active, .tab.is-active"));
+        var color = active ? "#111827" : "#4b5563";
+        el.style.setProperty("color", color, "important");
+        el.style.setProperty("-webkit-text-fill-color", color, "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+
+      Array.from(app.querySelectorAll(".tabsSidebar .sidebar-header-headline, .tabsSidebar .sidebar-header-headline *")).forEach(function (el) {
+        el.style.setProperty("color", "#e9f1f8", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+
+      Array.from(app.querySelectorAll(".js-createLink, .js-createLink *")).forEach(function (el) {
+        el.style.setProperty("color", "#ffffff", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+    }
+  }
+
   function normalizeTicketContrast() {
     var app = document.querySelector("#app");
     if (!app || !app.classList.contains("geimser-route-ticket")) return;
@@ -458,8 +561,15 @@
       el.style.setProperty("color", "#111827", "important");
     });
 
-    Array.from(app.querySelectorAll(".tabsSidebar .sidebar-header-headline, .tabsSidebar .tabsSidebar-tab-count, .tabsSidebar .formGroup-label, .tabsSidebar .formGroup-label *, .tabsSidebar .text-muted, .tabsSidebar label, .tabsSidebar label *")).forEach(function (el) {
+    Array.from(app.querySelectorAll(".tabsSidebar .sidebar-header-headline, .tabsSidebar .tabsSidebar-tab-count, .tabsSidebar .formGroup-label, .tabsSidebar .formGroup-label *, .tabsSidebar .text-muted, .tabsSidebar label, .tabsSidebar label *, .tabsSidebar .list-item-name, .tabsSidebar .list-item-name *, .tabsSidebar .js-tag, .tabsSidebar .js-tag *")).forEach(function (el) {
       el.style.setProperty("color", "#e9f1f8", "important");
+      el.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
+      el.style.setProperty("text-shadow", "none", "important");
+    });
+
+    Array.from(app.querySelectorAll(".geimser-ticket-remote-action, .geimser-ticket-remote-action *")).forEach(function (el) {
+      el.style.setProperty("color", "#ffffff", "important");
+      el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
       el.style.setProperty("text-shadow", "none", "important");
     });
   }
@@ -1444,7 +1554,7 @@
   var remoteInstallAutocheckStarted = false;
 
   function checkRemoteInstallFirstRun() {
-    if (remoteInstallAutocheckStarted || !internalSidebarAccess()) return;
+    if (remoteInstallAutocheckStarted || !adminSidebarAccess()) return;
 
     remoteInstallAutocheckStarted = true;
     window.setTimeout(function () {
@@ -1579,277 +1689,6 @@
       view.removeAttribute("data-cmdb-loaded");
       content.innerHTML = '<div class="geimser-cmdb-empty is-error"><strong>No pudimos cargar la CMDB.</strong><span>Revisa que MeshCentral esté levantado y vuelve a actualizar.</span></div>';
     });
-  }
-
-  function userCmdbStateLabel(state) {
-    if (state === "online") return "Online";
-    if (state === "offline") return "Offline";
-    return "Sin equipo";
-  }
-
-  function userCmdbPlatformLabel(user) {
-    var platform = user.platform || {};
-    return [platform.cliente, platform.servicio, platform.campana].filter(Boolean).join(" / ") || "Sin plataforma";
-  }
-
-  function ensureUserCmdbView() {
-    var existing = document.querySelector(".geimser-user-cmdb-view");
-    if (existing) return existing;
-
-    var view = document.createElement("section");
-    view.className = "geimser-user-cmdb-view";
-    view.setAttribute("aria-label", "Usuarios y equipos CMDB");
-    view.innerHTML = [
-      '<div class="geimser-user-cmdb-shell">',
-      '  <header class="geimser-user-cmdb-header">',
-      '    <div>',
-      '      <span>Gestion operacional</span>',
-      '      <h1>Usuarios y equipos</h1>',
-      '      <p>Vista de resolucion para asociar usuarios Geimser con activos remotos, estado y toma de control.</p>',
-      '    </div>',
-      '    <div class="geimser-user-cmdb-actions">',
-      '      <button type="button" class="geimser-user-cmdb-refresh">Actualizar</button>',
-      '      <button type="button" class="geimser-user-cmdb-close">Cerrar</button>',
-      '    </div>',
-      '  </header>',
-      '  <section class="geimser-user-cmdb-filters" aria-label="Filtros de usuarios CMDB">',
-      '    <label><span>Buscar</span><input class="geimser-user-cmdb-search" type="search" placeholder="Usuario, email, equipo, plataforma"></label>',
-      '    <label><span>Estado</span><select class="geimser-user-cmdb-state"><option value="">Todos</option><option value="online">Online</option><option value="offline">Offline</option><option value="unassigned">Sin equipo</option></select></label>',
-      '    <label><span>Plataforma</span><select class="geimser-user-cmdb-platform"><option value="">Todas</option></select></label>',
-      '  </section>',
-      '  <div class="geimser-user-cmdb-stats" aria-label="Resumen usuarios CMDB"></div>',
-      '  <div class="geimser-user-cmdb-workspace">',
-      '    <div class="geimser-user-cmdb-table-wrap"></div>',
-      '    <aside class="geimser-user-cmdb-detail" aria-label="Detalle usuario CMDB"></aside>',
-      '  </div>',
-      '</div>'
-    ].join("");
-
-    view.querySelector(".geimser-user-cmdb-close").addEventListener("click", function () {
-      view.classList.remove("is-open");
-      if ((window.location.hash || "") === "#geimser/users-cmdb") window.location.hash = "#dashboard";
-    });
-
-    view.querySelector(".geimser-user-cmdb-refresh").addEventListener("click", function () {
-      loadUserCmdbView(view, true);
-    });
-
-    ["input", "change"].forEach(function (eventName) {
-      view.querySelector(".geimser-user-cmdb-search").addEventListener(eventName, function () {
-        renderUserCmdbView(view);
-      });
-      view.querySelector(".geimser-user-cmdb-state").addEventListener(eventName, function () {
-        renderUserCmdbView(view);
-      });
-      view.querySelector(".geimser-user-cmdb-platform").addEventListener(eventName, function () {
-        renderUserCmdbView(view);
-      });
-    });
-
-    document.body.appendChild(view);
-    return view;
-  }
-
-  function userCmdbFilteredUsers(view) {
-    var payload = view.__geimserUserCmdbPayload || {};
-    var users = payload.users || [];
-    var search = (view.querySelector(".geimser-user-cmdb-search").value || "").toLowerCase().trim();
-    var state = view.querySelector(".geimser-user-cmdb-state").value || "";
-    var platform = view.querySelector(".geimser-user-cmdb-platform").value || "";
-
-    return users.filter(function (user) {
-      if (state && user.state !== state) return false;
-      if (platform && userCmdbPlatformLabel(user) !== platform) return false;
-      if (!search) return true;
-
-      var assetsText = (user.assets || []).map(function (asset) {
-        return [asset.name, asset.hostname, asset.ip, asset.group, asset.os].filter(Boolean).join(" ");
-      }).join(" ");
-
-      return [
-        user.name,
-        user.login,
-        user.email,
-        user.organization,
-        user.platform && user.platform.area,
-        user.platform && user.platform.cargo,
-        userCmdbPlatformLabel(user),
-        assetsText
-      ].filter(Boolean).join(" ").toLowerCase().indexOf(search) >= 0;
-    });
-  }
-
-  function populateUserCmdbPlatforms(view, users) {
-    var select = view.querySelector(".geimser-user-cmdb-platform");
-    var current = select.value || "";
-    var platforms = Array.from(new Set(users.map(userCmdbPlatformLabel))).sort();
-    select.innerHTML = '<option value="">Todas</option>' + platforms.map(function (label) {
-      return '<option value="' + escapeHtml(label) + '">' + escapeHtml(label) + '</option>';
-    }).join("");
-    if (platforms.indexOf(current) >= 0) select.value = current;
-  }
-
-  function renderUserCmdbStats(view, users, filtered) {
-    var stats = view.querySelector(".geimser-user-cmdb-stats");
-    var summary = {
-      total: users.length,
-      shown: filtered.length,
-      online: filtered.filter(function (user) { return user.state === "online"; }).length,
-      offline: filtered.filter(function (user) { return user.state === "offline"; }).length,
-      unassigned: filtered.filter(function (user) { return user.state === "unassigned"; }).length
-    };
-
-    stats.innerHTML = [
-      '<article><span>Total usuarios</span><strong>' + summary.total + '</strong></article>',
-      '<article><span>Vista filtrada</span><strong>' + summary.shown + '</strong></article>',
-      '<article><span>Online</span><strong>' + summary.online + '</strong></article>',
-      '<article><span>Offline</span><strong>' + summary.offline + '</strong></article>',
-      '<article><span>Sin equipo</span><strong>' + summary.unassigned + '</strong></article>'
-    ].join("");
-  }
-
-  function renderUserCmdbDetail(view, user) {
-    var detail = view.querySelector(".geimser-user-cmdb-detail");
-    if (!user) {
-      detail.innerHTML = '<div class="geimser-user-cmdb-empty"><strong>Selecciona un usuario</strong><span>El detalle mostrara equipos asociados, plataforma y acciones remotas.</span></div>';
-      return;
-    }
-
-    var assets = user.assets || [];
-    detail.innerHTML = [
-      '<div class="geimser-user-cmdb-detail-head">',
-      '  <span>' + escapeHtml(user.platform?.area || user.organization || "Usuario ITSM") + '</span>',
-      '  <strong>' + escapeHtml(user.name || user.login) + '</strong>',
-      '  <em class="is-' + escapeHtml(user.state || "unassigned") + '">' + escapeHtml(userCmdbStateLabel(user.state)) + '</em>',
-      '</div>',
-      '<dl class="geimser-user-cmdb-meta">',
-      '  <div><dt>Email</dt><dd>' + escapeHtml(user.email || user.login || "Sin dato") + '</dd></div>',
-      '  <div><dt>Cargo</dt><dd>' + escapeHtml(user.platform?.cargo || "Sin dato") + '</dd></div>',
-      '  <div><dt>Plataforma</dt><dd>' + escapeHtml(userCmdbPlatformLabel(user)) + '</dd></div>',
-      '</dl>',
-      '<div class="geimser-user-cmdb-assets">',
-      '  <h2>Equipos asociados</h2>',
-      assets.length ? assets.map(function (asset) {
-        return [
-          '<article>',
-          '  <div>',
-          '    <strong>' + escapeHtml(asset.name || asset.hostname || "Equipo remoto") + '</strong>',
-          '    <span>' + escapeHtml([asset.hostname, asset.ip, asset.os].filter(Boolean).join(" | ") || "Sin detalle tecnico") + '</span>',
-          '  </div>',
-          '  <em class="' + (asset.status === "online" ? "is-online" : "is-offline") + '">' + escapeHtml(remoteAssetStatusLabel(asset.status)) + '</em>',
-          '  <button type="button" data-user-cmdb-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Control</button>',
-          '</article>'
-        ].join("");
-      }).join("") : '<div class="geimser-user-cmdb-empty"><strong>Sin equipo asociado</strong><span>Queda pendiente para asignacion manual o cruce por inventario.</span></div>',
-      '</div>'
-    ].join("");
-
-    detail.querySelectorAll("[data-user-cmdb-session]").forEach(function (button) {
-      button.addEventListener("click", function () {
-        var sessionUrl = button.getAttribute("data-user-cmdb-session") || meshLoginUrl("/");
-        var modal = ensureRemoteModal();
-        openRemoteModal("equipos");
-        modal.querySelector(".geimser-remote-frame").src = sessionUrl;
-        modal.querySelector(".geimser-remote-open").href = sessionUrl;
-      });
-    });
-  }
-
-  function renderUserCmdbView(view) {
-    var payload = view.__geimserUserCmdbPayload || {};
-    var users = payload.users || [];
-    populateUserCmdbPlatforms(view, users);
-
-    var filtered = userCmdbFilteredUsers(view);
-    renderUserCmdbStats(view, users, filtered);
-
-    var tableWrap = view.querySelector(".geimser-user-cmdb-table-wrap");
-    if (!users.length) {
-      tableWrap.innerHTML = '<div class="geimser-user-cmdb-empty"><strong>No hay usuarios Geimser para mostrar.</strong><span>Primero carga el subconjunto de usuarios de plataforma o revisa que existan usuarios @geimser.local.</span></div>';
-      renderUserCmdbDetail(view, null);
-      return;
-    }
-
-    tableWrap.innerHTML = [
-      '<div class="geimser-user-cmdb-table" role="table" aria-label="Usuarios y equipos">',
-      '  <div class="geimser-user-cmdb-row is-head" role="row">',
-      '    <span role="columnheader">Usuario</span>',
-      '    <span role="columnheader">Plataforma</span>',
-      '    <span role="columnheader">Equipo</span>',
-      '    <span role="columnheader">Estado</span>',
-      '    <span role="columnheader">Accion</span>',
-      '  </div>',
-      filtered.map(function (user, index) {
-        var primary = (user.assets || [])[0];
-        return [
-          '<button type="button" class="geimser-user-cmdb-row" role="row" data-user-cmdb-index="' + index + '">',
-          '  <span role="cell"><strong>' + escapeHtml(user.name || user.login) + '</strong><small>' + escapeHtml(user.email || user.login || "") + '</small></span>',
-          '  <span role="cell"><strong>' + escapeHtml(userCmdbPlatformLabel(user)) + '</strong><small>' + escapeHtml([user.platform?.area, user.platform?.cargo].filter(Boolean).join(" | ")) + '</small></span>',
-          '  <span role="cell"><strong>' + escapeHtml(primary?.name || primary?.hostname || "Sin equipo") + '</strong><small>' + escapeHtml(primary ? [primary.ip, primary.os].filter(Boolean).join(" | ") : "Pendiente de asociar") + '</small></span>',
-          '  <span role="cell"><em class="is-' + escapeHtml(user.state || "unassigned") + '">' + escapeHtml(userCmdbStateLabel(user.state)) + '</em></span>',
-          '  <span role="cell" class="geimser-user-cmdb-row-actions">' + (primary ? '<b>Ver / controlar</b>' : '<b>Asignar</b>') + '</span>',
-          '</button>'
-        ].join("");
-      }).join(""),
-      '</div>'
-    ].join("");
-
-    tableWrap.querySelectorAll("[data-user-cmdb-index]").forEach(function (row) {
-      row.addEventListener("click", function () {
-        tableWrap.querySelectorAll(".geimser-user-cmdb-row").forEach(function (item) { item.classList.remove("is-selected"); });
-        row.classList.add("is-selected");
-        renderUserCmdbDetail(view, filtered[Number(row.getAttribute("data-user-cmdb-index"))]);
-      });
-    });
-
-    var first = tableWrap.querySelector("[data-user-cmdb-index='0']");
-    if (first) {
-      first.classList.add("is-selected");
-      renderUserCmdbDetail(view, filtered[0]);
-    } else {
-      renderUserCmdbDetail(view, null);
-    }
-  }
-
-  function loadUserCmdbView(view, force) {
-    if (!force && view.getAttribute("data-user-cmdb-loaded") === "true") return;
-    view.setAttribute("data-user-cmdb-loaded", "true");
-    view.querySelector(".geimser-user-cmdb-table-wrap").innerHTML = '<div class="geimser-user-cmdb-empty"><strong>Actualizando usuarios y equipos...</strong><span>Cruzando usuarios Geimser con activos remotos.</span></div>';
-    view.querySelector(".geimser-user-cmdb-detail").innerHTML = "";
-
-    fetch("/geimser/cmdb/users", {
-      credentials: "same-origin",
-      headers: { "Accept": "application/json" }
-    }).then(function (response) {
-      if (!response.ok) throw new Error("users cmdb failed");
-      return response.json();
-    }).then(function (payload) {
-      view.__geimserUserCmdbPayload = payload || {};
-      renderUserCmdbView(view);
-    }).catch(function () {
-      view.removeAttribute("data-user-cmdb-loaded");
-      view.querySelector(".geimser-user-cmdb-table-wrap").innerHTML = '<div class="geimser-user-cmdb-empty is-error"><strong>No pudimos cargar usuarios CMDB.</strong><span>Revisa sesion, usuarios cargados y activos Mesh.</span></div>';
-    });
-  }
-
-  function openUserCmdbView() {
-    var view = ensureUserCmdbView();
-    view.classList.add("is-open");
-    loadUserCmdbView(view);
-  }
-
-  function syncCmdbRoute() {
-    var userView = document.querySelector(".geimser-user-cmdb-view");
-    if ((window.location.hash || "") === "#geimser/users-cmdb") {
-      if (!adminSidebarAccess()) {
-        if (userView) userView.classList.remove("is-open");
-        window.location.hash = "#dashboard";
-        return;
-      }
-      openUserCmdbView();
-    } else if (userView) {
-      userView.classList.remove("is-open");
-    }
   }
 
   function escapeHtml(value) {
@@ -2031,20 +1870,32 @@
     }
   }
 
-  function ensureRemoteButton() {
+  function ticketRemoteActionMount(app) {
+    return app.querySelector(".tabsSidebar .sidebar-header") ||
+      app.querySelector(".ticketZoom .attributeBar") ||
+      app.querySelector(".ticketZoom .scrollPageHeader") ||
+      app.querySelector(".ticketZoom");
+  }
+
+  function ensureTicketRemoteAction() {
     var app = document.querySelector("#app");
     if (!app) return;
 
     var hash = window.location.hash || "";
     var isPublicScreen = /^#(login|password_reset|signup|register)?$/.test(hash) ||
       Boolean(document.querySelector(".hero-unit"));
-    var existing = document.querySelector(".geimser-context-remote-button");
+    var existing = document.querySelector(".geimser-ticket-remote-action");
     var isTicketScreen = /^#ticket\/(create|zoom|edit)|^#ticket\//.test(hash);
-    var isCmdbScreen = hash === "#system/integration/idoit";
 
     // MeshCentral usa una identidad administrativa compartida. Hasta que
     // exista una identidad separada para resolutores, el acceso es solo Admin.
-    if (isPublicScreen || !adminSidebarAccess() || (!isTicketScreen && !isCmdbScreen)) {
+    if (isPublicScreen || !adminSidebarAccess() || !isTicketScreen) {
+      if (existing) existing.remove();
+      return;
+    }
+
+    var mount = ticketRemoteActionMount(app);
+    if (!mount) {
       if (existing) existing.remove();
       return;
     }
@@ -2052,18 +1903,19 @@
     if (existing) {
       existing.textContent = "Tomar control";
       existing.dataset.geimserRemoteFlow = "equipos";
+      if (existing.parentElement !== mount) mount.appendChild(existing);
       return;
     }
 
     var button = document.createElement("button");
     button.type = "button";
-    button.className = "geimser-context-remote-button";
+    button.className = "geimser-ticket-remote-action";
     button.textContent = "Tomar control";
     button.dataset.geimserRemoteFlow = "equipos";
     button.addEventListener("click", function () {
       openRemoteModal(button.dataset.geimserRemoteFlow || "registrar");
     });
-    document.body.appendChild(button);
+    mount.appendChild(button);
   }
 
   function normalizeNativeCmdbLabels() {
@@ -2268,6 +2120,7 @@
 
     markRouteState();
     normalizeCmdbAdminNavigation();
+    normalizeNativeControlContrast();
     normalizeTicketContrast();
     repairActivityFlowLayout();
     removeZammadBranding();
@@ -2275,11 +2128,9 @@
     markNavigationSurface();
     ensureSidebarBrand();
     ensureInternalSidebarShortcuts();
-    removeLegacyCmdbOverlay();
     normalizeSidebarTicketLabels();
-    ensureRemoteButton();
+    ensureTicketRemoteAction();
     checkRemoteInstallFirstRun();
-    syncCmdbRoute();
     forcePopupContrast();
     ensureProfileLogoutFallback();
     normalizeNativeCmdbLabels();
@@ -2288,7 +2139,11 @@
   }
 
   window.GeimserContrastAudit = function () {
-    applyGeimserUi();
+    try {
+      applyGeimserUi();
+    } catch (error) {
+      window.console && window.console.warn && window.console.warn("Geimser UI audit skipped", error);
+    }
     return auditContrast();
   };
 
@@ -2313,21 +2168,30 @@
     window.requestAnimationFrame(function () {
       scheduled = false;
       applying = true;
-      if (observer) observer.disconnect();
-      patchTranslationPrompt();
-      rememberTranslationPromptDismissal();
-      applyGeimserUi();
-      applying = false;
-      observeChanges();
+      try {
+        if (observer) observer.disconnect();
+        patchTranslationPrompt();
+        rememberTranslationPromptDismissal();
+        applyGeimserUi();
+      } catch (error) {
+        window.console && window.console.warn && window.console.warn("Geimser UI update skipped", error);
+      } finally {
+        applying = false;
+        observeChanges();
+      }
     });
   }
 
   var attempts = 0;
   var warmup = window.setInterval(function () {
     attempts += 1;
-    patchTranslationPrompt();
-    rememberTranslationPromptDismissal();
-    applyGeimserUi();
+    try {
+      patchTranslationPrompt();
+      rememberTranslationPromptDismissal();
+      applyGeimserUi();
+    } catch (error) {
+      window.console && window.console.warn && window.console.warn("Geimser UI warmup skipped", error);
+    }
 
     if (attempts > 80) {
       window.clearInterval(warmup);

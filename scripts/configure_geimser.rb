@@ -7,13 +7,21 @@ settings = {
   'timezone_default' => 'America/Santiago',
   'http_type' => ENV.fetch('ZAMMAD_HTTP_TYPE', 'http'),
   'fqdn' => ENV.fetch('ZAMMAD_FQDN', 'localhost:8080'),
-  'product_logo' => 'geimser-logo-v2.png',
   'pretty_date_format' => 'absolute',
   'two_factor_authentication_enforce_role_ids' => [],
 }
 
 settings.each do |key, value|
   Setting.set(key, value)
+end
+
+logo_path = Rails.root.join('public/assets/images/geimser-logo.png')
+if logo_path.exist? && defined?(Service::SystemAssets::ProductLogo)
+  logo_timestamp = Service::SystemAssets::ProductLogo.store_logo(
+    content: logo_path.binread,
+    mime_type: 'image/png',
+  )
+  Setting.set('product_logo', logo_timestamp) if logo_timestamp
 end
 
 if Setting.exists?(name: 'idoit_integration')

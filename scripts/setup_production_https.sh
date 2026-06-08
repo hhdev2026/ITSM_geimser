@@ -30,6 +30,33 @@ set_env() {
   fi
 }
 
+ensure_env_secret() {
+  local name="$1"
+  local bytes="${2:-32}"
+  local value
+
+  value="${!name:-}"
+  if [ -n "$value" ]; then
+    if ! awk -F= -v key="$name" '$1 == key {found=1} END {exit !found}' .env 2>/dev/null; then
+      printf '\n%s=%s\n' "$name" "$value" >> .env
+    fi
+    export "${name}=${value}"
+    return
+  fi
+
+  value="$(awk -F= -v key="$name" '$1 == key {sub(/^[^=]*=/, ""); print; exit}' .env 2>/dev/null || true)"
+  if [ -n "$value" ]; then
+    export "${name}=${value}"
+    return
+  fi
+
+  value="$(openssl rand -hex "$bytes")"
+  printf '\n%s=%s\n' "$name" "$value" >> .env
+  export "${name}=${value}"
+  printf 'Se genero %s para esta instalacion.\n' "$name"
+}
+
+touch .env
 set_env NGINX_EXPOSE_PORT 127.0.0.1:8080
 set_env NGINX_PORT 8080
 set_env NGINX_SERVER_NAME _
@@ -39,9 +66,9 @@ set_env ZAMMAD_HTTP_TYPE https
 set_env MESH_HOSTNAME "$MESH_HOST"
 set_env MESH_PUBLIC_URL "https://${MESH_HOST}"
 set_env MESH_LOGIN_USER "${MESH_LOGIN_USER:-admin}"
-if ! grep -q '^MESH_LOGIN_KEY=' .env; then
-  set_env MESH_LOGIN_KEY "$(openssl rand -hex 80)"
-fi
+ensure_env_secret MESH_LOGIN_KEY 80
+ensure_env_secret GEIMSER_CMDB_TOKEN
+ensure_env_secret GEIMSER_ADMIN_PASSWORD
 set_env MESH_EXPOSE_PORT 127.0.0.1:8443
 
 docker-compose up -d --force-recreate \

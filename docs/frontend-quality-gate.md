@@ -17,11 +17,13 @@ single screenshot:
 
 - Geimser orange cannot be used as foreground text color. Use it as an accent,
   border, or avatar background only when the text on top remains high contrast.
-- Legacy `#geimser/cmdb` routes are not allowed.
+- Legacy `#geimser/cmdb` and `#geimser/users-cmdb` routes are not allowed.
 - A custom `.geimser-cmdb-view` overlay is not allowed; users must see one CMDB
   entry point and one CMDB surface.
 - `.geimser-remote-button` is not allowed as a floating global entry point.
   Remote control must be opened from the ticket or CMDB asset context.
+- `.geimser-context-remote-button` is not allowed as a fixed body-level shortcut.
+  Ticket remote control must be mounted inside the ticket surface.
 
 ## Profile matrix
 
@@ -45,11 +47,11 @@ single screenshot:
   route `#system/integration/idoit`; there is no duplicate Geimser CMDB overlay.
 - On the native CMDB route, the admin menu starts in focused ITSM mode and can
   expand to advanced settings without losing access to Zammad configuration.
-- No navigation, shortcut, redirect, or close action sends users to
-  `#geimser/cmdb`.
+- No navigation, shortcut, redirect, or close action sends users to a legacy CMDB
+  route.
 - Remote control entry points are contextual to a ticket detail, ticket create
   field, or native CMDB asset detail.
-- A floating global remote-support button is not the primary entry point.
+- A floating global remote-support button is not allowed.
 - No fixed Geimser element covers native actions or content.
 - Dashboard, ticket, profile, and administration layouts keep their native width and flow.
 - Text, icons, inputs, and images are visible in light and dark themes.

@@ -1577,28 +1577,58 @@ html[data-theme="dark"] #app {
   border-color: rgba(0, 31, 61, 0.22) !important;
 }
 
-.geimser-context-remote-button {
-  position: fixed;
-  left: 12px;
-  right: auto;
-  bottom: 76px;
-  z-index: 900;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 18px;
-  border: 0;
-  border-radius: 8px;
-  background: #004b8d;
-  color: #ffffff;
-  box-shadow: 0 12px 28px rgba(0, 31, 61, 0.22);
-  font-weight: 700;
-  cursor: pointer;
+#app.geimser-route-ticket .ticket-number-copy-header,
+#app.geimser-route-ticket .ticket-number-copy-header *,
+#app.geimser-route-ticket .ticket-number {
+  color: #e9f1f8 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  text-shadow: none !important;
 }
 
-.geimser-context-remote-button:hover {
-  background: #005daa;
+#app.geimser-route-ticket .dropdown--actions,
+#app.geimser-route-ticket .dropdown--actions *,
+#app.geimser-route-ticket .js-highlighterContainer,
+#app.geimser-route-ticket .js-highlighterContainer * {
+  color: #e9f1f8 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .js-tags .list-item-name,
+#app.geimser-route-ticket .tabsSidebar .js-tags .list-item-name *,
+#app.geimser-route-ticket .tabsSidebar .js-tag,
+#app.geimser-route-ticket .tabsSidebar .js-tag * {
+  color: #e9f1f8 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+.geimser-ticket-remote-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 34px !important;
+  margin: 8px 0 0 !important;
+  padding: 0 13px !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  border-radius: 8px !important;
+  background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+.geimser-ticket-remote-action:hover,
+.geimser-ticket-remote-action:focus {
+  background: linear-gradient(160deg, #0070d2 0%, #0067c0 100%) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 .geimser-remote-modal {
@@ -2429,405 +2459,6 @@ html[data-theme="dark"] #app {
   background: #005daa;
 }
 
-.geimser-user-cmdb-view {
-  position: fixed;
-  inset: 0;
-  z-index: 1200;
-  display: none;
-  padding: 18px;
-  background: #eef3f8;
-  color: #172235;
-}
-
-.geimser-user-cmdb-view.is-open {
-  display: block;
-}
-
-.geimser-user-cmdb-shell {
-  height: 100%;
-  display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr);
-  border: 1px solid #ccd9e6;
-  border-radius: 8px;
-  background: #f8fafc;
-  box-shadow: 0 24px 70px rgba(14, 31, 53, 0.16);
-  overflow: hidden;
-}
-
-.geimser-user-cmdb-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 18px 22px;
-  background: #102033;
-  color: #ffffff;
-}
-
-.geimser-user-cmdb-header span {
-  display: block;
-  margin-bottom: 5px;
-  color: #8fd3ff;
-  font-size: 11px;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.geimser-user-cmdb-header h1 {
-  margin: 0;
-  color: #ffffff;
-  font-size: 25px;
-  line-height: 1.1;
-  font-weight: 850;
-}
-
-.geimser-user-cmdb-header p {
-  max-width: 780px;
-  margin: 6px 0 0;
-  color: #c7d3df;
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.geimser-user-cmdb-actions,
-.geimser-user-cmdb-row-actions,
-.geimser-user-cmdb-assets article {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.geimser-user-cmdb-actions button,
-.geimser-user-cmdb-assets button {
-  min-height: 34px;
-  padding: 0 13px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 8px;
-  background: #004b8d;
-  color: #ffffff;
-  font-size: 12px;
-  font-weight: 850;
-  cursor: pointer;
-}
-
-.geimser-user-cmdb-actions button:hover,
-.geimser-user-cmdb-assets button:hover {
-  background: #005daa;
-}
-
-.geimser-user-cmdb-filters {
-  display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(160px, 220px) minmax(220px, 330px);
-  gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid #dce5ee;
-  background: #ffffff;
-}
-
-.geimser-user-cmdb-filters label {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-}
-
-.geimser-user-cmdb-filters span {
-  color: #536171;
-  font-size: 11px;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.geimser-user-cmdb-filters input,
-.geimser-user-cmdb-filters select {
-  min-height: 36px;
-  width: 100%;
-  border: 1px solid #d8e2ec;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #172235;
-  font-size: 13px;
-}
-
-.geimser-user-cmdb-stats {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid #dce5ee;
-}
-
-.geimser-user-cmdb-stats article {
-  min-height: 70px;
-  display: grid;
-  align-content: center;
-  gap: 4px;
-  padding: 12px 14px;
-  border: 1px solid #dce5ee;
-  border-radius: 8px;
-  background: #ffffff;
-}
-
-.geimser-user-cmdb-stats span {
-  color: #536171;
-  font-size: 11px;
-  font-weight: 850;
-}
-
-.geimser-user-cmdb-stats strong {
-  color: #102033;
-  font-size: 27px;
-  line-height: 1;
-  font-weight: 850;
-}
-
-.geimser-user-cmdb-workspace {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(330px, 410px);
-  gap: 14px;
-  padding: 14px 18px 18px;
-}
-
-.geimser-user-cmdb-table-wrap,
-.geimser-user-cmdb-detail {
-  min-width: 0;
-  min-height: 0;
-  overflow: auto;
-}
-
-.geimser-user-cmdb-table {
-  min-width: 900px;
-  border: 1px solid #d8e2ec;
-  border-radius: 8px;
-  background: #ffffff;
-  overflow: hidden;
-}
-
-.geimser-user-cmdb-row {
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(220px, 1.2fr) minmax(240px, 1.2fr) minmax(220px, 1fr) 110px 120px;
-  gap: 12px;
-  align-items: center;
-  min-height: 62px;
-  padding: 10px 14px;
-  border: 0;
-  border-top: 1px solid #edf1f5;
-  background: #ffffff;
-  color: #24364a;
-  text-align: left;
-  cursor: pointer;
-}
-
-.geimser-user-cmdb-row.is-head {
-  min-height: 42px;
-  background: #eef2f7;
-  color: #536171;
-  font-size: 11px;
-  font-weight: 850;
-  text-transform: uppercase;
-  cursor: default;
-}
-
-.geimser-user-cmdb-row.is-selected,
-.geimser-user-cmdb-row:not(.is-head):hover {
-  background: #eef6ff;
-}
-
-.geimser-user-cmdb-row strong {
-  display: block;
-  color: #102033;
-  font-size: 13px;
-  line-height: 1.25;
-}
-
-.geimser-user-cmdb-row small {
-  display: block;
-  margin-top: 3px;
-  color: #6b7785;
-  font-size: 11px;
-  line-height: 1.25;
-}
-
-.geimser-user-cmdb-row em,
-.geimser-user-cmdb-detail-head em,
-.geimser-user-cmdb-assets em {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 24px;
-  padding: 0 9px;
-  border-radius: 999px;
-  background: #eef2f7;
-  color: #536171;
-  font-size: 11px;
-  font-style: normal;
-  font-weight: 850;
-}
-
-.geimser-user-cmdb-row em.is-online,
-.geimser-user-cmdb-detail-head em.is-online,
-.geimser-user-cmdb-assets em.is-online {
-  background: #e6f7ee;
-  color: #1f7a4d;
-}
-
-.geimser-user-cmdb-row em.is-offline,
-.geimser-user-cmdb-detail-head em.is-offline,
-.geimser-user-cmdb-assets em.is-offline {
-  background: #fff3e2;
-  color: #9a5a00;
-}
-
-.geimser-user-cmdb-row em.is-unassigned,
-.geimser-user-cmdb-detail-head em.is-unassigned {
-  background: #eef2f7;
-  color: #536171;
-}
-
-.geimser-user-cmdb-row-actions b {
-  color: #004b8d;
-  font-size: 12px;
-  font-weight: 850;
-}
-
-.geimser-user-cmdb-detail {
-  border: 1px solid #d8e2ec;
-  border-radius: 8px;
-  background: #ffffff;
-}
-
-.geimser-user-cmdb-detail-head {
-  padding: 16px;
-  border-bottom: 1px solid #e7edf3;
-  background: #f8fafc;
-}
-
-.geimser-user-cmdb-detail-head span {
-  display: block;
-  margin-bottom: 5px;
-  color: #536171;
-  font-size: 11px;
-  font-weight: 850;
-  text-transform: uppercase;
-}
-
-.geimser-user-cmdb-detail-head strong {
-  display: block;
-  margin-bottom: 10px;
-  color: #102033;
-  font-size: 19px;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
-.geimser-user-cmdb-meta {
-  display: grid;
-  gap: 1px;
-  margin: 0;
-  background: #e7edf3;
-}
-
-.geimser-user-cmdb-meta div {
-  padding: 12px 14px;
-  background: #ffffff;
-}
-
-.geimser-user-cmdb-meta dt {
-  margin: 0 0 5px;
-  color: #536171;
-  font-size: 11px;
-  font-weight: 850;
-}
-
-.geimser-user-cmdb-meta dd {
-  margin: 0;
-  color: #102033;
-  font-size: 13px;
-  font-weight: 750;
-  overflow-wrap: anywhere;
-}
-
-.geimser-user-cmdb-assets {
-  display: grid;
-  gap: 10px;
-  padding: 14px;
-}
-
-.geimser-user-cmdb-assets h2 {
-  margin: 0;
-  color: #102033;
-  font-size: 15px;
-  font-weight: 850;
-}
-
-.geimser-user-cmdb-assets article {
-  justify-content: space-between;
-  padding: 12px;
-  border: 1px solid #dce5ee;
-  border-radius: 8px;
-  background: #f8fafc;
-}
-
-.geimser-user-cmdb-assets article div {
-  min-width: 0;
-}
-
-.geimser-user-cmdb-assets strong,
-.geimser-user-cmdb-assets span {
-  display: block;
-}
-
-.geimser-user-cmdb-assets strong {
-  color: #102033;
-  font-size: 13px;
-  font-weight: 850;
-  overflow-wrap: anywhere;
-}
-
-.geimser-user-cmdb-assets span {
-  margin-top: 3px;
-  color: #536171;
-  font-size: 11px;
-  line-height: 1.3;
-}
-
-.geimser-user-cmdb-assets button {
-  flex: 0 0 auto;
-  border-color: rgba(0, 75, 141, 0.2);
-}
-
-.geimser-user-cmdb-empty {
-  padding: 16px;
-  border: 1px dashed #bed0df;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #34495e;
-}
-
-.geimser-user-cmdb-empty strong,
-.geimser-user-cmdb-empty span {
-  display: block;
-}
-
-.geimser-user-cmdb-empty strong {
-  color: #102033;
-  font-size: 14px;
-  font-weight: 850;
-}
-
-.geimser-user-cmdb-empty span {
-  margin-top: 5px;
-  color: #536171;
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-.geimser-user-cmdb-empty.is-error {
-  border-color: #f4b4a8;
-  background: #fff5f2;
-}
-
 .geimser-cmdb-empty {
   padding: 18px;
   border: 1px dashed #bed0df;
@@ -3066,21 +2697,6 @@ html[data-theme="dark"] #app {
     grid-template-columns: 1fr;
   }
 
-  .geimser-user-cmdb-filters {
-    grid-template-columns: 1fr 180px;
-  }
-
-  .geimser-user-cmdb-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .geimser-user-cmdb-workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .geimser-user-cmdb-detail {
-    max-height: 420px;
-  }
 }
 
 @media (max-width: 860px) {
@@ -3135,31 +2751,6 @@ html[data-theme="dark"] #app {
     min-width: 0;
   }
 
-  .geimser-user-cmdb-view {
-    padding: 10px;
-  }
-
-  .geimser-user-cmdb-header {
-    align-items: stretch;
-    flex-direction: column;
-    padding: 16px;
-  }
-
-  .geimser-user-cmdb-filters {
-    grid-template-columns: 1fr;
-  }
-
-  .geimser-user-cmdb-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .geimser-user-cmdb-workspace {
-    padding: 12px;
-  }
-
-  .geimser-user-cmdb-table {
-    min-width: 820px;
-  }
 }
 
 .geimser-remote-empty {
@@ -3258,19 +2849,19 @@ html[data-theme="dark"] #app {
 #app .geimser-activity-surface .activity-message *,
 #app .geimser-activity-surface .activity-text *,
 #app .geimser-activity-surface .activity-time * {
-  color: #ffffff !important;
+  color: #111827 !important;
   text-shadow: none !important;
 }
 
 #app .geimser-activity-surface .activity-body a,
 #app .geimser-activity-surface .activity-message a,
 #app .geimser-activity-surface .activity-text a {
-  color: #d9efff !important;
+  color: #003d7a !important;
 }
 
 #app .geimser-activity-surface .activity-time,
 #app .geimser-activity-surface .humanTimeFromNow.activity-time {
-  color: #d7e7f6 !important;
+  color: #4b5563 !important;
 }
 
 #app .geimser-activity-surface .activity .avatar,
@@ -3884,22 +3475,6 @@ html[data-theme="dark"] #app {
   color: #ffffff !important;
 }
 
-/* --- BOTÓN SOPORTE REMOTO — nivel superior --- */
-.geimser-context-remote-button {
-  background: linear-gradient(135deg, #005daa, #004b8d) !important;
-  border-radius: 10px !important;
-  box-shadow: 0 4px 16px rgba(0, 75, 141, 0.32), 0 2px 4px rgba(0, 75, 141, 0.16) !important;
-  font-size: 13px !important;
-  letter-spacing: 0.01em !important;
-  transition: box-shadow 0.15s ease, transform 0.10s ease !important;
-}
-
-.geimser-context-remote-button:hover {
-  background: linear-gradient(135deg, #0069bf, #005daa) !important;
-  box-shadow: 0 6px 20px rgba(0, 75, 141, 0.40), 0 2px 6px rgba(0, 75, 141, 0.20) !important;
-  transform: translateY(-1px) !important;
-}
-
 /* --- SEARCH OVERLAY GLOBAL (Zammad Vue full-screen) --- */
 #app [class*="searchOverlay"],
 #app [class*="SearchOverlay"],
@@ -4289,22 +3864,6 @@ html[data-theme="dark"] #app {
   background: rgba(255,255,255,0.15) !important;
 }
 
-/* ─── BOTÓN SOPORTE REMOTO ───────────────────────────────────── */
-.geimser-context-remote-button {
-  background: linear-gradient(160deg, #0070d2, #0057a8) !important;
-  border-radius: 10px !important;
-  font-size: 13px !important;
-  font-weight: 650 !important;
-  letter-spacing: 0.01em !important;
-  box-shadow: 0 4px 16px rgba(0,87,168,0.35) !important;
-  transition: box-shadow 0.15s, transform 0.12s !important;
-}
-.geimser-context-remote-button:hover {
-  background: linear-gradient(160deg, #0080f0, #0067c0) !important;
-  box-shadow: 0 6px 22px rgba(0,87,168,0.46) !important;
-  transform: translateY(-2px) !important;
-}
-
 /* ─── SHORTCUTS GEIMSER ──────────────────────────────────────── */
 .geimser-sidebar-shortcut {
   border-radius: 8px !important;
@@ -4656,18 +4215,14 @@ html[data-theme="dark"] #app {
 }
 
 #app.geimser-route-ticket-create .sidebar:not(.geimser-nav-surface),
-#app.geimser-route-ticket-create aside:not(.geimser-nav-surface),
-#app.geimser-route-ticket-create [class*="help"],
-#app.geimser-route-ticket-create [class*="Help"] {
+#app.geimser-route-ticket-create aside:not(.geimser-nav-surface) {
   background: #1f4d83 !important;
   background-color: #1f4d83 !important;
   color: #ffffff !important;
 }
 
 #app.geimser-route-ticket-create .sidebar:not(.geimser-nav-surface) *,
-#app.geimser-route-ticket-create aside:not(.geimser-nav-surface) *,
-#app.geimser-route-ticket-create [class*="help"] *,
-#app.geimser-route-ticket-create [class*="Help"] * {
+#app.geimser-route-ticket-create aside:not(.geimser-nav-surface) * {
   color: #ffffff !important;
 }
 
@@ -4846,8 +4401,7 @@ html[data-theme="dark"] #app {
   text-shadow: none !important;
 }
 
-.geimser-remote-modal,
-.geimser-user-cmdb-view {
+.geimser-remote-modal {
   z-index: 1200;
 }
 
@@ -4869,9 +4423,6 @@ html[data-theme="dark"] #app {
     max-height: calc(100dvh - 16px) !important;
   }
 
-  .geimser-context-remote-button {
-    display: none;
-  }
 }
 
 @media (max-width: 520px) {
@@ -4935,14 +4486,9 @@ a:hover,
 #app .button--primary:hover,
 #app .btn-primary:hover,
 #app button[type="submit"]:hover,
-#app input[type="submit"]:hover,
-.geimser-context-remote-button:hover {
+#app input[type="submit"]:hover {
   background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
   color: #ffffff !important;
-}
-
-.geimser-sidebar-shortcut[data-geimser-shortcut="users-cmdb"] {
-  display: none !important;
 }
 
 .geimser-sidebar-shortcut[data-geimser-shortcut="cmdb"] span:last-child {
@@ -5000,7 +4546,37 @@ a:hover,
   background: #ffffff !important;
   background-color: #ffffff !important;
   color: #111827 !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
   text-shadow: none !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entry {
+  box-sizing: border-box !important;
+  padding: 12px 14px !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-body,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-message,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-text,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-time {
+  box-sizing: border-box !important;
+  display: block !important;
+  left: auto !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+  position: static !important;
+  right: auto !important;
+  transform: none !important;
+  white-space: normal !important;
+  width: 100% !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-icon {
+  display: none !important;
 }
 
 #app.geimser-route-activity-flow .content.horizontal > .sidebar.optional h1,
@@ -5061,6 +4637,41 @@ a:hover,
   min-width: 40px !important;
   overflow: hidden !important;
   width: 40px !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .avatar.size-40,
+#app.geimser-route-ticket .ticketZoom .avatar.size-50,
+#app.geimser-route-ticket .ticketZoom span.avatar.size-40,
+#app.geimser-route-ticket .ticketZoom span.avatar.size-50 {
+  align-items: center !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  justify-content: center !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-align: center !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .avatar.size-40,
+#app.geimser-route-ticket .ticketZoom span.avatar.size-40 {
+  font-size: 13px !important;
+  height: 40px !important;
+  max-height: 40px !important;
+  width: 40px !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .avatar.size-50,
+#app.geimser-route-ticket .ticketZoom span.avatar.size-50 {
+  font-size: 15px !important;
+  height: 50px !important;
+  max-height: 50px !important;
+  width: 50px !important;
 }
 
 #app.geimser-route-cmdb .sidebar.NavBarAdmin,
@@ -5234,7 +4845,7 @@ a:hover,
   text-shadow: none !important;
 }
 
-#app.geimser-route-ticket .geimser-context-remote-button {
+#app.geimser-route-ticket .geimser-ticket-remote-action {
   background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
   background-color: #0057a8 !important;
   color: #ffffff !important;
@@ -5290,6 +4901,8 @@ a:hover,
   color: #111827 !important;
 }
 
+#app.geimser-route-ticket .scrollPageHeader,
+#app.geimser-route-ticket .scrollPageHeader *,
 #app.geimser-route-ticket .tabsSidebar .formGroup-label,
 #app.geimser-route-ticket .tabsSidebar .formGroup-label *,
 #app.geimser-route-ticket .tabsSidebar .text-muted,
@@ -5298,5 +4911,136 @@ a:hover,
 #app.geimser-route-ticket .tabsSidebar label,
 #app.geimser-route-ticket .tabsSidebar label * {
   color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+/* Final contrast locks for native Zammad controls that repaint late. */
+#app .dashboard .tabs--big .tab.active,
+#app .dashboard .tabs--big .tab.active *,
+#app .dashboard .tabs--big .tab.is-active,
+#app .dashboard .tabs--big .tab.is-active *,
+#app .content .dashboard .tabs--big .tab.active,
+#app .content .dashboard .tabs--big .tab.active *,
+#app .content .dashboard .tabs--big .tab.is-active,
+#app .content .dashboard .tabs--big .tab.is-active * {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app .sidebar.NavBarAdmin {
+  background: #1b3a6b !important;
+  background-color: #1b3a6b !important;
+}
+
+#app .sidebar.NavBarAdmin a,
+#app .sidebar.NavBarAdmin a *,
+#app .sidebar.NavBarAdmin button,
+#app .sidebar.NavBarAdmin button *,
+#app .sidebar.NavBarAdmin ul,
+#app .sidebar.NavBarAdmin span,
+#app .sidebar.NavBarAdmin div,
+#app .sidebar.NavBarAdmin li {
+  color: #e9f1f8 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app .sidebar.NavBarAdmin .active,
+#app .sidebar.NavBarAdmin .active *,
+#app .sidebar.NavBarAdmin .is-active,
+#app .sidebar.NavBarAdmin .is-active * {
+  color: #071c2b !important;
+  -webkit-text-fill-color: #071c2b !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-cmdb .geimser-admin-focus-panel,
+#app.geimser-route-cmdb .geimser-admin-focus-panel *,
+#app.geimser-route-cmdb .geimser-admin-focus-toggle {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticket-number-copy-header,
+#app.geimser-route-ticket .ticket-number-copy-header *,
+#app.geimser-route-ticket .ticket-number,
+#app.geimser-route-ticket .dropdown--actions,
+#app.geimser-route-ticket .dropdown--actions *,
+#app.geimser-route-ticket .sidebar-header .dropdown--actions,
+#app.geimser-route-ticket .sidebar-header .dropdown--actions * {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .scrollPageHeader,
+#app.geimser-route-ticket .ticketZoom .scrollPageHeader * {
+  color: #e9f1f8 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .js-tags a.list-item-name,
+#app.geimser-route-ticket .tabsSidebar .js-tags a.list-item-name *,
+#app.geimser-route-ticket .tabsSidebar .js-tags .js-tag,
+#app.geimser-route-ticket .tabsSidebar .js-tags .js-tag * {
+  color: #e9f1f8 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-headline,
+#app.geimser-route-ticket .tabsSidebar .tabsSidebar-tab-count,
+#app.geimser-route-ticket .tabsSidebar .formGroup-label,
+#app.geimser-route-ticket .tabsSidebar .formGroup-label *,
+#app.geimser-route-ticket .tabsSidebar .text-muted,
+#app.geimser-route-ticket .tabsSidebar label,
+#app.geimser-route-ticket .tabsSidebar label * {
+  color: #e9f1f8 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket-create .tabs.type-tabs,
+#app.geimser-route-ticket-create .tabs.tabs-wide,
+#app .tabs.tabs-wide {
+  background: #f5f7fb !important;
+  background-color: #f5f7fb !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket-create .tabs .tab,
+#app.geimser-route-ticket-create .tabs .tab *,
+#app.geimser-route-ticket-create .js-createLink,
+#app.geimser-route-ticket-create .js-createLink * {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket-create .tabs .tab.active,
+#app.geimser-route-ticket-create .tabs .tab.active *,
+#app.geimser-route-ticket-create .tabs .tab.is-active,
+#app.geimser-route-ticket-create .tabs .tab.is-active * {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket-create .tabsSidebar .sidebar-header-headline,
+#app.geimser-route-ticket-create .tabsSidebar .sidebar-header-headline * {
+  color: #e9f1f8 !important;
+  -webkit-text-fill-color: #e9f1f8 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket-create .js-createLink,
+#app.geimser-route-ticket-create .js-createLink * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
   text-shadow: none !important;
 }

@@ -8,7 +8,7 @@ require 'uri'
 class GeimserMeshLoginController < ApplicationController
   before_action :authentication_check
   before_action :require_internal_user!
-  before_action :require_admin!, only: %i[show users]
+  before_action :require_admin!, only: %i[show]
 
   def show
     key = mesh_login_key
