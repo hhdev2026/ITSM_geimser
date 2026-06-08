@@ -151,7 +151,7 @@
     if (!app) return;
 
     var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    var candidates = Array.from(app.querySelectorAll("a, button, [role='button'], li, div")).filter(function (el) {
+    var candidates = Array.from(app.querySelectorAll("a, button, [role='button'], li:has(a), li:has(button)")).filter(function (el) {
       var rect = el.getBoundingClientRect();
       return rect.left >= -1 &&
         rect.left < 350 &&
@@ -165,26 +165,27 @@
 
     candidates.forEach(function (el) {
       el.classList.add("geimser-sidebar-dock-item");
-      el.style.background = "#20232b";
-      el.style.backgroundColor = "#20232b";
-      el.style.borderColor = "rgba(255, 255, 255, 0.08)";
-      el.style.boxShadow = "none";
-      el.style.color = "#d9e2ec";
+      el.style.setProperty("background", "transparent", "important");
+      el.style.setProperty("background-color", "transparent", "important");
+      el.style.setProperty("border-color", "transparent", "important");
+      el.style.setProperty("box-shadow", "none", "important");
+      el.style.setProperty("color", "#d9e2ec", "important");
+      el.style.setProperty("border-radius", "0", "important");
 
       var parent = el.parentElement;
       if (parent) {
         var parentRect = parent.getBoundingClientRect();
         if (parentRect.left >= -1 && parentRect.left < 350 && parentRect.bottom >= viewportHeight - 78) {
           parent.classList.add("geimser-sidebar-dock");
-          parent.style.background = "#20232b";
-          parent.style.backgroundColor = "#20232b";
-          parent.style.borderTop = "1px solid rgba(255, 255, 255, 0.08)";
+          parent.style.setProperty("background", "#11131a", "important");
+          parent.style.setProperty("background-color", "#11131a", "important");
+          parent.style.setProperty("border-top", "1px solid rgba(255, 255, 255, 0.08)", "important");
         }
       }
 
       Array.from(el.querySelectorAll("svg, .icon, [class*='icon'], [class*='Icon']")).forEach(function (icon) {
-        icon.style.color = "#d9e2ec";
-        icon.style.fill = "#d9e2ec";
+        icon.style.setProperty("color", "#d9e2ec", "important");
+        icon.style.setProperty("fill", "#d9e2ec", "important");
       });
 
       Array.from(el.querySelectorAll(".avatar, [class*='avatar'], [class*='Avatar']")).forEach(function (avatar) {
@@ -582,8 +583,29 @@
     var app = document.querySelector("#app");
     if (!app || !app.classList.contains("geimser-route-profile")) return;
 
+    var detailSurface = userDetailProfileSurface(app);
+    if (detailSurface) {
+      detailSurface.classList.add("geimser-user-detail-surface");
+      detailSurface.style.setProperty("background", "#ffffff", "important");
+      detailSurface.style.setProperty("background-color", "#ffffff", "important");
+      detailSurface.style.setProperty("color", "#111827", "important");
+      detailSurface.style.setProperty("border", "1px solid rgba(0, 31, 61, 0.10)", "important");
+      detailSurface.style.setProperty("box-shadow", "0 12px 32px rgba(0, 31, 61, 0.10)", "important");
+      detailSurface.style.setProperty("text-shadow", "none", "important");
+
+      Array.from(detailSurface.querySelectorAll("div, section, article, header, footer, main, aside, nav")).forEach(function (el) {
+        if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
+        el.style.setProperty("background-color", "transparent", "important");
+        el.style.setProperty("background-image", "none", "important");
+        el.style.setProperty("color", "#111827", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
+        el.style.setProperty("text-shadow", "none", "important");
+      });
+    }
+
     Array.from(app.querySelectorAll(".content, .content > div, .content > section, .content > article, .main, .main-content, .page")).forEach(function (el) {
       if (el.classList.contains("geimser-nav-surface") || el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
+      if (detailSurface && detailSurface.contains(el)) return;
       el.style.setProperty("background", "#ffffff", "important");
       el.style.setProperty("background-color", "#ffffff", "important");
       el.style.setProperty("color", "#111827", "important");
@@ -624,6 +646,26 @@
       el.style.setProperty("-webkit-text-fill-color", "#071c2b", "important");
       el.style.setProperty("text-shadow", "none", "important");
     });
+  }
+
+  function userDetailProfileSurface(app) {
+    var profileText = /CORREO ELECTR[ÓO]NICO/i;
+    var ticketText = /Tickets de Usuario|Tickets de la organizaci[oó]n/i;
+    var reportText = /FRECUENCIA|Tickets abiertos|Cerrar tickets/i;
+
+    var candidates = Array.from(app.querySelectorAll(".content > div, .content section, .content article, .content main, .content aside, .content div")).filter(function (el) {
+      if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return false;
+      var rect = el.getBoundingClientRect();
+      if (rect.width < 360 || rect.height < 360) return false;
+      var text = (el.textContent || "").replace(/\s+/g, " ");
+      return profileText.test(text) && ticketText.test(text) && reportText.test(text);
+    });
+
+    return candidates.sort(function (a, b) {
+      var ar = a.getBoundingClientRect();
+      var br = b.getBoundingClientRect();
+      return (ar.width * ar.height) - (br.width * br.height);
+    })[0] || null;
   }
 
   function repairActivityFlowLayout() {

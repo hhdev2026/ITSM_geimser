@@ -4252,6 +4252,41 @@ html[data-theme="dark"] #app {
   text-shadow: none !important;
 }
 
+#app.geimser-route-profile .geimser-user-detail-surface {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid rgba(0, 31, 61, 0.10) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 32px rgba(0, 31, 61, 0.10) !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-profile .geimser-user-detail-surface div,
+#app.geimser-route-profile .geimser-user-detail-surface section,
+#app.geimser-route-profile .geimser-user-detail-surface article,
+#app.geimser-route-profile .geimser-user-detail-surface header,
+#app.geimser-route-profile .geimser-user-detail-surface footer,
+#app.geimser-route-profile .geimser-user-detail-surface aside,
+#app.geimser-route-profile .geimser-user-detail-surface main {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-profile .geimser-user-detail-surface small,
+#app.geimser-route-profile .geimser-user-detail-surface time,
+#app.geimser-route-profile .geimser-user-detail-surface label,
+#app.geimser-route-profile .geimser-user-detail-surface [class*="meta"],
+#app.geimser-route-profile .geimser-user-detail-surface [class*="Meta"],
+#app.geimser-route-profile .geimser-user-detail-surface [class*="muted"],
+#app.geimser-route-profile .geimser-user-detail-surface [class*="hint"] {
+  color: #4b5563 !important;
+  -webkit-text-fill-color: #4b5563 !important;
+}
+
 /* ─── RESET RAIZ PARA PANTALLAS NATIVAS ZAMMAD ──────────────── */
 #app.geimser-route-native .content,
 #app.geimser-route-native .main,
@@ -4580,6 +4615,84 @@ a:hover,
 #app input[type="submit"]:hover {
   background: linear-gradient(160deg, #0067c0 0%, #0057a8 100%) !important;
   color: #ffffff !important;
+}
+
+/* Final lock: sidebar bottom dock must stay compact and dark. */
+#app .geimser-sidebar-footer,
+#app .geimser-sidebar-dock {
+  align-items: center !important;
+  background: #11131a !important;
+  background-color: #11131a !important;
+  border-radius: 0 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+  color: #d9e2ec !important;
+  display: flex !important;
+  gap: 0 !important;
+  min-height: 52px !important;
+  overflow: hidden !important;
+}
+
+#app .geimser-sidebar-dock-item,
+#app .geimser-sidebar-footer a,
+#app .geimser-sidebar-footer button,
+#app .geimser-sidebar-footer [role="button"] {
+  align-items: center !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #d9e2ec !important;
+  display: inline-flex !important;
+  flex: 0 0 52px !important;
+  height: 52px !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  min-height: 52px !important;
+  min-width: 52px !important;
+  padding: 0 !important;
+  width: 52px !important;
+}
+
+#app .geimser-sidebar-dock-item:hover,
+#app .geimser-sidebar-footer a:hover,
+#app .geimser-sidebar-footer button:hover,
+#app .geimser-sidebar-footer [role="button"]:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+#app .geimser-sidebar-dock-item svg,
+#app .geimser-sidebar-dock-item [class*="icon"],
+#app .geimser-sidebar-footer svg,
+#app .geimser-sidebar-footer [class*="icon"] {
+  color: #c9d5e3 !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+#app .geimser-sidebar-dock-item .avatar,
+#app .geimser-sidebar-dock-item [class*="avatar"],
+#app .geimser-sidebar-dock-item [class*="Avatar"],
+#app .geimser-sidebar-footer .avatar,
+#app .geimser-sidebar-footer [class*="avatar"],
+#app .geimser-sidebar-footer [class*="Avatar"] {
+  align-items: center !important;
+  background: #f28c18 !important;
+  background-color: #f28c18 !important;
+  border-radius: 50% !important;
+  color: #071c2b !important;
+  display: inline-flex !important;
+  flex: 0 0 34px !important;
+  font-weight: 800 !important;
+  height: 34px !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  min-height: 34px !important;
+  min-width: 34px !important;
+  width: 34px !important;
 }
 
 .geimser-sidebar-shortcut[data-geimser-shortcut="cmdb"] span:last-child {
