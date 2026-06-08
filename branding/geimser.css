@@ -137,6 +137,38 @@ img[alt="Geimser ITSM"] {
   outline: none;
 }
 
+.geimser-sidebar-shortcuts.is-compact {
+  align-items: center;
+  display: grid !important;
+  justify-items: center;
+  gap: 6px;
+  margin: 8px 0;
+  width: 100%;
+}
+
+.geimser-sidebar-shortcuts.is-compact .geimser-sidebar-shortcut {
+  align-items: center !important;
+  border-left: 0 !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  gap: 0;
+  height: 42px;
+  justify-content: center !important;
+  min-height: 42px;
+  padding: 0 !important;
+  width: 42px;
+}
+
+.geimser-sidebar-shortcuts.is-compact .geimser-sidebar-shortcut span:last-child {
+  display: none !important;
+}
+
+.geimser-sidebar-shortcuts.is-compact .geimser-sidebar-shortcut-icon {
+  flex-basis: 24px;
+  height: 24px;
+  width: 24px;
+}
+
 .geimser-sidebar-shortcut-icon {
   position: relative;
   display: inline-block;
