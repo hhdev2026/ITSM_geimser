@@ -7,6 +7,7 @@
     attempts += 1;
 
     try {
+      var connectButton = document.getElementById("connectbutton1");
       var desktopReady = typeof currentNode !== "undefined" &&
         currentNode &&
         (currentNode.conn & 1) &&
@@ -14,11 +15,13 @@
         (currentNode.agent.caps & 1) &&
         typeof desktop !== "undefined" &&
         desktop === null &&
-        typeof connectDesktop === "function";
+        typeof connectDesktop === "function" &&
+        connectButton &&
+        !connectButton.disabled;
 
       if (desktopReady) {
         window.clearInterval(timer);
-        connectDesktop(null, 3);
+        connectDesktop(null, 1);
       } else if (attempts >= 120) {
         window.clearInterval(timer);
       }
