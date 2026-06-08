@@ -1072,7 +1072,7 @@
     var app = document.querySelector("#app");
     if (!app) return;
 
-    var headerText = /^(INICIAR SESI[ÓO]N|NOMBRE|APELLIDO\(S\)|ORGANIZACI[ÓO]N|ORGANIZACIONES SECUNDARIAS|ACCI[ÓO]N|AC\.\.\.|PROTOCOLO|DIRECCI[ÓO]N DE CORREO ELECTR[ÓO]NICO|SALIENTE|EDITAR)$/i;
+    var headerText = /^(INICIAR SESI[ÓO]N|T[ÍI]TULO|CLIENTE|GRUPO|CREADO HACE|NOMBRE|APELLIDO\(S\)|ORGANIZACI[ÓO]N|ORGANIZACIONES SECUNDARIAS|ACCI[ÓO]N|AC\.\.\.|PROTOCOLO|DIRECCI[ÓO]N DE CORREO ELECTR[ÓO]NICO|SALIENTE|EDITAR)$/i;
     var candidates = Array.from(app.querySelectorAll("div, span, th, [role='columnheader'], [class*='column'], [class*='Column']"));
 
     candidates.forEach(function (el) {
@@ -1083,12 +1083,16 @@
       var rect = el.getBoundingClientRect();
       if (rect.width < 12 || rect.height < 8 || rect.left < 520) return;
 
-      setImportantStyle(el, "color", "#1f2937");
-      setImportantStyle(el, "background-color", "#eef3f8");
+      var bg = effectiveBackground(el);
+      var darkHeader = bg && luminance(bg) < 0.35;
+      setImportantStyle(el, "color", darkHeader ? "#f8fbff" : "#1f2937");
+      setImportantStyle(el, "-webkit-text-fill-color", darkHeader ? "#f8fbff" : "#1f2937");
+      setImportantStyle(el, "background-color", darkHeader ? "#2f3542" : "#eef3f8");
       el.style.fontWeight = "700";
 
       Array.from(el.querySelectorAll("*")).forEach(function (child) {
-        setImportantStyle(child, "color", "#1f2937");
+        setImportantStyle(child, "color", darkHeader ? "#f8fbff" : "#1f2937");
+        setImportantStyle(child, "-webkit-text-fill-color", darkHeader ? "#f8fbff" : "#1f2937");
         setImportantStyle(child, "background-color", "transparent");
       });
 
@@ -1097,8 +1101,9 @@
       while (parent && depth < 3) {
         var parentRect = parent.getBoundingClientRect();
         if (parentRect.height > 12 && parentRect.height < 72 && parentRect.width > rect.width * 0.8 && !isInsideNavigation(parent)) {
-          setImportantStyle(parent, "background-color", "#eef3f8");
-          setImportantStyle(parent, "color", "#1f2937");
+          setImportantStyle(parent, "background-color", darkHeader ? "#2f3542" : "#eef3f8");
+          setImportantStyle(parent, "color", darkHeader ? "#f8fbff" : "#1f2937");
+          setImportantStyle(parent, "-webkit-text-fill-color", darkHeader ? "#f8fbff" : "#1f2937");
         }
         parent = parent.parentElement;
         depth += 1;

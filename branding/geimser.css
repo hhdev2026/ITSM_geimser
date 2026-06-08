@@ -4732,6 +4732,55 @@ a:hover,
   width: 34px !important;
 }
 
+/* Final lock: overview/table headers must never be dark text on dark bars. */
+#app .content table thead,
+#app .content table thead tr,
+#app .content table thead th,
+#app .content .table thead,
+#app .content .table thead tr,
+#app .content .table thead th,
+#app .content [role="row"] [role="columnheader"],
+#app .content [class*="table"] [class*="header"],
+#app .content [class*="Table"] [class*="Header"],
+#app .content [class*="overview"] [class*="header"],
+#app .content [class*="Overview"] [class*="Header"] {
+  background: #2f3542 !important;
+  background-color: #2f3542 !important;
+  color: #f8fbff !important;
+  -webkit-text-fill-color: #f8fbff !important;
+  text-shadow: none !important;
+}
+
+#app .content table thead *,
+#app .content .table thead *,
+#app .content [role="row"] [role="columnheader"] *,
+#app .content [class*="table"] [class*="header"] *,
+#app .content [class*="Table"] [class*="Header"] *,
+#app .content [class*="overview"] [class*="header"] *,
+#app .content [class*="Overview"] [class*="Header"] * {
+  color: #f8fbff !important;
+  -webkit-text-fill-color: #f8fbff !important;
+  text-shadow: none !important;
+}
+
+#app .content [class*="overview"] [class*="sidebar"],
+#app .content [class*="Overview"] [class*="Sidebar"],
+#app .content [class*="overview"] nav,
+#app .content [class*="Overview"] nav {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+#app .content [class*="overview"] [class*="sidebar"] *,
+#app .content [class*="Overview"] [class*="Sidebar"] *,
+#app .content [class*="overview"] nav *,
+#app .content [class*="Overview"] nav * {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  text-shadow: none !important;
+}
+
 .geimser-sidebar-shortcut[data-geimser-shortcut="cmdb"] span:last-child {
   font-size: 0 !important;
 }
