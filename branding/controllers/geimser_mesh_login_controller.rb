@@ -138,7 +138,7 @@ class GeimserMeshLoginController < ApplicationController
 
     URI.parse("/?#{URI.encode_www_form(
       'gotonode' => node_token,
-      'viewmode' => '12',
+      'viewmode' => '11',
       'hide' => '16',
       'geimserautoconnect' => '1',
     )}")

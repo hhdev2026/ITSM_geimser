@@ -252,7 +252,7 @@ class GeimserMeshCmdb
       if node_token.present?
         next_path = "/?#{URI.encode_www_form(
           'gotonode' => node_token,
-          'viewmode' => '12',
+          'viewmode' => '11',
           'hide' => '16',
           'geimserautoconnect' => '1',
         )}"
