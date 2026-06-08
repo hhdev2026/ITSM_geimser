@@ -159,7 +159,6 @@ services:
       - "${MESH_EXPOSE_PORT:-443}:443"
     volumes:
       - meshcentral-data:/opt/meshcentral/meshcentral-data
-      - meshcentral-web:/opt/meshcentral/meshcentral-web
 
   zammad-nginx:
     <<: *zammad-service
@@ -224,6 +223,4 @@ volumes:
   zammad-storage:
     driver: local
   meshcentral-data:
-    driver: local
-  meshcentral-web:
     driver: local
