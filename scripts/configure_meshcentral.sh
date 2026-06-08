@@ -24,7 +24,17 @@ CUSTOM_SCRIPT_B64="$(base64 < branding/meshcentral/custom.js | tr -d '\n')"
 MESH_HOSTNAME="${MESH_HOSTNAME:-3.227.213.30}"
 export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC MESH_LOGIN_KEY CUSTOM_SCRIPT_B64
 
-docker-compose run --rm --entrypoint sh meshcentral -lc "
+if command -v docker-compose >/dev/null 2>&1; then
+  COMPOSE=(docker-compose)
+else
+  COMPOSE=(docker compose)
+fi
+
+if ! "${COMPOSE[@]}" ps >/dev/null 2>&1; then
+  COMPOSE=(sudo -E "${COMPOSE[@]}")
+fi
+
+"${COMPOSE[@]}" run --rm --entrypoint sh meshcentral -lc "
 node <<'NODE'
 const fs = require('fs');
 const configPath = '/opt/meshcentral/meshcentral-data/config.json';
