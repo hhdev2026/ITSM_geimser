@@ -5092,6 +5092,51 @@ a:hover,
   color: #ffffff !important;
 }
 
+#app.geimser-route-cmdb .sidebar.NavBarAdmin.geimser-admin-focus-menu {
+  overflow-y: auto !important;
+}
+
+#app.geimser-route-cmdb .geimser-admin-focus-panel {
+  align-items: center !important;
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: space-between !important;
+  margin: 0 20px 12px !important;
+  padding: 10px 0 12px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16) !important;
+}
+
+#app.geimser-route-cmdb .geimser-admin-focus-panel strong {
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0 !important;
+}
+
+#app.geimser-route-cmdb .geimser-admin-focus-toggle {
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #ffffff !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+#app.geimser-route-cmdb .geimser-admin-focus-toggle:hover,
+#app.geimser-route-cmdb .geimser-admin-focus-toggle:focus {
+  background: rgba(255, 255, 255, 0.18) !important;
+}
+
+#app.geimser-route-cmdb .sidebar.NavBarAdmin.geimser-admin-focus-menu:not(.is-expanded) .geimser-admin-focus-hidden {
+  display: none !important;
+}
+
+#app.geimser-route-cmdb .sidebar.NavBarAdmin .geimser-admin-focus-kept a {
+  font-weight: 750 !important;
+}
+
 #app.geimser-route-cmdb .geimser-native-cmdb-assets-head,
 #app.geimser-route-cmdb .geimser-native-cmdb-assets-head * {
   color: #ffffff !important;

@@ -355,7 +355,48 @@
 
   function normalizeCmdbAdminNavigation() {
     var app = document.querySelector("#app");
-    if (!app || !app.classList.contains("geimser-route-cmdb")) return;
+    var sidebar = app && app.querySelector(".sidebar.NavBarAdmin");
+    if (!app || !sidebar) return;
+    if (!app.classList.contains("geimser-route-cmdb")) {
+      sidebar.classList.remove("geimser-admin-focus-menu", "is-expanded");
+      var existingPanel = sidebar.querySelector(".geimser-admin-focus-panel");
+      if (existingPanel) existingPanel.remove();
+      Array.from(sidebar.querySelectorAll(".geimser-admin-focus-hidden, .geimser-admin-focus-kept")).forEach(function (el) {
+        el.classList.remove("geimser-admin-focus-hidden", "geimser-admin-focus-kept");
+      });
+      return;
+    }
+
+    sidebar.classList.add("geimser-admin-focus-menu");
+
+    var focusPanel = sidebar.querySelector(".geimser-admin-focus-panel");
+    if (!focusPanel) {
+      focusPanel = document.createElement("div");
+      focusPanel.className = "geimser-admin-focus-panel";
+      focusPanel.innerHTML = [
+        '<strong>Operación ITSM</strong>',
+        '<button type="button" class="geimser-admin-focus-toggle" aria-expanded="false">Más ajustes</button>'
+      ].join("");
+
+      var heading = sidebar.querySelector("h1, h2, h3");
+      if (heading && heading.parentElement) {
+        heading.insertAdjacentElement("afterend", focusPanel);
+      } else {
+        sidebar.insertBefore(focusPanel, sidebar.firstChild);
+      }
+
+      focusPanel.querySelector(".geimser-admin-focus-toggle").addEventListener("click", function () {
+        sidebar.classList.toggle("is-expanded");
+        normalizeCmdbAdminNavigation();
+      });
+    }
+
+    var expanded = sidebar.classList.contains("is-expanded");
+    var toggle = focusPanel.querySelector(".geimser-admin-focus-toggle");
+    if (toggle) {
+      toggle.textContent = expanded ? "Menú simple" : "Más ajustes";
+      toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
 
     Array.from(app.querySelectorAll(".sidebar.NavBarAdmin, .sidebar.NavBarAdmin *")).forEach(function (el) {
       el.style.setProperty("text-shadow", "none", "important");
@@ -367,6 +408,29 @@
 
     Array.from(app.querySelectorAll(".sidebar.NavBarAdmin a, .sidebar.NavBarAdmin .link")).forEach(function (el) {
       el.style.setProperty("color", "#e9f1f8", "important");
+    });
+
+    var keepHrefs = [
+      "#manage/users",
+      "#manage/groups",
+      "#manage/roles",
+      "#manage/organizations",
+      "#system/integration",
+      "#system/integration/idoit",
+      "#system/api",
+      "#system/object_manager",
+      "#system/monitoring",
+      "#system/sessions"
+    ];
+    var keepText = /^(Usuarios|Grupos|Roles|Organizaciones|Integraciones|CMDB|API|Objetos|Monitorizaci[oó]n|Sesiones)$/i;
+
+    Array.from(sidebar.querySelectorAll("a[href]")).forEach(function (link) {
+      var href = link.getAttribute("href") || "";
+      var text = (link.textContent || "").replace(/\s+/g, " ").trim();
+      var row = link.closest("li") || link;
+      var keep = keepHrefs.indexOf(href) !== -1 || keepText.test(text);
+      row.classList.toggle("geimser-admin-focus-kept", keep);
+      row.classList.toggle("geimser-admin-focus-hidden", !keep && !expanded);
     });
   }
 

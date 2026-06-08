@@ -43,6 +43,8 @@ single screenshot:
   surfaces.
 - Only one CMDB is visible to the user. Admins use the native CMDB integration
   route `#system/integration/idoit`; there is no duplicate Geimser CMDB overlay.
+- On the native CMDB route, the admin menu starts in focused ITSM mode and can
+  expand to advanced settings without losing access to Zammad configuration.
 - No navigation, shortcut, redirect, or close action sends users to
   `#geimser/cmdb`.
 - Remote control entry points are contextual to a ticket detail, ticket create
