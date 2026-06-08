@@ -4287,6 +4287,43 @@ html[data-theme="dark"] #app {
   -webkit-text-fill-color: #4b5563 !important;
 }
 
+#app.geimser-route-profile .geimser-user-detail-surface .avatar,
+#app.geimser-route-profile .geimser-user-detail-surface [class*="avatar"],
+#app.geimser-route-profile .geimser-user-detail-surface [class*="Avatar"] {
+  align-items: center !important;
+  background: #f28c18 !important;
+  background-color: #f28c18 !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 8px 20px rgba(245, 166, 35, 0.22) !important;
+  color: #071c2b !important;
+  display: inline-flex !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  height: 64px !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  margin: 0 auto 10px !important;
+  max-height: 64px !important;
+  max-width: 64px !important;
+  min-height: 64px !important;
+  min-width: 64px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  position: relative !important;
+  width: 64px !important;
+  z-index: 1 !important;
+}
+
+#app.geimser-route-profile .geimser-user-detail-surface [class*="action"],
+#app.geimser-route-profile .geimser-user-detail-surface [class*="Action"],
+#app.geimser-route-profile .geimser-user-detail-surface .dropdown,
+#app.geimser-route-profile .geimser-user-detail-surface .dropdown-menu,
+#app.geimser-route-profile .geimser-user-detail-surface [role="menu"] {
+  position: relative !important;
+  z-index: 40 !important;
+}
+
 /* ─── RESET RAIZ PARA PANTALLAS NATIVAS ZAMMAD ──────────────── */
 #app.geimser-route-native .content,
 #app.geimser-route-native .main,

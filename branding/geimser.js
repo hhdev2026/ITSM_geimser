@@ -601,6 +601,36 @@
         el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
         el.style.setProperty("text-shadow", "none", "important");
       });
+
+      Array.from(detailSurface.querySelectorAll(".avatar, [class*='avatar'], [class*='Avatar']")).forEach(function (el) {
+        if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
+        el.style.setProperty("align-items", "center", "important");
+        el.style.setProperty("background", "#f28c18", "important");
+        el.style.setProperty("background-color", "#f28c18", "important");
+        el.style.setProperty("border-radius", "50%", "important");
+        el.style.setProperty("box-shadow", "0 8px 20px rgba(245, 166, 35, 0.22)", "important");
+        el.style.setProperty("color", "#071c2b", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#071c2b", "important");
+        el.style.setProperty("display", "inline-flex", "important");
+        el.style.setProperty("font-size", "18px", "important");
+        el.style.setProperty("font-weight", "800", "important");
+        el.style.setProperty("height", "64px", "important");
+        el.style.setProperty("justify-content", "center", "important");
+        el.style.setProperty("margin", "0 auto 10px", "important");
+        el.style.setProperty("max-height", "64px", "important");
+        el.style.setProperty("max-width", "64px", "important");
+        el.style.setProperty("min-height", "64px", "important");
+        el.style.setProperty("min-width", "64px", "important");
+        el.style.setProperty("padding", "0", "important");
+        el.style.setProperty("position", "relative", "important");
+        el.style.setProperty("width", "64px", "important");
+        el.style.setProperty("z-index", "1", "important");
+      });
+
+      Array.from(detailSurface.querySelectorAll("[class*='action'], [class*='Action'], .dropdown, .dropdown-menu, [role='menu']")).forEach(function (el) {
+        el.style.setProperty("position", "relative", "important");
+        el.style.setProperty("z-index", "40", "important");
+      });
     }
 
     Array.from(app.querySelectorAll(".content, .content > div, .content > section, .content > article, .main, .main-content, .page")).forEach(function (el) {
