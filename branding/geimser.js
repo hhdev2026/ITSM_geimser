@@ -279,20 +279,14 @@
 
   function ensureInternalSidebarShortcuts() {
     var existing = document.querySelector(".geimser-sidebar-shortcuts");
-    if (!adminSidebarAccess()) {
-      // Solo eliminar si la sesión ya está disponible; si no, esperar para no
-      // borrar prematuramente antes de que Zammad termine de cargar el perfil.
-      var sessionReady = Boolean(currentSession());
-      if (sessionReady && existing) existing.remove();
+    var sessionReady = Boolean(currentSession());
+    if (!sessionReady) {
       return;
     }
 
     var sidebar = findSidebarSurface();
     if (!sidebar) return;
-    if (sidebar.getBoundingClientRect().width < 120) {
-      if (existing) existing.remove();
-      return;
-    }
+    var compactSidebar = sidebar.getBoundingClientRect().width < 120;
 
     if (!existing) {
       existing = document.createElement("nav");
@@ -302,10 +296,6 @@
 
     if (!existing.querySelector('[data-geimser-shortcut="remote"]')) {
       existing.innerHTML = [
-        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="users" href="#manage/users">',
-        '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-users" aria-hidden="true"></span>',
-        '  <span>Usuarios</span>',
-        '</a>',
         '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="cmdb" href="#system/integration/idoit">',
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-cmdb" aria-hidden="true"></span>',
         '  <span>CMDB ITSM</span>',
@@ -331,6 +321,7 @@
       : reference;
 
     existing.classList.remove("is-fixed");
+    existing.classList.toggle("is-compact", compactSidebar);
     existing.style.removeProperty("--geimser-sidebar-left");
     existing.style.removeProperty("--geimser-sidebar-width");
 
