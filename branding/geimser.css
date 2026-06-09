@@ -5905,6 +5905,40 @@ a:hover,
   padding: 0 14px !important;
 }
 
+#app.geimser-route-ticket .ticketZoom .ticket-article,
+#app.geimser-route-ticket .ticketZoom .ticket-article-item,
+#app.geimser-route-ticket .ticketZoom .article-new {
+  --geimser-ticket-thread-width: min(100%, 1240px);
+}
+
+#app.geimser-route-ticket .ticketZoom .ticket-article,
+#app.geimser-route-ticket .ticketZoom .ticket-article-item,
+#app.geimser-route-ticket .ticketZoom .article-new {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: var(--geimser-ticket-thread-width) !important;
+  width: var(--geimser-ticket-thread-width) !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-content,
+#app.geimser-route-ticket .ticketZoom .ticket-article .bubble-gap,
+#app.geimser-route-ticket .ticketZoom .ticket-article .internal-border,
+#app.geimser-route-ticket .ticketZoom .ticket-article-item .article-content,
+#app.geimser-route-ticket .ticketZoom .ticket-article-item .bubble-gap,
+#app.geimser-route-ticket .ticketZoom .ticket-article-item .internal-border,
+#app.geimser-route-ticket .ticketZoom .article-new .article-content,
+#app.geimser-route-ticket .ticketZoom .article-new .internal-border,
+#app.geimser-route-ticket .ticketZoom .article-new .textBubble,
+#app.geimser-route-ticket .ticketZoom .article-new .article-actions {
+  box-sizing: border-box !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  max-width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100% !important;
+}
+
 #app.geimser-route-ticket .ticketZoom .js-writeArea {
   background: #ffffff !important;
   background-color: #ffffff !important;
@@ -5940,6 +5974,8 @@ a:hover,
   align-items: center !important;
   display: flex !important;
   justify-content: space-around !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .article-actions .article-action {
