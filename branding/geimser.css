@@ -6042,6 +6042,55 @@ a:hover,
   -webkit-text-fill-color: #172033 !important;
 }
 
+#app.geimser-route-ticket .ticketZoom .article-new label,
+#app.geimser-route-ticket .ticketZoom .article-new label *,
+#app.geimser-route-ticket .ticketZoom .article-new .formGroup-label,
+#app.geimser-route-ticket .ticketZoom .article-new .formGroup-label *,
+#app.geimser-route-ticket .ticketZoom .article-new .text-muted,
+#app.geimser-route-ticket .ticketZoom .article-new .text-muted * {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-new input,
+#app.geimser-route-ticket .ticketZoom .article-new textarea,
+#app.geimser-route-ticket .ticketZoom .article-new .form-control,
+#app.geimser-route-ticket .ticketZoom .article-new .token,
+#app.geimser-route-ticket .ticketZoom .article-new .token *,
+#app.geimser-route-ticket .ticketZoom .article-new [class*="recipient"],
+#app.geimser-route-ticket .ticketZoom .article-new [class*="recipient"] *,
+#app.geimser-route-ticket .ticketZoom .article-new [class*="select"] input {
+  color: #172033 !important;
+  -webkit-text-fill-color: #172033 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-new .token,
+#app.geimser-route-ticket .ticketZoom .article-new [class*="recipient"] {
+  background: #e8eef6 !important;
+  background-color: #e8eef6 !important;
+  border-color: #cbd5e1 !important;
+  border-radius: 4px !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-new .token .close,
+#app.geimser-route-ticket .ticketZoom .article-new .token [class*="remove"],
+#app.geimser-route-ticket .ticketZoom .article-new [class*="recipient"] .close,
+#app.geimser-route-ticket .ticketZoom .article-new [class*="recipient"] [class*="remove"] {
+  color: #1f5fa8 !important;
+  -webkit-text-fill-color: #1f5fa8 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-new input::placeholder,
+#app.geimser-route-ticket .ticketZoom .article-new textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
 #app.geimser-route-ticket .ticketZoom .textBubble.js-writeArea {
   display: flex !important;
   flex-direction: column !important;

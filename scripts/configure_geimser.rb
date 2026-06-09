@@ -193,6 +193,21 @@ if group
   user_group.save!
 end
 
+support_signature = Signature.find_or_initialize_by(name: 'Soporte Geimser')
+support_signature.assign_attributes(
+  body: '<p>#{user.firstname} #{user.lastname}<br>Soporte Geimser</p>',
+  active: true,
+  updated_by_id: 1,
+)
+support_signature.created_by_id ||= 1
+support_signature.save!
+
+Group.where(active: true).find_each do |active_group|
+  next if active_group.signature_id == support_signature.id
+
+  active_group.update!(signature_id: support_signature.id, updated_by_id: 1)
+end
+
 Setting.set('system_init_done', true)
 Rails.cache.clear if defined?(Rails)
 
