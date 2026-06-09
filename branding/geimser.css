@@ -5921,11 +5921,19 @@ a:hover,
   box-shadow: none !important;
 }
 
+#app.geimser-route-ticket .ticketZoom .article-new .article-add,
+#app.geimser-route-ticket .ticketZoom .article-new .article-content {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
 #app.geimser-route-ticket .ticketZoom .article-new .internal-border {
-  background: #dbe7f4 !important;
-  background-color: #dbe7f4 !important;
+  background: transparent !important;
+  background-color: transparent !important;
   background-image: none !important;
-  border-radius: 6px !important;
+  border-radius: 0 !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .article-actions {
@@ -5952,9 +5960,12 @@ a:hover,
 }
 
 #app.geimser-route-ticket .ticketZoom .textBubble.js-writeArea {
+  display: flex !important;
+  flex-direction: column !important;
   border: 1px solid #cbd5e1 !important;
   box-shadow: none !important;
   outline: 0 !important;
+  overflow: hidden !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .textBubble.js-writeArea:focus-within {
@@ -5971,23 +5982,60 @@ a:hover,
   box-shadow: none !important;
   caret-color: #1f5fa8 !important;
   color: #172033 !important;
+  flex: 1 1 auto !important;
   -webkit-text-fill-color: #172033 !important;
-  min-height: 96px !important;
+  min-height: 104px !important;
   padding: 12px !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .js-writeArea .article-attachment {
+  align-items: center !important;
   background: #f7f9fc !important;
   background-color: #f7f9fc !important;
   border-top: 1px solid #dbe3ec !important;
+  box-sizing: border-box !important;
   color: #475569 !important;
+  display: flex !important;
+  flex: 0 0 auto !important;
+  min-height: 42px !important;
+  position: static !important;
+  width: 100% !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .js-writeArea .attachmentPlaceholder {
+  align-items: center !important;
   box-sizing: border-box !important;
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: flex-start !important;
   margin: 0 !important;
-  min-height: 40px !important;
-  padding: 10px 12px !important;
+  min-height: 0 !important;
+  padding: 8px 12px !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .js-writeArea .attachmentPlaceholder-inputHolder,
+#app.geimser-route-ticket .ticketZoom .js-writeArea .attachmentPlaceholder-label,
+#app.geimser-route-ticket .ticketZoom .js-writeArea .attachmentPlaceholder-hint {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  line-height: 1.3 !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  position: static !important;
+  width: auto !important;
+  white-space: nowrap !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .js-writeArea .attachmentPlaceholder-inputHolder input[type="file"] {
+  cursor: pointer !important;
+  height: 100% !important;
+  inset: 0 !important;
+  opacity: 0 !important;
+  padding: 0 !important;
+  position: absolute !important;
   width: 100% !important;
 }
 
