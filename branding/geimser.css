@@ -5908,7 +5908,7 @@ a:hover,
 #app.geimser-route-ticket .ticketZoom .ticket-article,
 #app.geimser-route-ticket .ticketZoom .ticket-article-item,
 #app.geimser-route-ticket .ticketZoom .article-new {
-  --geimser-ticket-thread-width: min(100%, 1240px);
+  --geimser-ticket-thread-width: min(calc(100% - 48px), 760px);
 }
 
 #app.geimser-route-ticket .ticketZoom .ticket-article,
