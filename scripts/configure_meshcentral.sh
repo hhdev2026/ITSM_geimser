@@ -19,9 +19,13 @@ MESH_HOSTNAME="${MESH_HOSTNAME:-$(load_env_value MESH_HOSTNAME)}"
 MESH_ALLOW_NEW_ACCOUNTS="${MESH_ALLOW_NEW_ACCOUNTS:-$(load_env_value MESH_ALLOW_NEW_ACCOUNTS)}"
 MESH_WEBRTC="${MESH_WEBRTC:-$(load_env_value MESH_WEBRTC)}"
 MESH_LOGIN_KEY="${MESH_LOGIN_KEY:-$(load_env_value MESH_LOGIN_KEY)}"
+MESH_TITLE="${MESH_TITLE:-$(load_env_value MESH_TITLE)}"
+MESH_TITLE2="${MESH_TITLE2:-$(load_env_value MESH_TITLE2)}"
 
 MESH_HOSTNAME="${MESH_HOSTNAME:-3.227.213.30}"
-export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC MESH_LOGIN_KEY
+MESH_TITLE="${MESH_TITLE:-Geimser ITSM}"
+MESH_TITLE2="${MESH_TITLE2:-Centro remoto}"
+export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC MESH_LOGIN_KEY MESH_TITLE MESH_TITLE2
 
 if command -v docker-compose >/dev/null 2>&1; then
   COMPOSE=(docker-compose)
@@ -39,6 +43,8 @@ const fs = require('fs');
 const configPath = '/opt/meshcentral/meshcentral-data/config.json';
 const host = process.env.MESH_HOSTNAME || '${MESH_HOSTNAME}';
 const loginKey = (process.env.MESH_LOGIN_KEY || '').trim();
+const title = (process.env.MESH_TITLE || '').trim();
+const title2 = (process.env.MESH_TITLE2 || '').trim();
 
 const config = fs.existsSync(configPath)
   ? JSON.parse(fs.readFileSync(configPath, 'utf8'))
@@ -66,8 +72,8 @@ config.domains[''].allowFraming = true;
 delete config.settings.loginCookieEncryptionKey;
 delete config.domains[''].loginKey;
 config.domains[''].newAccounts = process.env.MESH_ALLOW_NEW_ACCOUNTS === 'true';
-config.domains[''].title = '';
-config.domains[''].title2 = '';
+config.domains[''].title = title;
+config.domains[''].title2 = title2;
 config.domains[''].certUrl = 'https://' + host;
 
 fs.writeFileSync(configPath, JSON.stringify(config, null, 2));

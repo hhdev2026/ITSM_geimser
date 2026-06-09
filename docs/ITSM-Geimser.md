@@ -109,6 +109,21 @@ Por seguridad, el registro de usuarios queda cerrado por defecto:
 MESH_ALLOW_NEW_ACCOUNTS=false
 ```
 
+El nombre visible de MeshCentral se controla desde `.env` y se reaplica cada vez que se ejecuta `configure_meshcentral.sh`:
+
+```env
+MESH_TITLE=Geimser ITSM
+MESH_TITLE2=Centro remoto
+```
+
+Despues de cambiar esos valores, reaplica la configuracion sin borrar volumenes:
+
+```bash
+cd /opt/ITSM_geimser
+sudo ./scripts/configure_meshcentral.sh
+sudo docker compose up -d --force-recreate meshcentral
+```
+
 Para crear el primer administrador en una instalacion nueva:
 
 ```bash

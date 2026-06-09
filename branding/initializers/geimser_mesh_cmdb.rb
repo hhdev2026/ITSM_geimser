@@ -176,14 +176,14 @@ class GeimserMeshCmdb
       mesh_group_id = row['meshid'].to_s.presence
       system = sysinfo.to_h['system'].to_h
       last_seen = last_seen(row, sysinfo)
-      name = row['name'].presence || row['rname'].presence || row['host'].presence || node_id.split('/').last
+      name = row['rname'].presence || row['name'].presence || row['host'].presence || node_id.split('/').last
 
       {
         mesh_node_id: node_id,
         mesh_group_id: mesh_group_id,
         group_name: groups[mesh_group_id] || 'Sin grupo',
         name: name,
-        hostname: row['host'].presence || row['rname'].presence || row['name'].presence || system['Name'].presence,
+        hostname: row['host'].presence || row['name'].presence || system['Name'].presence || row['rname'].presence,
         os_name: os_name(row, sysinfo),
         ip_address: ip_address(row, sysinfo),
         status: online?(row, last_seen) ? 'online' : 'offline',

@@ -5467,3 +5467,301 @@ a:hover,
   -webkit-text-fill-color: #ffffff !important;
   text-shadow: none !important;
 }
+
+/* Ticket detail contrast: action rail, properties and note/reply composer. */
+#app.geimser-route-ticket .ticketZoom .attributeBar a,
+#app.geimser-route-ticket .ticketZoom .attributeBar button,
+#app.geimser-route-ticket .ticketZoom .attributeBar [role="button"],
+#app.geimser-route-ticket .ticketZoom .attributeBar .btn,
+#app.geimser-route-ticket .ticketZoom .attributeBar .icon,
+#app.geimser-route-ticket .ticketZoom .attributeBar [class*="icon"],
+#app.geimser-route-ticket .ticketZoom .attributeBar [class*="Icon"] {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attributeBar svg,
+#app.geimser-route-ticket .ticketZoom .attributeBar svg use,
+#app.geimser-route-ticket .ticketZoom .attributeBar svg path {
+  color: #f8fafc !important;
+  fill: #f8fafc !important;
+  stroke: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attributeBar a:hover,
+#app.geimser-route-ticket .ticketZoom .attributeBar button:hover,
+#app.geimser-route-ticket .ticketZoom .attributeBar [role="button"]:hover,
+#app.geimser-route-ticket .ticketZoom .attributeBar .is-active,
+#app.geimser-route-ticket .ticketZoom .attributeBar .active {
+  background: #334155 !important;
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attributeBar .badge,
+#app.geimser-route-ticket .ticketZoom .attributeBar [class*="counter"],
+#app.geimser-route-ticket .ticketZoom .attributeBar [class*="Counter"] {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: #172033 !important;
+  -webkit-text-fill-color: #172033 !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar-tab {
+  background: #333438 !important;
+  background-color: #333438 !important;
+  border-color: #454b55 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar-tab *,
+#app.geimser-route-ticket .tabsSidebar-tab .icon,
+#app.geimser-route-ticket .tabsSidebar-tab [class*="icon"],
+#app.geimser-route-ticket .tabsSidebar-tab [class*="Icon"] {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar-tab svg,
+#app.geimser-route-ticket .tabsSidebar-tab svg use,
+#app.geimser-route-ticket .tabsSidebar-tab svg path {
+  color: #f8fafc !important;
+  fill: #f8fafc !important;
+  stroke: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar-tab:hover,
+#app.geimser-route-ticket .tabsSidebar-tab.active,
+#app.geimser-route-ticket .tabsSidebar-tab.is-active {
+  background: #24518a !important;
+  background-color: #24518a !important;
+  color: #ffffff !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar-tab .badge,
+#app.geimser-route-ticket .tabsSidebar-tab .tabsSidebar-tab-count {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: #172033 !important;
+  -webkit-text-fill-color: #172033 !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar,
+#app.geimser-route-ticket .ticketZoom .tabsSidebar {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-left-color: #d8e0ea !important;
+  color: #182230 !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar > .sidebar .sidebar-header,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header {
+  background: #24518a !important;
+  background-color: #24518a !important;
+  border-color: #35669f !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-headline,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-headline *,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions *,
+#app.geimser-route-ticket .tabsSidebar .tabsSidebar-close,
+#app.geimser-route-ticket .tabsSidebar .tabsSidebar-close * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions .dropdown,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions .dropdown-toggle,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions #userAction,
+#app.geimser-route-ticket .tabsSidebar .tabsSidebar-close {
+  background: #24518a !important;
+  background-color: #24518a !important;
+  border-color: #35669f !important;
+  box-shadow: none !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions .dropdown-toggle:hover,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions .dropdown-toggle:focus,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions .dropdown.open > .dropdown-toggle,
+#app.geimser-route-ticket .tabsSidebar .tabsSidebar-close:hover {
+  background: #1d4477 !important;
+  background-color: #1d4477 !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions .dropdown-menu,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-actions .dropdown-menu * {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar .formGroup-label,
+#app.geimser-route-ticket .tabsSidebar .formGroup-label *,
+#app.geimser-route-ticket .tabsSidebar label,
+#app.geimser-route-ticket .tabsSidebar label *,
+#app.geimser-route-ticket .tabsSidebar .text-muted {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar input,
+#app.geimser-route-ticket .tabsSidebar select,
+#app.geimser-route-ticket .tabsSidebar textarea,
+#app.geimser-route-ticket .tabsSidebar .form-control {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  opacity: 1 !important;
+}
+
+#app.geimser-route-ticket .tabsSidebar input::placeholder,
+#app.geimser-route-ticket .tabsSidebar textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .articleNew,
+#app.geimser-route-ticket .ticketZoom .article-new,
+#app.geimser-route-ticket .ticketZoom .js-articleNew,
+#app.geimser-route-ticket .ticketZoom [class*="articleNew"],
+#app.geimser-route-ticket .ticketZoom [class*="ArticleNew"],
+#app.geimser-route-ticket .ticketZoom .js-writeArea {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #b8c5d4 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+  color: #111827 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .articleNewEdit-body,
+#app.geimser-route-ticket .ticketZoom .js-textarea.richtext-content {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  caret-color: #0057a8 !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  min-height: 120px !important;
+  padding: 12px !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom [contenteditable="true"],
+#app.geimser-route-ticket .ticketZoom .js-writeArea [contenteditable="true"],
+#app.geimser-route-ticket .ticketZoom .richtext,
+#app.geimser-route-ticket .ticketZoom .rich-text,
+#app.geimser-route-ticket .ticketZoom .ProseMirror {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  caret-color: #0057a8 !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  min-height: 120px !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom [contenteditable="true"] *,
+#app.geimser-route-ticket .ticketZoom .richtext *,
+#app.geimser-route-ticket .ticketZoom .rich-text *,
+#app.geimser-route-ticket .ticketZoom .ProseMirror * {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom [contenteditable="true"][data-placeholder]::before,
+#app.geimser-route-ticket .ticketZoom [contenteditable="true"]:empty::before,
+#app.geimser-route-ticket .ticketZoom .ProseMirror p.is-editor-empty:first-child::before {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .articleNew .toolbar,
+#app.geimser-route-ticket .ticketZoom .article-new .toolbar,
+#app.geimser-route-ticket .ticketZoom .js-articleNew .toolbar,
+#app.geimser-route-ticket .ticketZoom [class*="articleNew"] [class*="toolbar"],
+#app.geimser-route-ticket .ticketZoom [class*="ArticleNew"] [class*="Toolbar"],
+#app.geimser-route-ticket .ticketZoom .js-writeArea [class*="toolbar"] {
+  background: #eef3f8 !important;
+  background-color: #eef3f8 !important;
+  border-color: #cbd5e1 !important;
+  color: #1f2937 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .articleNew .toolbar *,
+#app.geimser-route-ticket .ticketZoom .article-new .toolbar *,
+#app.geimser-route-ticket .ticketZoom .js-articleNew .toolbar *,
+#app.geimser-route-ticket .ticketZoom [class*="articleNew"] [class*="toolbar"] *,
+#app.geimser-route-ticket .ticketZoom [class*="ArticleNew"] [class*="Toolbar"] *,
+#app.geimser-route-ticket .ticketZoom .js-writeArea [class*="toolbar"] * {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attachmentPlaceholder,
+#app.geimser-route-ticket .ticketZoom [class*="attachmentPlaceholder"] {
+  box-sizing: border-box !important;
+  clear: both !important;
+  color: #334155 !important;
+  margin: 0 !important;
+  min-height: 36px !important;
+  padding: 8px 12px !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-attachment {
+  align-items: center !important;
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-top: 1px solid #d8e0ea !important;
+  box-sizing: border-box !important;
+  color: #334155 !important;
+  min-height: 42px !important;
+  position: relative !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attachmentPlaceholder-hint,
+#app.geimser-route-ticket .ticketZoom .attachmentPlaceholder-label {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attachmentPlaceholder-inputHolder {
+  position: relative !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .attachmentPlaceholder-inputHolder input[type="file"] {
+  cursor: pointer !important;
+  height: 100% !important;
+  inset: 0 !important;
+  max-width: 100% !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  width: 100% !important;
+}
