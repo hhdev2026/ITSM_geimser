@@ -5906,16 +5906,32 @@ a:hover,
 }
 
 #app.geimser-route-ticket .ticketZoom {
-  --geimser-ticket-thread-width: 100%;
+  --geimser-ticket-card-width: min(1280px, calc(100% - 64px));
 }
 
 #app.geimser-route-ticket .ticketZoom .ticket-article,
 #app.geimser-route-ticket .ticketZoom .article-new {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #dbe3ec !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.08) !important;
   box-sizing: border-box !important;
   margin-left: auto !important;
   margin-right: auto !important;
-  max-width: var(--geimser-ticket-thread-width) !important;
-  width: var(--geimser-ticket-thread-width) !important;
+  max-width: var(--geimser-ticket-card-width) !important;
+  overflow: visible !important;
+  width: var(--geimser-ticket-card-width) !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .ticket-article {
+  margin-bottom: 16px !important;
+  padding: 0 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-new {
+  margin-top: 0 !important;
+  padding: 0 !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .ticket-article > .ticket-article-item,
@@ -5936,6 +5952,12 @@ a:hover,
   width: 100% !important;
 }
 
+@media (max-width: 900px) {
+  #app.geimser-route-ticket .ticketZoom {
+    --geimser-ticket-card-width: calc(100% - 32px);
+  }
+}
+
 #app.geimser-route-ticket .ticketZoom .js-writeArea {
   background: #ffffff !important;
   background-color: #ffffff !important;
@@ -5943,13 +5965,6 @@ a:hover,
   border-radius: 6px !important;
   box-shadow: none !important;
   color: #172033 !important;
-}
-
-#app.geimser-route-ticket .ticketZoom .article-new {
-  background: transparent !important;
-  background-color: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .article-new .article-add,
@@ -5971,6 +5986,7 @@ a:hover,
   align-items: center !important;
   display: flex !important;
   justify-content: space-around !important;
+  min-height: 42px !important;
   padding-left: 0 !important;
   padding-right: 0 !important;
 }
@@ -5995,7 +6011,8 @@ a:hover,
 #app.geimser-route-ticket .ticketZoom .textBubble.js-writeArea {
   display: flex !important;
   flex-direction: column !important;
-  border: 1px solid #cbd5e1 !important;
+  border: 0 !important;
+  border-radius: 0 0 8px 8px !important;
   box-shadow: none !important;
   outline: 0 !important;
   overflow: hidden !important;
