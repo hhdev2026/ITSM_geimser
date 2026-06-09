@@ -6008,6 +6008,40 @@ a:hover,
   white-space: nowrap !important;
 }
 
+#app.geimser-route-ticket .ticketZoom .ticket-article,
+#app.geimser-route-ticket .ticketZoom .ticket-article *,
+#app.geimser-route-ticket .ticketZoom .ticket-article-item,
+#app.geimser-route-ticket .ticketZoom .ticket-article-item *,
+#app.geimser-route-ticket .ticketZoom .article-header,
+#app.geimser-route-ticket .ticketZoom .article-header *,
+#app.geimser-route-ticket .ticketZoom .article-meta,
+#app.geimser-route-ticket .ticketZoom .article-meta * {
+  color: #172033 !important;
+  -webkit-text-fill-color: #172033 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .ticket-article a,
+#app.geimser-route-ticket .ticketZoom .ticket-article a *,
+#app.geimser-route-ticket .ticketZoom .ticket-article .text-muted,
+#app.geimser-route-ticket .ticketZoom .ticket-article .text-muted *,
+#app.geimser-route-ticket .ticketZoom .ticket-article [class*="muted"],
+#app.geimser-route-ticket .ticketZoom .ticket-article [class*="muted"] *,
+#app.geimser-route-ticket .ticketZoom .ticket-article [class*="secondary"],
+#app.geimser-route-ticket .ticketZoom .ticket-article [class*="secondary"] * {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-subject,
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-subject *,
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-content,
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-content * {
+  color: #172033 !important;
+  -webkit-text-fill-color: #172033 !important;
+}
+
 #app.geimser-route-ticket .ticketZoom .textBubble.js-writeArea {
   display: flex !important;
   flex-direction: column !important;
