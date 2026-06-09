@@ -29,6 +29,10 @@ reject_any() {
 
 reject '#app[[:space:]]+\.content:has\(h1\)' branding/geimser.css \
   'No se debe cambiar el layout de todas las vistas que contienen un titulo.'
+reject '^[[:space:]]*\.sidebar,[[:space:]]*$' branding/geimser.css \
+  'La clase .sidebar es compartida por Zammad; solo se deben estilizar sidebars con contexto de ruta o .geimser-nav-surface.'
+reject '#app\.geimser-route-ticket[[:space:]]+\.ticketZoom[[:space:]]+\[contenteditable="true"\][[:space:]]*,' branding/geimser.css \
+  'El estilo del editor debe quedar dentro de .js-writeArea para no deformar el titulo editable del ticket.'
 reject '^[[:space:]]*normalizeSidebarFooter\(\);' branding/geimser.js \
   'No se deben clasificar footers por coordenadas.'
 reject '^[[:space:]]*styleSidebarDockControls\(\);' branding/geimser.js \

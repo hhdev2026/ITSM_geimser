@@ -497,34 +497,6 @@
       });
     }
 
-    if (app.classList.contains("geimser-route-ticket")) {
-      Array.from(app.querySelectorAll(".scrollPageHeader, .scrollPageHeader *, .ticketZoom .scrollPageHeader, .ticketZoom .scrollPageHeader *")).forEach(function (el) {
-        el.style.setProperty("color", "#e9f1f8", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-
-      Array.from(app.querySelectorAll(".tabsSidebar .sidebar-header-headline, .tabsSidebar label, .tabsSidebar label *, .tabsSidebar .text-muted, .tabsSidebar .list-item-name, .tabsSidebar .list-item-name *, .tabsSidebar .js-tag, .tabsSidebar .js-tag *")).forEach(function (el) {
-        el.style.setProperty("color", "#e9f1f8", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-
-      Array.from(app.querySelectorAll(".geimser-ticket-remote-action, .geimser-ticket-remote-action *")).forEach(function (el) {
-        el.style.setProperty("color", "#ffffff", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-
-      Array.from(app.querySelectorAll(".ticket-number-copy-header, .ticket-number-copy-header *, .ticket-number, .dropdown--actions, .dropdown--actions *, .js-secondaryActionButtonLabel")).forEach(function (el) {
-        el.style.setProperty("background", "#f5f7fb", "important");
-        el.style.setProperty("background-color", "#f5f7fb", "important");
-        el.style.setProperty("color", "#111827", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-    }
-
     if (app.classList.contains("geimser-route-ticket-create")) {
       Array.from(app.querySelectorAll(".tabs.type-tabs, .tabs.tabs-wide, .tabs.type-tabs *, .tabs.tabs-wide *, .tabs .tab, .tabs .tab *")).forEach(function (el) {
         var active = Boolean(el.matches(".tab.active, .tab.is-active") || el.closest(".tab.active, .tab.is-active"));
@@ -552,36 +524,46 @@
     var app = document.querySelector("#app");
     if (!app || !app.classList.contains("geimser-route-ticket")) return;
 
-    Array.from(app.querySelectorAll(".ticketZoom .attributeBar, .ticketZoom .attributeBar *")).forEach(function (el) {
-      el.style.setProperty("color", "#e9f1f8", "important");
-      el.style.setProperty("text-shadow", "none", "important");
+    Array.from(app.querySelectorAll(
+      ".scrollPageHeader, .scrollPageHeader *, " +
+      ".tabsSidebar .sidebar-header, .tabsSidebar .sidebar-header *, " +
+      ".tabsSidebar label, .tabsSidebar label *, .tabsSidebar .text-muted, " +
+      ".tabsSidebar .list-item-name, .tabsSidebar .list-item-name *, " +
+      ".tabsSidebar .js-tag, .tabsSidebar .js-tag *, " +
+      ".attributeBar, .attributeBar *, " +
+      ".ticket-title-update, .js-objectTitle, " +
+      ".textBubble.js-writeArea, .textBubble.js-writeArea *, " +
+      ".ticket-number-copy-header, .ticket-number-copy-header *, " +
+      ".ticket-number, .dropdown--actions, .dropdown--actions *, " +
+      ".js-secondaryActionButtonLabel, .geimser-ticket-remote-action, " +
+      ".geimser-ticket-remote-action *"
+    )).forEach(function (el) {
+      if (!el.style || typeof el.style.removeProperty !== "function") return;
+      ["background", "background-color", "color", "-webkit-text-fill-color", "text-shadow"].forEach(function (property) {
+        el.style.removeProperty(property);
+      });
     });
 
-    Array.from(app.querySelectorAll(".ticketZoom .attributeBar .btn--primary, .ticketZoom .attributeBar .btn-primary, .ticketZoom .attributeBar button[type='submit']")).forEach(function (el) {
-      el.style.setProperty("background", "linear-gradient(160deg, #0067c0 0%, #0057a8 100%)", "important");
-      el.style.setProperty("background-color", "#0057a8", "important");
-      el.style.setProperty("color", "#ffffff", "important");
+    Array.from(app.querySelectorAll(".ticket-title-update, .js-objectTitle")).forEach(function (el) {
+      if (!el.style || typeof el.style.removeProperty !== "function") return;
+      ["border", "border-color", "box-shadow", "min-height", "padding"].forEach(function (property) {
+        el.style.removeProperty(property);
+      });
     });
 
-    Array.from(app.querySelectorAll(".ticketZoom .tabsSidebar-tab, .ticketZoom .tabsSidebar-tab-count, .ticketZoom .formGroup-label, .ticketZoom .formGroup-label *, .ticketZoom .text-muted, .ticketZoom [class*='sidebar'] label, .ticketZoom [class*='sidebar'] .formGroup-label, .ticketZoom [class*='sidebar'] [class*='label'], .ticketZoom [class*='sidebar'] [class*='Label']")).forEach(function (el) {
-      el.style.setProperty("color", "#e9f1f8", "important");
-      el.style.setProperty("text-shadow", "none", "important");
+    Array.from(app.querySelectorAll(".textBubble.js-writeArea")).forEach(function (el) {
+      if (!el.style || typeof el.style.removeProperty !== "function") return;
+      ["border", "border-color", "box-shadow"].forEach(function (property) {
+        el.style.removeProperty(property);
+      });
     });
 
-    Array.from(app.querySelectorAll(".ticketZoom .attachmentPlaceholder-label, .ticketZoom .attachmentPlaceholder-hint")).forEach(function (el) {
-      el.style.setProperty("color", "#111827", "important");
-    });
-
-    Array.from(app.querySelectorAll(".tabsSidebar .sidebar-header-headline, .tabsSidebar .tabsSidebar-tab-count, .tabsSidebar .formGroup-label, .tabsSidebar .formGroup-label *, .tabsSidebar .text-muted, .tabsSidebar label, .tabsSidebar label *, .tabsSidebar .list-item-name, .tabsSidebar .list-item-name *, .tabsSidebar .js-tag, .tabsSidebar .js-tag *")).forEach(function (el) {
-      el.style.setProperty("color", "#e9f1f8", "important");
-      el.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
-      el.style.setProperty("text-shadow", "none", "important");
-    });
-
-    Array.from(app.querySelectorAll(".geimser-ticket-remote-action, .geimser-ticket-remote-action *")).forEach(function (el) {
-      el.style.setProperty("color", "#ffffff", "important");
-      el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
-      el.style.setProperty("text-shadow", "none", "important");
+    Array.from(app.querySelectorAll(".article-actions .article-action")).forEach(function (action) {
+      var label = action.querySelector(".article-action-name");
+      var text = label ? (label.textContent || "").replace(/\s+/g, " ").trim() : "";
+      if (!text) return;
+      action.setAttribute("aria-label", text);
+      action.setAttribute("title", text);
     });
   }
 
