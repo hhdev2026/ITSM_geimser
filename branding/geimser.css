@@ -5930,8 +5930,12 @@ a:hover,
 }
 
 #app.geimser-route-ticket .ticketZoom .article-new {
+  margin-bottom: 84px !important;
   margin-top: 0 !important;
+  min-height: 268px !important;
+  overflow: visible !important;
   padding: 0 !important;
+  position: relative !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .ticket-article > .ticket-article-item,
@@ -5973,6 +5977,8 @@ a:hover,
   background-color: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
+  min-height: 220px !important;
+  overflow: visible !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .article-new .internal-border {
@@ -5980,6 +5986,32 @@ a:hover,
   background-color: transparent !important;
   background-image: none !important;
   border-radius: 0 !important;
+  min-height: 220px !important;
+  overflow: visible !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-new .editControls {
+  align-items: center !important;
+  background: #f7f9fc !important;
+  background-color: #f7f9fc !important;
+  border-bottom: 1px solid #dbe3ec !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  gap: 8px !important;
+  left: auto !important;
+  min-height: 48px !important;
+  padding: 6px 12px !important;
+  position: static !important;
+  top: auto !important;
+  width: 100% !important;
+  z-index: 4 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .article-new .editControls button,
+#app.geimser-route-ticket .ticketZoom .article-new .editControls [role="button"] {
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  position: static !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .article-actions {
@@ -6097,8 +6129,9 @@ a:hover,
   border: 0 !important;
   border-radius: 0 0 8px 8px !important;
   box-shadow: none !important;
+  min-height: 210px !important;
   outline: 0 !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 #app.geimser-route-ticket .ticketZoom .textBubble.js-writeArea:focus-within {
@@ -6117,7 +6150,8 @@ a:hover,
   color: #172033 !important;
   flex: 1 1 auto !important;
   -webkit-text-fill-color: #172033 !important;
-  min-height: 104px !important;
+  min-height: 145px !important;
+  overflow: auto !important;
   padding: 12px !important;
 }
 
@@ -6130,7 +6164,8 @@ a:hover,
   color: #475569 !important;
   display: flex !important;
   flex: 0 0 auto !important;
-  min-height: 42px !important;
+  min-height: 48px !important;
+  overflow: visible !important;
   position: static !important;
   width: 100% !important;
 }
@@ -6142,8 +6177,9 @@ a:hover,
   gap: 8px !important;
   justify-content: flex-start !important;
   margin: 0 !important;
-  min-height: 0 !important;
-  padding: 8px 12px !important;
+  min-height: 48px !important;
+  overflow: visible !important;
+  padding: 10px 14px !important;
   position: relative !important;
   width: 100% !important;
 }
@@ -6156,6 +6192,7 @@ a:hover,
   line-height: 1.3 !important;
   margin: 0 !important;
   min-width: 0 !important;
+  overflow: visible !important;
   padding: 0 !important;
   position: static !important;
   width: auto !important;
@@ -6176,7 +6213,12 @@ a:hover,
   background: #ffffff !important;
   background-color: #ffffff !important;
   border-top: 1px solid #dbe3ec !important;
+  bottom: 0 !important;
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.12) !important;
   color: #334155 !important;
+  min-height: 64px !important;
+  position: sticky !important;
+  z-index: 120 !important;
 }
 
 #app.geimser-route-ticket .attributeBar *,
@@ -6193,6 +6235,26 @@ a:hover,
   -webkit-text-fill-color: #ffffff !important;
 }
 
+#app.geimser-route-ticket .attributeBar .js-submit,
+#app.geimser-route-ticket .attributeBar .btn--primary,
+#app.geimser-route-ticket .attributeBar button[type="submit"] {
+  background: #1f5fa8 !important;
+  background-color: #1f5fa8 !important;
+  border: 1px solid #1a518f !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  display: block !important;
+  min-height: 40px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#app.geimser-route-ticket .main.tabsSidebar-sidebarSpacer {
+  padding-bottom: 84px !important;
+  scroll-padding-bottom: 84px !important;
+}
+
 @media (max-width: 1100px) {
   #app.geimser-route-ticket .ticketZoom .article-actions .article-action-name {
     clip: rect(0 0 0 0) !important;
@@ -6203,4 +6265,5 @@ a:hover,
     white-space: nowrap !important;
     width: 1px !important;
   }
+
 }

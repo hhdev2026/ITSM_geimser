@@ -565,6 +565,18 @@
       action.setAttribute("aria-label", text);
       action.setAttribute("title", text);
     });
+
+    var submit = app.querySelector(".attributeBar .js-submit");
+    if (submit) {
+      var recipientInput = app.querySelector(".article-new input[name='to']");
+      var recipientRect = recipientInput ? recipientInput.getBoundingClientRect() : null;
+      var isEmailReply = Boolean(recipientRect && recipientRect.width > 0 && recipientRect.height > 0);
+      submit.textContent = isEmailReply ? "Enviar y actualizar" : "Guardar actualización";
+      submit.setAttribute(
+        "title",
+        isEmailReply ? "Enviar la respuesta por correo y actualizar el ticket" : "Guardar la nota y actualizar el ticket"
+      );
+    }
   }
 
   function normalizeProfileContrast() {
