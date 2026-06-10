@@ -91,6 +91,11 @@ if ! rg -q 'ensure_env_secret MESH_LOGIN_KEY 80' scripts/install_geimser.sh; the
   failures=$((failures + 1))
 fi
 
+reject 'node_id\.to_s\.split\(' branding/initializers/geimser_mesh_cmdb.rb \
+  'El enlace de escritorio Mesh debe conservar el NodeID completo; recortarlo deja el visor embebido en negro.'
+reject 'node_token !~ /\\A\[A-Za-z0-9@\\$_=-\]\+\\z/' branding/controllers/geimser_mesh_login_controller.rb \
+  'El login Mesh debe aceptar el prefijo node// del NodeID completo.'
+
 node --check branding/geimser.js
 ruby -c scripts/configure_geimser.rb >/dev/null
 ruby -c branding/initializers/geimser_mesh_cmdb.rb >/dev/null
