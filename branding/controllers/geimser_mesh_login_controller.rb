@@ -132,12 +132,12 @@ class GeimserMeshLoginController < ApplicationController
     return URI.parse('/meshagents') if path == '/meshagents'
     return URI.parse('/') if path != '/'
 
-    query = URI.decode_www_form(uri.query.to_s).to_h.slice('gotonode', 'viewmode', 'hide', 'geimserautoconnect')
-    node_token = query['gotonode'].to_s
+    query = URI.decode_www_form(uri.query.to_s).to_h.slice('node', 'gotonode', 'viewmode', 'hide', 'geimserautoconnect')
+    node_token = query['node'].presence || query['gotonode'].to_s
     return URI.parse('/') if node_token.blank? || node_token !~ %r{\A(?:node//)?[A-Za-z0-9@$_=-]+\z}
 
     URI.parse("/?#{URI.encode_www_form(
-      'gotonode' => node_token,
+      'node' => node_token,
       'viewmode' => '11',
       'hide' => '15',
       'geimserautoconnect' => '1',

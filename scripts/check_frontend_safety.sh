@@ -95,6 +95,14 @@ reject 'node_id\.to_s\.split\(' branding/initializers/geimser_mesh_cmdb.rb \
   'El enlace de escritorio Mesh debe conservar el NodeID completo; recortarlo deja el visor embebido en negro.'
 reject 'node_token !~ /\\A\[A-Za-z0-9@\\$_=-\]\+\\z/' branding/controllers/geimser_mesh_login_controller.rb \
   'El login Mesh debe aceptar el prefijo node// del NodeID completo.'
+if ! rg -q "'node' => node_token" branding/initializers/geimser_mesh_cmdb.rb; then
+  printf 'ERROR: La CMDB Mesh debe generar el parametro node para viewmode=11.\n' >&2
+  failures=$((failures + 1))
+fi
+if ! rg -q "'node' => node_token" branding/controllers/geimser_mesh_login_controller.rb; then
+  printf 'ERROR: El login Mesh debe reenviar el parametro node para viewmode=11.\n' >&2
+  failures=$((failures + 1))
+fi
 
 node --check branding/geimser.js
 ruby -c scripts/configure_geimser.rb >/dev/null
