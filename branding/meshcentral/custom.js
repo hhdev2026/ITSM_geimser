@@ -8,6 +8,10 @@
 
     try {
       var connectButton = document.getElementById("connectbutton1");
+      if (typeof go === "function" && typeof xxcurrentView !== "undefined" && xxcurrentView !== 11) {
+        go(11);
+      }
+
       var desktopReady = typeof currentNode !== "undefined" &&
         currentNode &&
         (currentNode.conn & 1) &&
@@ -15,13 +19,12 @@
         (currentNode.agent.caps & 1) &&
         typeof desktop !== "undefined" &&
         desktop === null &&
-        typeof connectDesktop === "function" &&
         connectButton &&
         !connectButton.disabled;
 
       if (desktopReady) {
         window.clearInterval(timer);
-        connectDesktop(null, 3);
+        connectButton.click();
       } else if (attempts >= 120) {
         window.clearInterval(timer);
       }

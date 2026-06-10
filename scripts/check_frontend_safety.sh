@@ -99,10 +99,21 @@ if ! rg -q "'gotonode' => node_token" branding/initializers/geimser_mesh_cmdb.rb
   printf 'ERROR: El embed de escritorio Mesh debe usar gotonode con viewmode=11.\n' >&2
   failures=$((failures + 1))
 fi
-if ! rg -q 'connectDesktop\(null, 3\)' branding/meshcentral/custom.js; then
-  printf 'ERROR: El autoconnect Mesh debe usar el tipo de conexion normal del boton Desktop.\n' >&2
+if ! rg -q "'hide' => '31'" branding/initializers/geimser_mesh_cmdb.rb branding/controllers/geimser_mesh_login_controller.rb; then
+  printf 'ERROR: El embed de escritorio Mesh debe ocultar toda la UI de Mesh con hide=31.\n' >&2
   failures=$((failures + 1))
 fi
+if ! rg -q 'connectButton\.click\(\)' branding/meshcentral/custom.js; then
+  printf 'ERROR: El autoconnect Mesh debe activar el boton nativo Desktop Connect.\n' >&2
+  failures=$((failures + 1))
+fi
+if ! rg -q 'go\(11\)' branding/meshcentral/custom.js; then
+  printf 'ERROR: El autoconnect Mesh debe forzar la vista Desktop antes de conectar.\n' >&2
+  failures=$((failures + 1))
+fi
+reject_any 'geimser-remote-frame[^}]*transform:[^}]|top:[[:space:]]*-46px' \
+  'El iframe de toma remota no debe escalarse ni correrse bajo una barra superior.' \
+  branding/geimser.css
 
 node --check branding/geimser.js
 ruby -c scripts/configure_geimser.rb >/dev/null

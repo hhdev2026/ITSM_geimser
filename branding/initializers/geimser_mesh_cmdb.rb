@@ -253,7 +253,7 @@ class GeimserMeshCmdb
         next_path = "/?#{URI.encode_www_form(
           'gotonode' => node_token,
           'viewmode' => '11',
-          'hide' => '15',
+          'hide' => '31',
           'geimserautoconnect' => '1',
         )}"
       end
