@@ -107,10 +107,20 @@ if ! rg -q 'connectButton\.click\(\)' branding/meshcentral/custom.js; then
   printf 'ERROR: El autoconnect Mesh debe activar el boton nativo Desktop Connect.\n' >&2
   failures=$((failures + 1))
 fi
+if ! rg -q 'disconnectButton\.click\(\)' branding/meshcentral/custom.js; then
+  printf 'ERROR: El autoconnect Mesh debe cortar y reintentar sesiones Desktop fallidas.\n' >&2
+  failures=$((failures + 1))
+fi
 if ! rg -q 'go\(11\)' branding/meshcentral/custom.js; then
   printf 'ERROR: El autoconnect Mesh debe forzar la vista Desktop antes de conectar.\n' >&2
   failures=$((failures + 1))
 fi
+if ! rg -q 'window\.geimserMeshAutoconnect' branding/meshcentral/custom.js; then
+  printf 'ERROR: El autoconnect Mesh debe exponer diagnostico en window.geimserMeshAutoconnect.\n' >&2
+  failures=$((failures + 1))
+fi
+reject 'customFiles[[:space:]]*=' scripts/configure_meshcentral.sh \
+  'MeshCentral ya carga public/scripts/custom.js por defecto; registrarlo en customFiles duplica el autoconnect.'
 reject_any 'geimser-remote-frame[^}]*transform:[^}]|top:[[:space:]]*-46px' \
   'El iframe de toma remota no debe escalarse ni correrse bajo una barra superior.' \
   branding/geimser.css

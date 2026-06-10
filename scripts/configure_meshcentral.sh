@@ -77,12 +77,12 @@ config.domains[''].newAccounts = process.env.MESH_ALLOW_NEW_ACCOUNTS === 'true';
 config.domains[''].title = title;
 config.domains[''].title2 = title2;
 config.domains[''].certUrl = 'https://' + host;
-config.domains[''].customFiles = {
-  geimser: {
-    js: ['custom.js'],
-    scope: ['default'],
-  },
-};
+if (config.domains[''].customFiles && config.domains[''].customFiles.geimser) {
+  delete config.domains[''].customFiles.geimser;
+  if (Object.keys(config.domains[''].customFiles).length === 0) {
+    delete config.domains[''].customFiles;
+  }
+}
 
 fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 fs.mkdirSync('/opt/meshcentral/meshcentral-web/public/scripts', { recursive: true });
