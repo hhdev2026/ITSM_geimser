@@ -21,11 +21,12 @@ MESH_WEBRTC="${MESH_WEBRTC:-$(load_env_value MESH_WEBRTC)}"
 MESH_LOGIN_KEY="${MESH_LOGIN_KEY:-$(load_env_value MESH_LOGIN_KEY)}"
 MESH_TITLE="${MESH_TITLE:-$(load_env_value MESH_TITLE)}"
 MESH_TITLE2="${MESH_TITLE2:-$(load_env_value MESH_TITLE2)}"
+CUSTOM_SCRIPT_B64="$(base64 < branding/meshcentral/custom.js | tr -d '\n')"
 
 MESH_HOSTNAME="${MESH_HOSTNAME:-3.227.213.30}"
 MESH_TITLE="${MESH_TITLE:-Geimser ITSM}"
 MESH_TITLE2="${MESH_TITLE2:-Centro remoto}"
-export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC MESH_LOGIN_KEY MESH_TITLE MESH_TITLE2
+export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC MESH_LOGIN_KEY MESH_TITLE MESH_TITLE2 CUSTOM_SCRIPT_B64
 
 if command -v docker-compose >/dev/null 2>&1; then
   COMPOSE=(docker-compose)
@@ -45,6 +46,7 @@ const host = process.env.MESH_HOSTNAME || '${MESH_HOSTNAME}';
 const loginKey = (process.env.MESH_LOGIN_KEY || '').trim();
 const title = (process.env.MESH_TITLE || '').trim();
 const title2 = (process.env.MESH_TITLE2 || '').trim();
+const customScript = Buffer.from(process.env.CUSTOM_SCRIPT_B64 || '', 'base64').toString('utf8');
 
 const config = fs.existsSync(configPath)
   ? JSON.parse(fs.readFileSync(configPath, 'utf8'))
@@ -75,8 +77,16 @@ config.domains[''].newAccounts = process.env.MESH_ALLOW_NEW_ACCOUNTS === 'true';
 config.domains[''].title = title;
 config.domains[''].title2 = title2;
 config.domains[''].certUrl = 'https://' + host;
+config.domains[''].customFiles = {
+  geimser: {
+    js: ['custom.js'],
+    scope: ['default'],
+  },
+};
 
 fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+fs.mkdirSync('/opt/meshcentral/meshcentral-web/public/scripts', { recursive: true });
+fs.writeFileSync('/opt/meshcentral/meshcentral-web/public/scripts/custom.js', customScript);
 console.log('MeshCentral configurado para ' + host);
 NODE
 "

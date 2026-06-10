@@ -91,16 +91,16 @@ if ! rg -q 'ensure_env_secret MESH_LOGIN_KEY 80' scripts/install_geimser.sh; the
   failures=$((failures + 1))
 fi
 
-reject 'node_id\.to_s\.split\(' branding/initializers/geimser_mesh_cmdb.rb \
-  'El enlace de escritorio Mesh debe conservar el NodeID completo; recortarlo deja el visor embebido en negro.'
-reject 'node_token !~ /\\A\[A-Za-z0-9@\\$_=-\]\+\\z/' branding/controllers/geimser_mesh_login_controller.rb \
-  'El login Mesh debe aceptar el prefijo node// del NodeID completo.'
-if ! rg -q "'node' => node_token" branding/initializers/geimser_mesh_cmdb.rb; then
-  printf 'ERROR: La CMDB Mesh debe generar el parametro node para viewmode=11.\n' >&2
+if ! rg -q "node_id\\.to_s\\.split\\('/', 3\\)\\.last" branding/initializers/geimser_mesh_cmdb.rb; then
+  printf 'ERROR: El enlace Mesh debe usar solo el token final del NodeID en gotonode.\n' >&2
   failures=$((failures + 1))
 fi
-if ! rg -q "'node' => node_token" branding/controllers/geimser_mesh_login_controller.rb; then
-  printf 'ERROR: El login Mesh debe reenviar el parametro node para viewmode=11.\n' >&2
+if ! rg -q "'gotonode' => node_token" branding/initializers/geimser_mesh_cmdb.rb branding/controllers/geimser_mesh_login_controller.rb; then
+  printf 'ERROR: El embed de escritorio Mesh debe usar gotonode con viewmode=11.\n' >&2
+  failures=$((failures + 1))
+fi
+if ! rg -q 'connectDesktop\(null, 3\)' branding/meshcentral/custom.js; then
+  printf 'ERROR: El autoconnect Mesh debe usar el tipo de conexion normal del boton Desktop.\n' >&2
   failures=$((failures + 1))
 fi
 

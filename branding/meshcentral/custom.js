@@ -21,7 +21,7 @@
 
       if (desktopReady) {
         window.clearInterval(timer);
-        connectDesktop(null, 1);
+        connectDesktop(null, 3);
       } else if (attempts >= 120) {
         window.clearInterval(timer);
       }

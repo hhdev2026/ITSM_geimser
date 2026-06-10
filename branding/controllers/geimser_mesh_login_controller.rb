@@ -133,11 +133,11 @@ class GeimserMeshLoginController < ApplicationController
     return URI.parse('/') if path != '/'
 
     query = URI.decode_www_form(uri.query.to_s).to_h.slice('node', 'gotonode', 'viewmode', 'hide', 'geimserautoconnect')
-    node_token = query['node'].presence || query['gotonode'].to_s
-    return URI.parse('/') if node_token.blank? || node_token !~ %r{\A(?:node//)?[A-Za-z0-9@$_=-]+\z}
+    node_token = query['gotonode'].presence || query['node'].to_s.split('/', 3).last
+    return URI.parse('/') if node_token.blank? || node_token !~ /\A[A-Za-z0-9@$_=-]+\z/
 
     URI.parse("/?#{URI.encode_www_form(
-      'node' => node_token,
+      'gotonode' => node_token,
       'viewmode' => '11',
       'hide' => '15',
       'geimserautoconnect' => '1',
