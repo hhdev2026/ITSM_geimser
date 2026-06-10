@@ -1433,11 +1433,15 @@
   }
 
   function meshDesktopSessionUrl(nodeId) {
-    var nodeToken = String(nodeId || "").split("/").filter(Boolean).pop() || "";
-    if (!/^[A-Za-z0-9@$_=-]+$/.test(nodeToken)) return meshLoginUrl("/");
+    var nodeValue = String(nodeId || "").trim();
+    if (!/^node\/\/[A-Za-z0-9@$_=-]+$/.test(nodeValue)) {
+      var nodeToken = nodeValue.split("/").filter(Boolean).pop() || "";
+      if (!/^[A-Za-z0-9@$_=-]+$/.test(nodeToken)) return meshLoginUrl("/");
+      nodeValue = "node//" + nodeToken;
+    }
 
     return meshLoginUrl("/?" + new URLSearchParams({
-      gotonode: nodeToken,
+      node: nodeValue,
       viewmode: "11",
       hide: "0",
       geimserautoconnect: "1"

@@ -247,11 +247,11 @@ class GeimserMeshCmdb
 
     def mesh_login_path_for(node_id)
       next_path = '/'
-      node_token = node_id.to_s.split('/', 3).last
+      node_value = node_id.to_s
 
-      if node_token.present?
+      if node_value.present?
         next_path = "/?#{URI.encode_www_form(
-          'gotonode' => node_token,
+          'node' => node_value,
           'viewmode' => '11',
           'hide' => '0',
           'geimserautoconnect' => '1',
