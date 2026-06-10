@@ -107,12 +107,12 @@ if ! rg -q 'connectButton\.click\(\)' branding/meshcentral/custom.js; then
   printf 'ERROR: El autoconnect Mesh debe activar el boton nativo Desktop Connect.\n' >&2
   failures=$((failures + 1))
 fi
-if ! rg -q 'disconnectButton\.click\(\)' branding/meshcentral/custom.js; then
-  printf 'ERROR: El autoconnect Mesh debe cortar y reintentar sesiones Desktop fallidas.\n' >&2
+if rg -q 'disconnectButton\.click\(\)|go\(11\)' branding/meshcentral/custom.js; then
+  printf 'ERROR: El autoconnect Mesh no debe secuestrar pestañas ni desconectar sesiones en loop.\n' >&2
   failures=$((failures + 1))
 fi
-if ! rg -q 'go\(11\)' branding/meshcentral/custom.js; then
-  printf 'ERROR: El autoconnect Mesh debe forzar la vista Desktop antes de conectar.\n' >&2
+if ! rg -q 'currentView === 11' branding/meshcentral/custom.js; then
+  printf 'ERROR: El autoconnect Mesh solo debe actuar cuando Mesh ya esta en vista Desktop.\n' >&2
   failures=$((failures + 1))
 fi
 if ! rg -q 'window\.geimserMeshAutoconnect' branding/meshcentral/custom.js; then
