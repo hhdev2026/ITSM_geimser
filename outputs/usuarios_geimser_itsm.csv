@@ -1,0 +1,45 @@
+reg,rut,nombre_completo,firstname,lastname,login,email,password,area,cargo,cliente,servicio,campana
+1,19290158-8,Dominique Danaee Encina Loyola,Dominique,Danaee Encina Loyola,d.encina@geimser.local,d.encina@geimser.local,leH*dBe5kbQWWm,OPERACIONES,Agente telefonico,Link Solution,Kovacs,Ventas
+2,19282157-6,Felipe Ignacio Bustos Aviles,Felipe,Ignacio Bustos Aviles,f.bustos@geimser.local,f.bustos@geimser.local,JuOVOYUQIB#im5,OPERACIONES,Agente telefonico,Link Solution,Kovacs,Ventas
+3,21135407-0,Catalina Antonia Muñoz Farias,Catalina,Antonia Muñoz Farias,c.munoz@geimser.local,c.munoz@geimser.local,dO2rDXmcETstn#,GERENCIA GENERAL,Secretaria,Geimser,Prever,Encuesta
+4,12251105-7,Paula Andrea Melelli Mabe,Paula,Andrea Melelli Mabe,p.melelli@geimser.local,p.melelli@geimser.local,t74pjJHK*8$zPT,RECURSOS HUMANOS,Jefe de Operaciones,Geimser,Geimser,Administrativo
+5,13109521-K,Laura Andrea Pincheira Herrera,Laura,Andrea Pincheira Herrera,l.pincheira@geimser.local,l.pincheira@geimser.local,$BGIZrATKWEwF2,GERENCIA GENERAL,Gerente General,Geimser,Geimser,Administrativo
+6,20159531-2,Matias Ignacio Duran Muñoz,Matias,Ignacio Duran Muñoz,m.duran@geimser.local,m.duran@geimser.local,3BMd&h!#B#Y0xk,TECNOLOGIA,Auxiliar Soporte y Mantenimiento,Geimser,Geimser,Administrativo
+7,16740837-0,Hugo Felipe Karol Hormazabal Caviedes,Hugo,Felipe Karol Hormazabal Caviedes,h.hormazabal@geimser.local,h.hormazabal@geimser.local,VAnSjE5l3$6dS#,DESARROLLO,Por definir,Geimser,Geimser,Administrativo
+8,14178931-7,Israel Alejandro Alvarez Huerta,Israel,Alejandro Alvarez Huerta,i.alvarez@geimser.local,i.alvarez@geimser.local,vrlO7hVt%b1?bG,TECNOLOGIA,Por definir,Geimser,Geimser,Administrativo
+10,16519792-5,Diego Ignacio Nuñez Mora,Diego,Ignacio Nuñez Mora,d.nunez@geimser.local,d.nunez@geimser.local,N9E#8w#b%JM?q8,TECNOLOGIA,Auxiliar Soporte y Mantenimiento,Geimser,Geimser,Administrativo
+11,20289346-5,Valentina Alejandra Rodriguez Pino,Valentina,Alejandra Rodriguez Pino,v.rodriguez@geimser.local,v.rodriguez@geimser.local,d*21Dz?uiWdfIR,OPERACIONES,Agente telefonico,Link Solution,Kovacs,Ventas
+12,13290927-K,Isabel Andrea Zamorano Campos,Isabel,Andrea Zamorano Campos,i.zamorano@geimser.local,i.zamorano@geimser.local,F$vN*Lwnm5%CDH,OPERACIONES,Agente telefonico,Geimser,Equifax,Ventas
+14,12126264-9,Julio Enrique Ugarte Gonzalez,Julio,Enrique Ugarte Gonzalez,j.ugarte@geimser.local,j.ugarte@geimser.local,57xK3ivQPq%L0c,OPERACIONES,Back Office,Geimser,Equifax Placa,Ventas
+15,22599288-6,Sophia Ignacia Muñoz Menchaca,Sophia,Ignacia Muñoz Menchaca,s.munoz@geimser.local,s.munoz@geimser.local,bLiG$UA4KGZHrE,OPERACIONES,Agente telefonico,Link Solution,Kovacs,Ventas
+16,28146547-3,Yurimar Karina Cedeño Romero,Yurimar,Karina Cedeño Romero,y.cedeno@geimser.local,y.cedeno@geimser.local,EWtrO#ovbs5nyL,OPERACIONES,Agente telefonico,Link Solution,Kovacs,Ventas
+17,11446074-5,Clara Ines Castillo Pradenas,Clara,Ines Castillo Pradenas,c.castillo@geimser.local,c.castillo@geimser.local,v?nVmbeW6r1o8*,RECURSOS HUMANOS,Auxiliar de Aseo,Geimser,Geimser,Administrativo
+18,9829534-8,Catherine Elena Gaete Tagle,Catherine,Elena Gaete Tagle,c.gaete@geimser.local,c.gaete@geimser.local,e4XA@6xrXP@m!N,OPERACIONES,Agente telefonico,Geimser,Equifax,Ventas
+20,11741458-2,Jenny Del Carmen Pozo Correa,Jenny,Del Carmen Pozo Correa,j.pozo@geimser.local,j.pozo@geimser.local,cSee#fi4UQFW%q,OPERACIONES,Agente telefonico,Geimser,Equifax,Ventas
+21,13261045-2,Andrea Soledad Zuñiga Bustos,Andrea,Soledad Zuñiga Bustos,a.zuniga@geimser.local,a.zuniga@geimser.local,$CViL5NR8fLnqA,OPERACIONES,Agente telefonico,Geimser,Equifax,Ventas
+23,22153370-4,Vicente Alonso Troncoso Niechi,Vicente,Alonso Troncoso Niechi,v.troncoso@geimser.local,v.troncoso@geimser.local,YK?ZrpvBiV*7qO,OPERACIONES,Tecnico Ofimatica,Braincorp,Proyecto Minsal,Recambio
+24,16944751-9,Elizabeth Carolina Duran Bravo,Elizabeth,Carolina Duran Bravo,e.duran@geimser.local,e.duran@geimser.local,$&sg3L4xNP5Zkq,OPERACIONES,Coordinador,Geimser,Equifax Placa,Ventas
+25,9473299-9,Marcela Liliana Mora Morales,Marcela,Liliana Mora Morales,m.mora@geimser.local,m.mora@geimser.local,!QOAvNIYu#7n&M,OPERACIONES,Agente telefonico,Geimser,Equifax Placa,Ventas
+26,18839132-K,Camila Andrea Guerra Pedrero,Camila,Andrea Guerra Pedrero,c.guerra@geimser.local,c.guerra@geimser.local,I*ESh0EL8mx!Yw,GERENCIA GENERAL,Comunity Manager,Geimser,Geimser,Administrativo
+27,16808442-0,Jose Miguel Sanhueza Villegas,Jose,Miguel Sanhueza Villegas,j.sanhueza@geimser.local,j.sanhueza@geimser.local,uW9MJ7c3z*Q0h?,OPERACIONES,Agente telefonico,Geimser,Equifax Placa,Ventas
+28,8863867-0,Vicente Jose Brito Leon,Vicente,Jose Brito Leon,v.brito@geimser.local,v.brito@geimser.local,BDIJzw0J?qz6&S,OPERACIONES,Agente telefonico,Geimser,Equifax Placa,Ventas
+29,17739499-8,Claudia Ester Peña Garces,Claudia,Ester Peña Garces,c.pena@geimser.local,c.pena@geimser.local,3vYCLiC@n1w2q$,OPERACIONES,Agente telefonico,Geimser,Equifax Placa,Ventas
+31,11695524-5,Marcelo Enrique Araneda Bravo,Marcelo,Enrique Araneda Bravo,m.araneda@geimser.local,m.araneda@geimser.local,ZBHX3K6$3SNzE&,OPERACIONES,Agente telefonico,Geimser,Equifax Placa,Ventas
+33,15699794-3,Angelica María Morales Morales,Angelica,María Morales Morales,a.morales@geimser.local,a.morales@geimser.local,6v?@KuejcqVtV?,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+34,19335916-7,Macarena Ester Zambrano Moyano,Macarena,Ester Zambrano Moyano,m.zambrano@geimser.local,m.zambrano@geimser.local,RH1@RWDBMIUBrf,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+35,12393971-9,Magdalena Del Carmen Ortiz Riveros,Magdalena,Del Carmen Ortiz Riveros,m.ortiz@geimser.local,m.ortiz@geimser.local,M90uz*V*CCX1nm,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+36,15488690-7,Barbara Cecilia Cordova Villarroel,Barbara,Cecilia Cordova Villarroel,b.cordova@geimser.local,b.cordova@geimser.local,FEWu3h9Y&vkq%L,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+37,13766015-6,Carol Angelinna Riquelme Arellano,Carol,Angelinna Riquelme Arellano,c.riquelme@geimser.local,c.riquelme@geimser.local,MDLD4eL?@JM1J&,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+38,22014716-9,Macarena Alejandra Bustos Sotelo,Macarena,Alejandra Bustos Sotelo,m.bustos@geimser.local,m.bustos@geimser.local,j@$ZORsQYke9v4,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+39,19506174-2,Valeska Alejandra Codoceo Reyes,Valeska,Alejandra Codoceo Reyes,v.codoceo@geimser.local,v.codoceo@geimser.local,4v4@s4a2DjUj0@,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+40,18513489-K,Caren Yamilet Astorga Machuca,Caren,Yamilet Astorga Machuca,c.astorga@geimser.local,c.astorga@geimser.local,9kL1j?1Sa5$O1n,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+41,18986881-2,Yisel Dayanka Rojas Nuñez,Yisel,Dayanka Rojas Nuñez,y.rojas@geimser.local,y.rojas@geimser.local,uFAte!lh950cSo,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+42,10693209-3,Maria Soledad Ocampo Leal,Maria,Soledad Ocampo Leal,m.ocampo@geimser.local,m.ocampo@geimser.local,PzDqmjKA@5tp*z,OPERACIONES,Consultora de belleza entrenadora,Geimser,Natura,Gestion y Adm. de pagos
+43,14122692-4,Andres Rodrigo Vildosola Castillo,Andres,Rodrigo Vildosola Castillo,a.vildosola@geimser.local,a.vildosola@geimser.local,q@ian51B@t?5#?,OPERACIONES,Agente telefonico,Geimser,Equifax Placa,Ventas
+44,18500746-4,Rodrigo Eduardo Figueroa Arancibia,Rodrigo,Eduardo Figueroa Arancibia,r.figueroa@geimser.local,r.figueroa@geimser.local,I%1vfLOFDq#ygU,OPERACIONES,Agente telefonico,Geimser,Equifax Placa,Ventas
+45,17576415-1,Ana Karina Morales Carmona,Ana,Karina Morales Carmona,a.morales2@geimser.local,a.morales2@geimser.local,BMUVS#Bvrw$6tH,OPERACIONES,Agente telefonico,Geimser,Equifax Placa,Ventas
+51,12869420-K,Wilma Carolina Santos Fuentes,Wilma,Carolina Santos Fuentes,w.santos@geimser.local,w.santos@geimser.local,oLzIr3cPq&vD36,OPERACIONES,Jefe de RRHH,Infobusiness,Equifax,Ventas
+52,11314522-6,Ximena Nayade Cofre Silva,Ximena,Nayade Cofre Silva,x.cofre@geimser.local,x.cofre@geimser.local,?6f2rMWb9dUK#C,OPERACIONES,Agente telefonico,Infobusiness,Equifax,Ventas
+53,18357964-9,Benjamín Andrés Marroquín Ibara,Benjamín,Andrés Marroquín Ibara,b.marroquin@geimser.local,b.marroquin@geimser.local,B3XuJ*gswTeZnL,OPERACIONES,Agente telefonico,Infobusiness,Equifax,Ventas
+56,11404433-4,Cesar Cristhian Rodriguez Luengo,Cesar,Cristhian Rodriguez Luengo,c.rodriguez@geimser.local,c.rodriguez@geimser.local,jh8%RPQ%Z3An8L,OPERACIONES,Gerente General,Infobusiness,Equifax,Ventas
+57,13667575-3,Karen Alejandra Ordoñez Contreras,Karen,Alejandra Ordoñez Contreras,k.ordonez@geimser.local,k.ordonez@geimser.local,Fz8J0*e2eBGr2!,OPERACIONES,Agente telefonico,Infobusiness,Equifax,Ventas

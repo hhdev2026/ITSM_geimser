@@ -1432,6 +1432,27 @@
     return "/geimser/mesh/login?next=" + encodeURIComponent(path || "/");
   }
 
+  function meshDesktopSessionUrl(nodeId) {
+    var nodeToken = String(nodeId || "").split("/").filter(Boolean).pop() || "";
+    if (!/^[A-Za-z0-9@$_=-]+$/.test(nodeToken)) return meshLoginUrl("/");
+
+    return meshLoginUrl("/?" + new URLSearchParams({
+      gotonode: nodeToken,
+      viewmode: "11",
+      hide: "0",
+      geimserautoconnect: "1"
+    }).toString());
+  }
+
+  function remoteAssetSessionUrl(asset) {
+    asset = asset || {};
+    var details = asset.details || {};
+    var nodeId = details.mesh_node_id || asset.mesh_node_id || asset.id;
+    if (nodeId) return meshDesktopSessionUrl(nodeId);
+
+    return asset.session_url || meshLoginUrl("/");
+  }
+
   function meshAgentInstallUrl() {
     return meshLoginUrl("/meshagents");
   }
@@ -1579,7 +1600,7 @@
       }).join(""),
       '  </div>',
       '  <div class="geimser-cmdb-detail-actions">',
-      '    <button type="button" data-cmdb-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Tomar control</button>',
+      '    <button type="button" data-cmdb-session="' + escapeHtml(remoteAssetSessionUrl(asset)) + '">Tomar control</button>',
       '  </div>',
       '</section>'
     ].join("");
@@ -1642,7 +1663,7 @@
           '  </div>',
           '  <div class="geimser-remote-asset-actions">',
           '    <em>' + remoteAssetStatusLabel(asset.status) + '</em>',
-          '    <button type="button" data-remote-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Tomar control</button>',
+          '    <button type="button" data-remote-session="' + escapeHtml(remoteAssetSessionUrl(asset)) + '">Tomar control</button>',
           '  </div>',
           '</article>'
         ].join("");
@@ -1762,7 +1783,7 @@
           '  <span role="cell">' + escapeHtml(asset.os || "Sistema no informado") + '</span>',
           '  <span role="cell">' + escapeHtml(asset.ip || remoteAssetLastSeen(asset)) + '</span>',
           '  <span role="cell"><em class="' + (isOnline ? "is-online" : "is-offline") + '">' + remoteAssetStatusLabel(asset.status) + '</em></span>',
-          '  <span role="cell" class="geimser-cmdb-row-actions"><button type="button" data-cmdb-detail="' + index + '">Detalle</button><button type="button" data-cmdb-session="' + escapeHtml(asset.session_url || meshLoginUrl("/")) + '">Control</button></span>',
+          '  <span role="cell" class="geimser-cmdb-row-actions"><button type="button" data-cmdb-detail="' + index + '">Detalle</button><button type="button" data-cmdb-session="' + escapeHtml(remoteAssetSessionUrl(asset)) + '">Control</button></span>',
           '</div>'
         ].join("");
       }).join(""),
