@@ -99,8 +99,8 @@ if ! rg -q "'gotonode' => node_token" branding/initializers/geimser_mesh_cmdb.rb
   printf 'ERROR: El embed de escritorio Mesh debe usar gotonode con viewmode=11.\n' >&2
   failures=$((failures + 1))
 fi
-if ! rg -q "'hide' => '31'" branding/initializers/geimser_mesh_cmdb.rb branding/controllers/geimser_mesh_login_controller.rb; then
-  printf 'ERROR: El embed de escritorio Mesh debe ocultar toda la UI de Mesh con hide=31.\n' >&2
+if ! rg -q "'hide' => '0'" branding/initializers/geimser_mesh_cmdb.rb branding/controllers/geimser_mesh_login_controller.rb; then
+  printf 'ERROR: El embed de escritorio Mesh debe dejar visible la UI completa de Mesh con hide=0.\n' >&2
   failures=$((failures + 1))
 fi
 if ! rg -q 'connectButton\.click\(\)' branding/meshcentral/custom.js; then
