@@ -252,6 +252,7 @@ class GeimserMeshCmdb
       if node_value.present?
         next_path = "/?#{URI.encode_www_form(
           'node' => node_value,
+          'gotonode' => node_value.split('/', 3).last,
           'viewmode' => '11',
           'hide' => '0',
           'geimserautoconnect' => '1',

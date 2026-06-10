@@ -99,6 +99,14 @@ if ! rg -q "'node' => node_value" branding/initializers/geimser_mesh_cmdb.rb bra
   printf 'ERROR: El embed de escritorio Mesh debe usar node con viewmode=11.\n' >&2
   failures=$((failures + 1))
 fi
+if ! rg -q "'gotonode' => node_value\\.split\\('/', 3\\)\\.last" branding/initializers/geimser_mesh_cmdb.rb branding/controllers/geimser_mesh_login_controller.rb; then
+  printf 'ERROR: El embed de escritorio Mesh debe enviar gotonode junto a node para compatibilidad con el cliente Mesh.\n' >&2
+  failures=$((failures + 1))
+fi
+if perl -0777 -ne 'exit(/openRemoteModal\("equipos"\);\s*openRemoteSession/s ? 0 : 1)' branding/geimser.js; then
+  printf 'ERROR: Tomar control no debe cargar la vista generica de equipos justo antes de abrir la sesion.\n' >&2
+  failures=$((failures + 1))
+fi
 if ! rg -q "'hide' => '0'" branding/initializers/geimser_mesh_cmdb.rb branding/controllers/geimser_mesh_login_controller.rb; then
   printf 'ERROR: El embed de escritorio Mesh debe dejar visible la UI completa de Mesh con hide=0.\n' >&2
   failures=$((failures + 1))

@@ -1434,14 +1434,18 @@
 
   function meshDesktopSessionUrl(nodeId) {
     var nodeValue = String(nodeId || "").trim();
+    var nodeToken = "";
     if (!/^node\/\/[A-Za-z0-9@$_=-]+$/.test(nodeValue)) {
-      var nodeToken = nodeValue.split("/").filter(Boolean).pop() || "";
+      nodeToken = nodeValue.split("/").filter(Boolean).pop() || "";
       if (!/^[A-Za-z0-9@$_=-]+$/.test(nodeToken)) return meshLoginUrl("/");
       nodeValue = "node//" + nodeToken;
+    } else {
+      nodeToken = nodeValue.split("/").filter(Boolean).pop() || "";
     }
 
     return meshLoginUrl("/?" + new URLSearchParams({
       node: nodeValue,
+      gotonode: nodeToken,
       viewmode: "11",
       hide: "0",
       geimserautoconnect: "1"
@@ -1614,7 +1618,6 @@
       control.addEventListener("click", function () {
         var sessionUrl = control.getAttribute("data-cmdb-session") || meshLoginUrl("/");
         var modal = ensureRemoteModal();
-        openRemoteModal("equipos");
         openRemoteSession(modal, sessionUrl);
       });
     }
@@ -1685,6 +1688,7 @@
 
   function openRemoteSession(modal, url) {
     var sessionUrl = url || meshLoginUrl("/");
+    modal.classList.add("is-open");
     modal.classList.add("is-session-active");
     modal.classList.remove("is-equipment-flow", "is-install-flow");
     modal.querySelector(".geimser-remote-frame").src = sessionUrl;
@@ -1814,7 +1818,6 @@
       button.addEventListener("click", function () {
         var sessionUrl = button.getAttribute("data-cmdb-session") || meshLoginUrl("/");
         var modal = ensureRemoteModal();
-        openRemoteModal("equipos");
         openRemoteSession(modal, sessionUrl);
       });
     });
