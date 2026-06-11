@@ -412,17 +412,7 @@
       toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
     }
 
-    Array.from(app.querySelectorAll(".sidebar.NavBarAdmin, .sidebar.NavBarAdmin *")).forEach(function (el) {
-      el.style.setProperty("text-shadow", "none", "important");
-    });
-
-    Array.from(app.querySelectorAll(".sidebar.NavBarAdmin h1, .sidebar.NavBarAdmin h2, .sidebar.NavBarAdmin h3, .sidebar.NavBarAdmin h4")).forEach(function (el) {
-      el.style.setProperty("color", "#64748b", "important");
-    });
-
-    Array.from(app.querySelectorAll(".sidebar.NavBarAdmin a, .sidebar.NavBarAdmin .link")).forEach(function (el) {
-      el.style.setProperty("color", "#334155", "important");
-    });
+    /* Diseño v4: sin colores inline — la nav de admin se tematiza por CSS. */
 
     var keepHrefs = [
       "#manage/users",
@@ -449,82 +439,23 @@
   }
 
   function normalizeNativeControlContrast() {
+    /* Diseño v4: el color es responsabilidad EXCLUSIVA del CSS por tokens
+       (tema claro/oscuro). Este normalizador ya no pinta estilos inline:
+       solo LIMPIA residuos inline de versiones anteriores para que el
+       tema activo pueda aplicarse. */
     var app = document.querySelector("#app");
     if (!app) return;
 
-    Array.from(app.querySelectorAll(".tabs, .tabs *, .tabs .tab, .tabs .tab *")).forEach(function (el) {
-      var bg = effectiveBackground(el);
-      var color = bg && luminance(bg) < 0.35 ? "#e9f1f8" : "#111827";
-      if (el.matches(".tab.active, .tab.is-active") || el.closest(".tab.active, .tab.is-active")) {
-        color = "#111827";
-      }
-      el.style.setProperty("color", color, "important");
-      el.style.setProperty("-webkit-text-fill-color", color, "important");
-      el.style.setProperty("text-shadow", "none", "important");
+    Array.from(app.querySelectorAll(
+      ".tabs, .tabs *, .sidebar.NavBarAdmin, .sidebar.NavBarAdmin *, " +
+      ".geimser-admin-focus-panel, .geimser-admin-focus-panel *, .geimser-admin-focus-toggle, " +
+      ".js-createLink, .js-createLink *"
+    )).forEach(function (el) {
+      if (!el.style || typeof el.style.removeProperty !== "function") return;
+      ["background", "background-color", "color", "-webkit-text-fill-color", "text-shadow"].forEach(function (property) {
+        el.style.removeProperty(property);
+      });
     });
-
-    Array.from(app.querySelectorAll("h1, h2, h3, span, small, div")).forEach(function (el) {
-      if ((el.textContent || "").replace(/\s+/g, " ").trim() !== "Administración") return;
-      el.style.setProperty("color", "#4b5563", "important");
-      el.style.setProperty("-webkit-text-fill-color", "#4b5563", "important");
-      el.style.setProperty("text-shadow", "none", "important");
-    });
-
-    var adminSidebar = app.querySelector(".sidebar.NavBarAdmin");
-    if (adminSidebar) {
-      /* Diseño v3: nav de admin clara (chrome blanco, texto slate, activo azul). */
-      adminSidebar.style.setProperty("background", "#ffffff", "important");
-      adminSidebar.style.setProperty("background-color", "#ffffff", "important");
-      adminSidebar.style.setProperty("color", "#334155", "important");
-      adminSidebar.style.setProperty("-webkit-text-fill-color", "#334155", "important");
-      Array.from(adminSidebar.querySelectorAll("a, button, ul, span, div, li, strong, small")).forEach(function (el) {
-        var active = Boolean(el.matches("a.active, a.is-active, li.active, li.is-active, .js-item.active, .js-item.is-active") ||
-          el.closest("a.active, a.is-active, li.active, li.is-active, .js-item.active, .js-item.is-active"));
-        var color = active ? "#00407e" : "#334155";
-        el.style.setProperty("color", color, "important");
-        el.style.setProperty("-webkit-text-fill-color", color, "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-
-      var focusPanel = adminSidebar.querySelector(".geimser-admin-focus-panel");
-      if (focusPanel) {
-        focusPanel.style.setProperty("background", "#ffffff", "important");
-        focusPanel.style.setProperty("background-color", "#ffffff", "important");
-      }
-      var focusToggle = adminSidebar.querySelector(".geimser-admin-focus-toggle");
-      if (focusToggle) {
-        focusToggle.style.setProperty("background", "#f1f5fa", "important");
-        focusToggle.style.setProperty("background-color", "#f1f5fa", "important");
-      }
-
-      Array.from(adminSidebar.querySelectorAll(".geimser-admin-focus-panel, .geimser-admin-focus-panel *, .geimser-admin-focus-toggle")).forEach(function (el) {
-        el.style.setProperty("color", "#1f2937", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#1f2937", "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-    }
-
-    if (app.classList.contains("geimser-route-ticket-create")) {
-      Array.from(app.querySelectorAll(".tabs.type-tabs, .tabs.tabs-wide, .tabs.type-tabs *, .tabs.tabs-wide *, .tabs .tab, .tabs .tab *")).forEach(function (el) {
-        var active = Boolean(el.matches(".tab.active, .tab.is-active") || el.closest(".tab.active, .tab.is-active"));
-        var color = active ? "#111827" : "#4b5563";
-        el.style.setProperty("color", color, "important");
-        el.style.setProperty("-webkit-text-fill-color", color, "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-
-      Array.from(app.querySelectorAll(".tabsSidebar .sidebar-header-headline, .tabsSidebar .sidebar-header-headline *")).forEach(function (el) {
-        el.style.setProperty("color", "#e9f1f8", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-
-      Array.from(app.querySelectorAll(".js-createLink, .js-createLink *")).forEach(function (el) {
-        el.style.setProperty("color", "#ffffff", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-    }
   }
 
   function normalizeTicketContrast() {
@@ -587,52 +518,15 @@
   }
 
   function normalizeProfileContrast() {
+    /* Diseño v4: solo marca la superficie de detalle de usuario con una
+       clase para que el CSS la tematice; además limpia cualquier estilo
+       inline residual de versiones anteriores. Sin colores inline. */
     var app = document.querySelector("#app");
     if (!app || !app.classList.contains("geimser-route-profile")) return;
 
     var detailSurface = userDetailProfileSurface(app);
     if (detailSurface) {
       detailSurface.classList.add("geimser-user-detail-surface");
-      detailSurface.style.setProperty("background", "#ffffff", "important");
-      detailSurface.style.setProperty("background-color", "#ffffff", "important");
-      detailSurface.style.setProperty("color", "#111827", "important");
-      detailSurface.style.setProperty("border", "1px solid rgba(0, 31, 61, 0.10)", "important");
-      detailSurface.style.setProperty("box-shadow", "0 12px 32px rgba(0, 31, 61, 0.10)", "important");
-      detailSurface.style.setProperty("text-shadow", "none", "important");
-
-      Array.from(detailSurface.querySelectorAll("div, section, article, header, footer, main, aside, nav")).forEach(function (el) {
-        if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
-        el.style.setProperty("background-color", "transparent", "important");
-        el.style.setProperty("background-image", "none", "important");
-        el.style.setProperty("color", "#111827", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#111827", "important");
-        el.style.setProperty("text-shadow", "none", "important");
-      });
-
-      Array.from(detailSurface.querySelectorAll(".avatar, [class*='avatar'], [class*='Avatar']")).forEach(function (el) {
-        if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
-        el.style.setProperty("align-items", "center", "important");
-        el.style.setProperty("background", "#f28c18", "important");
-        el.style.setProperty("background-color", "#f28c18", "important");
-        el.style.setProperty("border-radius", "50%", "important");
-        el.style.setProperty("box-shadow", "0 8px 20px rgba(245, 166, 35, 0.22)", "important");
-        el.style.setProperty("color", "#071c2b", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#071c2b", "important");
-        el.style.setProperty("display", "inline-flex", "important");
-        el.style.setProperty("font-size", "18px", "important");
-        el.style.setProperty("font-weight", "800", "important");
-        el.style.setProperty("height", "64px", "important");
-        el.style.setProperty("justify-content", "center", "important");
-        el.style.setProperty("margin", "0 auto 10px", "important");
-        el.style.setProperty("max-height", "64px", "important");
-        el.style.setProperty("max-width", "64px", "important");
-        el.style.setProperty("min-height", "64px", "important");
-        el.style.setProperty("min-width", "64px", "important");
-        el.style.setProperty("padding", "0", "important");
-        el.style.setProperty("position", "relative", "important");
-        el.style.setProperty("width", "64px", "important");
-        el.style.setProperty("z-index", "1", "important");
-      });
 
       Array.from(detailSurface.querySelectorAll("[class*='action'], [class*='Action'], .dropdown, .dropdown-menu, [role='menu']")).forEach(function (el) {
         el.style.setProperty("position", "relative", "important");
@@ -640,48 +534,19 @@
       });
     }
 
-    Array.from(app.querySelectorAll(".content, .content > div, .content > section, .content > article, .main, .main-content, .page")).forEach(function (el) {
-      if (el.classList.contains("geimser-nav-surface") || el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
-      if (detailSurface && detailSurface.contains(el)) return;
-      el.style.setProperty("background", "#ffffff", "important");
-      el.style.setProperty("background-color", "#ffffff", "important");
-      el.style.setProperty("color", "#111827", "important");
-      el.style.setProperty("text-shadow", "none", "important");
-    });
-
-    Array.from(app.querySelectorAll(".content h1, .content h2, .content h3, .content h4, .content p, .content span, .content div, .content label, .content small, .content a, .content li, .content button")).forEach(function (el) {
-      if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
-
-      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
-      if (!text && !el.matches("button, a")) return;
-
-      var muted = el.matches("small, label, [class*='muted'], [class*='hint'], [class*='meta'], [class*='Meta']") ||
-        /CORREO ELECTR[ÓO]NICO|NOTA|FRECUENCIA|TICKETS ABIERTOS|CERRAR TICKETS/i.test(text);
-      var link = el.matches("a, .link");
-      var color = link ? "#003d7a" : (muted ? "#4b5563" : "#111827");
-      el.style.setProperty("color", color, "important");
-      el.style.setProperty("-webkit-text-fill-color", color, "important");
-      el.style.setProperty("text-shadow", "none", "important");
-    });
-
-    Array.from(app.querySelectorAll(".content .tabs, .content .nav-tabs, .content [role='tablist'], .content .tab, .content .tabs li, .content .nav-tabs li, .content [role='tab']")).forEach(function (el) {
-      var active = Boolean(el.matches(".active, .is-active, [aria-selected='true']") || el.closest(".active, .is-active, [aria-selected='true']"));
-      var bg = active ? "#eef3f8" : "#ffffff";
-      var color = active ? "#111827" : "#4b5563";
-      el.style.setProperty("background", bg, "important");
-      el.style.setProperty("background-color", bg, "important");
-      el.style.setProperty("color", color, "important");
-      el.style.setProperty("-webkit-text-fill-color", color, "important");
-      el.style.setProperty("text-shadow", "none", "important");
-    });
-
-    Array.from(app.querySelectorAll(".content .avatar, .content [class*='avatar'], .content [class*='Avatar']")).forEach(function (el) {
-      if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
-      el.style.setProperty("background", "#f28c18", "important");
-      el.style.setProperty("background-color", "#f28c18", "important");
-      el.style.setProperty("color", "#071c2b", "important");
-      el.style.setProperty("-webkit-text-fill-color", "#071c2b", "important");
-      el.style.setProperty("text-shadow", "none", "important");
+    var cleanupScope = [detailSurface, app].filter(Boolean);
+    cleanupScope.forEach(function (scope) {
+      Array.from(scope.querySelectorAll(
+        ".content, .content > div, .content h1, .content h2, .content h3, .content p, .content span, " +
+        ".content div, .content label, .content small, .content a, .content li, .content button, " +
+        ".content .avatar, .content [class*='avatar'], .content .tabs, .content .tab, .content [role='tab']"
+      )).forEach(function (el) {
+        if (!el.style || typeof el.style.removeProperty !== "function") return;
+        if (el.closest(".geimser-nav-surface, .geimser-profile-popup")) return;
+        ["background", "background-color", "color", "-webkit-text-fill-color", "text-shadow"].forEach(function (property) {
+          el.style.removeProperty(property);
+        });
+      });
     });
   }
 
