@@ -4799,3 +4799,44 @@ html[data-theme="dark"] .geimser-native-cmdb-assets {
   background: transparent !important;
   background-color: transparent !important;
 }
+
+/* ─── 11. CMDB — selección y hover de filas tematizados ─────────────────
+   El bloque heredado fijaba #eef6ff en .is-selected: ilegible en oscuro. */
+.geimser-cmdb-row:hover {
+  background: var(--gx-row-hover) !important;
+  background-color: var(--gx-row-hover) !important;
+}
+
+.geimser-cmdb-row.is-selected {
+  background: var(--gx-brand-soft) !important;
+  background-color: var(--gx-brand-soft) !important;
+  box-shadow: inset 3px 0 0 var(--gx-accent) !important;
+}
+
+.geimser-cmdb-row.is-selected,
+.geimser-cmdb-row.is-selected strong,
+.geimser-cmdb-row.is-selected small {
+  color: var(--gx-text) !important;
+  -webkit-text-fill-color: var(--gx-text) !important;
+}
+
+html[data-theme="dark"] .geimser-cmdb-row.is-selected small {
+  color: var(--gx-text-2) !important;
+  -webkit-text-fill-color: var(--gx-text-2) !important;
+}
+
+/* Botones de fila CMDB coherentes en ambos temas */
+.geimser-cmdb-row button {
+  background: var(--gx-brand) !important;
+  border: 0 !important;
+  border-radius: var(--gx-radius-sm) !important;
+  color: var(--gx-on-brand) !important;
+  -webkit-text-fill-color: var(--gx-on-brand) !important;
+}
+
+.geimser-cmdb-row-actions button:first-child {
+  background: var(--gx-panel-2) !important;
+  border: 1px solid var(--gx-line-strong) !important;
+  color: var(--gx-link) !important;
+  -webkit-text-fill-color: var(--gx-link) !important;
+}
