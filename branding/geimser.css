@@ -4840,3 +4840,42 @@ html[data-theme="dark"] .geimser-cmdb-row.is-selected small {
   color: var(--gx-link) !important;
   -webkit-text-fill-color: var(--gx-link) !important;
 }
+
+/* ─── 12. MENÚ DE ACCIONES EN TABLAS — no clipear dropdowns ─────────────
+   El overflow:hidden que redondeaba esquinas recortaba el menú de los
+   3 puntos. Las esquinas se redondean por celda y el overflow se libera. */
+#app .content table,
+#app .content .table,
+#app .table-overview,
+#app .content .page-content {
+  overflow: visible !important;
+}
+
+#app .content table thead th:first-child,
+#app .content .table thead th:first-child {
+  border-top-left-radius: var(--gx-radius) !important;
+}
+
+#app .content table thead th:last-child,
+#app .content .table thead th:last-child {
+  border-top-right-radius: var(--gx-radius) !important;
+}
+
+#app .content table tbody tr:last-child td:first-child,
+#app .content .table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: var(--gx-radius) !important;
+}
+
+#app .content table tbody tr:last-child td:last-child,
+#app .content .table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: var(--gx-radius) !important;
+}
+
+/* El menú contextual de acciones siempre por encima de la tabla */
+#app .content table .dropdown-menu,
+#app .content .table .dropdown-menu,
+#app .table-overview .dropdown-menu,
+#app .content td .dropdown-menu,
+#app .content [class*="action"] .dropdown-menu {
+  z-index: 1100 !important;
+}
