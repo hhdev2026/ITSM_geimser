@@ -4668,3 +4668,50 @@ html[data-theme="dark"] .geimser-native-cmdb-assets {
     max-width: none !important;
   }
 }
+
+/* ─── 9. PULIDO QA PRODUCCIÓN ───────────────────────────────────────────── */
+/* Degradado "ver más" de artículos truncados: era blanco fijo de Zammad y
+   en oscuro lavaba el texto. Ahora desvanece hacia el panel del tema. */
+#app .ticketZoom .textBubble-overflowContainer,
+#app .ticketZoom .textBubble .js-toggleFold,
+#app .ticketZoom [class*="overflowContainer"] {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), var(--gx-panel) 80%) !important;
+  color: var(--gx-link) !important;
+}
+
+#app .ticketZoom .textBubble-overflowContainer .btn,
+#app .ticketZoom [class*="overflowContainer"] .btn {
+  background: var(--gx-panel-2) !important;
+  background-color: var(--gx-panel-2) !important;
+  border: 1px solid var(--gx-line-strong) !important;
+  color: var(--gx-text-2) !important;
+  -webkit-text-fill-color: var(--gx-text-2) !important;
+}
+
+/* Cuerpo de artículos: el contenido enriquecido siempre sobre el panel
+   del tema con texto del tema (incluye richtext de lectura). */
+#app.geimser-route-ticket .ticketZoom .ticket-article .textBubble,
+#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content,
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-body {
+  background: var(--gx-panel) !important;
+  background-color: var(--gx-panel) !important;
+  color: var(--gx-text) !important;
+  -webkit-text-fill-color: var(--gx-text) !important;
+}
+
+/* Avatares generados por Zammad (color por usuario): asegurar texto legible */
+#app .avatar.user-popover,
+#app .ticketZoom .avatar {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Headline del sidebar de ticket ("Ticket") con jerarquía clara */
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-headline,
+#app.geimser-route-ticket .tabsSidebar .sidebar-header-headline.js-headline {
+  color: var(--gx-text) !important;
+  -webkit-text-fill-color: var(--gx-text) !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+}
