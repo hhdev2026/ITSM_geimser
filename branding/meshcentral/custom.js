@@ -2,112 +2,114 @@
   var query = new URLSearchParams(window.location.search);
   if (query.get("geimserautoconnect") !== "1") return;
 
-  // Parámetros del nodo objetivo extraídos de la URL
   var targetGotonode = query.get("gotonode") || "";
-  var targetViewmode = parseInt(query.get("viewmode") || "11", 10);
+  if (!targetGotonode) return;
 
+  // Si la URL tiene node= (modo direct-session de MeshCentral), redirigir a URL limpia.
+  // En ese modo nodes={} siempre vacío, connectbutton1 nunca se habilita.
+  if (query.get("node")) {
+    window.location.replace("/?geimserautoconnect=1&gotonode=" + encodeURIComponent(targetGotonode));
+    return;
+  }
+
+  // FASE 0 → buscar link del dispositivo en la lista y hacer click (→ viewmode 10)
+  // FASE 1 → esperar viewmode 10, luego click en tab Escritorio (→ viewmode 11)
+  // FASE 2 → esperar viewmode 11 y connectbutton1 habilitado
+  // FASE 3 → click connectbutton1
+  // FASE 4 → esperar "Conectado", detener timer
+
+  var phase = 0;
   var attempts = 0;
-  var readyTicks = 0;
   var clickAttempts = 0;
-  var lastClickAttempt = 0;
-  var gotoDeviceAttempts = 0;
+  var lastPhaseAttempt = 0;
 
-  function isVisible(element) {
-    if (!element || !element.getBoundingClientRect) return false;
-    var rect = element.getBoundingClientRect();
-    return rect.width > 0 && rect.height > 0;
-  }
-
-  // Reintenta gotoDevice si currentNode es null.
-  // MeshCentral llama gotoDevice en initialRender, pero si los nodos aún no
-  // llegaron por WebSocket en ese momento, currentNode queda null en silencio.
-  // Este retry cubre esa carrera.
-  function tryGotoDevice() {
-    if (!targetGotonode) return false;
-    if (typeof gotoDevice !== "function") return false;
-
-    var domainId = typeof domain !== "undefined" ? (domain || "") : "";
-    var nodeId = "node/" + domainId + "/" + targetGotonode;
-
-    try {
-      gotoDevice(nodeId, targetViewmode);
-      return typeof currentNode !== "undefined" && currentNode != null;
-    } catch (_e) {
-      return false;
-    }
-  }
+  window.geimserMeshAutoconnect = { phase: 0, attempts: 0 };
 
   var timer = window.setInterval(function () {
     attempts += 1;
 
     try {
-      var connectButton = document.getElementById("connectbutton1");
-      var status = document.getElementById("deskstatus");
-      var statusText = status ? status.textContent.toLowerCase() : "";
-      var buttonText = connectButton ? connectButton.textContent.toLowerCase() : "";
-      var currentView = typeof xxcurrentView !== "undefined" ? xxcurrentView : null;
-      var desktopState = typeof desktop !== "undefined" && desktop ? desktop.State : null;
+      var currentView = typeof xxcurrentView !== "undefined" ? xxcurrentView : -1;
+      var statusText = ((document.getElementById("deskstatus") || {}).textContent || "").toLowerCase();
+      var connected = /\bconectado\b|\bconnected\b/.test(statusText);
 
-      // Si currentNode es null y tenemos gotonode, reintentar gotoDevice cada ~2s
-      // hasta un máximo de 10 intentos (~20s). Esto cubre la carrera donde
-      // initialRender llamó gotoDevice antes de que llegara el nodo por WebSocket.
-      if (
-        gotoDeviceAttempts < 10 &&
-        attempts % 4 === 0 &&
-        targetGotonode &&
-        (typeof currentNode === "undefined" || currentNode == null)
-      ) {
-        gotoDeviceAttempts += 1;
-        tryGotoDevice();
-      }
-
-      var nodeReady = typeof currentNode !== "undefined" &&
-        currentNode &&
-        (currentNode.conn & 1) &&
-        currentNode.agent &&
-        (currentNode.agent.caps & 1);
-      var connected = desktopState === 3 || /conectado|connected/.test(statusText);
-      var connecting = desktopState === 1 ||
-        desktopState === 2 ||
-        /conectando|connecting|negociando|starting|iniciando/.test(statusText);
-      var buttonReady = connectButton &&
-        !connectButton.disabled &&
-        isVisible(connectButton) &&
-        !/desconectar|disconnect/.test(buttonText);
-      var desktopReady = nodeReady &&
-        currentView === 11 &&
-        buttonReady &&
-        !connected &&
-        !connecting;
-      readyTicks = desktopReady ? readyTicks + 1 : 0;
-
-      // Estado diagnóstico — consultable desde consola del iframe:
-      // window.geimserMeshAutoconnect
       window.geimserMeshAutoconnect = {
+        phase: phase,
         attempts: attempts,
-        readyTicks: readyTicks,
         clickAttempts: clickAttempts,
-        gotoDeviceAttempts: gotoDeviceAttempts,
-        nodeReady: !!nodeReady,
         currentView: currentView,
-        desktopState: desktopState,
         status: statusText,
-        buttonText: buttonText,
-        targetGotonode: targetGotonode
+        connected: connected
       };
 
-      if (connected) {
+      if (connected && phase >= 3) {
         window.clearInterval(timer);
-      } else if (readyTicks >= 2 && clickAttempts < 4 && attempts - lastClickAttempt >= 4) {
-        lastClickAttempt = attempts;
-        clickAttempts += 1;
-        connectButton.click();
-        readyTicks = 0;
-      } else if (attempts >= 120) {
+        phase = 4;
+        return;
+      }
+
+      // ── FASE 0: click en el link del dispositivo en la lista ──────────────
+      // Si ya estamos en viewmode >= 10, saltar directo a fase 1 (evitar click redundante que provoca nueva navegación).
+      if (phase === 0) {
+        if (currentView >= 10) {
+          phase = 1;
+          lastPhaseAttempt = attempts;
+        } else {
+          var nodeLinks = document.querySelectorAll("[onclick]");
+          var deviceLink = null;
+          for (var i = 0; i < nodeLinks.length; i++) {
+            var oc = nodeLinks[i].getAttribute("onclick") || "";
+            if (oc.indexOf(targetGotonode) !== -1 && oc.indexOf("gotoDevice") !== -1) {
+              deviceLink = nodeLinks[i];
+              break;
+            }
+          }
+          if (deviceLink) {
+            deviceLink.click();
+            phase = 1;
+            lastPhaseAttempt = attempts;
+          }
+        }
+      }
+
+      // ── FASE 1: esperar viewmode >= 10 y connectbutton1 habilitado ──────────
+      // Nota: tras el click del device link (fase 0), el botón conectar queda
+      // habilitado en viewmode=10 sin necesidad de navegar a viewmode=11.
+      else if (phase === 1 && currentView >= 10) {
+        var connectBtn = document.getElementById("connectbutton1");
+        if (connectBtn && !connectBtn.disabled) {
+          phase = 3; // saltar directo a fase 3 (click)
+        }
+      }
+
+      // ── FASE 2: (ya no se usa — se salta de fase 1 a fase 3) ─────────────
+      else if (phase === 2) {
+        phase = 3;
+      }
+
+      // ── FASE 3: click connectbutton1 ──────────────────────────────────────
+      else if (phase === 3 && clickAttempts < 3) {
+        var btn = document.getElementById("connectbutton1");
+        if (btn && !btn.disabled) {
+          clickAttempts += 1;
+          btn.click();
+          lastPhaseAttempt = attempts;
+        }
+      }
+
+      // Timeout de seguridad: 90 segundos
+      if (attempts >= 180) {
         window.clearInterval(timer);
       }
-    } catch (_error) {
-      if (attempts >= 120) window.clearInterval(timer);
+
+      // Si una fase no avanza en 30s, reiniciar desde fase 0
+      if (phase > 0 && phase < 3 && (attempts - lastPhaseAttempt) > 60) {
+        phase = 0;
+        lastPhaseAttempt = attempts;
+      }
+
+    } catch (_e) {
+      if (attempts >= 180) window.clearInterval(timer);
     }
   }, 500);
 })();

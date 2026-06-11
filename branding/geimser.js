@@ -345,7 +345,13 @@
     if (!app) return;
     var hash = window.location.hash || "";
     var isProfile = /^#profile(?:\/|$)/.test(hash);
-    var pageText = (app.textContent || "").replace(/\s+/g, " ");
+    /* Zammad mantiene en el DOM las vistas ya visitadas (ocultas). Las
+       heurísticas de texto deben mirar SOLO el panel activo; si no, las
+       clases de ruta se acumulan y se filtran estilos de perfil/actividad
+       a todas las páginas (causa histórica del texto oscuro sobre barras
+       oscuras en overviews y admin). */
+    var activePane = app.querySelector(".content.active") || app;
+    var pageText = (activePane.textContent || "").replace(/\s+/g, " ");
     var hasActivityFlow = /\bFlujo de Actividad\b/i.test(pageText);
     var hasProfileDetail = /CORREO ELECTR[ÓO]NICO/i.test(pageText) &&
       /Tickets de Usuario|Tickets de la organizaci[oó]n/i.test(pageText) &&
@@ -411,11 +417,11 @@
     });
 
     Array.from(app.querySelectorAll(".sidebar.NavBarAdmin h1, .sidebar.NavBarAdmin h2, .sidebar.NavBarAdmin h3, .sidebar.NavBarAdmin h4")).forEach(function (el) {
-      el.style.setProperty("color", "#ffffff", "important");
+      el.style.setProperty("color", "#64748b", "important");
     });
 
     Array.from(app.querySelectorAll(".sidebar.NavBarAdmin a, .sidebar.NavBarAdmin .link")).forEach(function (el) {
-      el.style.setProperty("color", "#e9f1f8", "important");
+      el.style.setProperty("color", "#334155", "important");
     });
 
     var keepHrefs = [
@@ -466,14 +472,15 @@
 
     var adminSidebar = app.querySelector(".sidebar.NavBarAdmin");
     if (adminSidebar) {
-      adminSidebar.style.setProperty("background", "#1b3a6b", "important");
-      adminSidebar.style.setProperty("background-color", "#1b3a6b", "important");
-      adminSidebar.style.setProperty("color", "#e9f1f8", "important");
-      adminSidebar.style.setProperty("-webkit-text-fill-color", "#e9f1f8", "important");
+      /* Diseño v3: nav de admin clara (chrome blanco, texto slate, activo azul). */
+      adminSidebar.style.setProperty("background", "#ffffff", "important");
+      adminSidebar.style.setProperty("background-color", "#ffffff", "important");
+      adminSidebar.style.setProperty("color", "#334155", "important");
+      adminSidebar.style.setProperty("-webkit-text-fill-color", "#334155", "important");
       Array.from(adminSidebar.querySelectorAll("a, button, ul, span, div, li, strong, small")).forEach(function (el) {
         var active = Boolean(el.matches("a.active, a.is-active, li.active, li.is-active, .js-item.active, .js-item.is-active") ||
           el.closest("a.active, a.is-active, li.active, li.is-active, .js-item.active, .js-item.is-active"));
-        var color = active ? "#071c2b" : "#e9f1f8";
+        var color = active ? "#00407e" : "#334155";
         el.style.setProperty("color", color, "important");
         el.style.setProperty("-webkit-text-fill-color", color, "important");
         el.style.setProperty("text-shadow", "none", "important");
@@ -481,18 +488,18 @@
 
       var focusPanel = adminSidebar.querySelector(".geimser-admin-focus-panel");
       if (focusPanel) {
-        focusPanel.style.setProperty("background", "#1b3a6b", "important");
-        focusPanel.style.setProperty("background-color", "#1b3a6b", "important");
+        focusPanel.style.setProperty("background", "#ffffff", "important");
+        focusPanel.style.setProperty("background-color", "#ffffff", "important");
       }
       var focusToggle = adminSidebar.querySelector(".geimser-admin-focus-toggle");
       if (focusToggle) {
-        focusToggle.style.setProperty("background", "#234d84", "important");
-        focusToggle.style.setProperty("background-color", "#234d84", "important");
+        focusToggle.style.setProperty("background", "#f1f5fa", "important");
+        focusToggle.style.setProperty("background-color", "#f1f5fa", "important");
       }
 
       Array.from(adminSidebar.querySelectorAll(".geimser-admin-focus-panel, .geimser-admin-focus-panel *, .geimser-admin-focus-toggle")).forEach(function (el) {
-        el.style.setProperty("color", "#ffffff", "important");
-        el.style.setProperty("-webkit-text-fill-color", "#ffffff", "important");
+        el.style.setProperty("color", "#1f2937", "important");
+        el.style.setProperty("-webkit-text-fill-color", "#1f2937", "important");
         el.style.setProperty("text-shadow", "none", "important");
       });
     }
@@ -1083,16 +1090,16 @@
       var rect = el.getBoundingClientRect();
       if (rect.width < 12 || rect.height < 8 || rect.left < 520) return;
 
-      var bg = effectiveBackground(el);
-      var darkHeader = bg && luminance(bg) < 0.35;
-      setImportantStyle(el, "color", darkHeader ? "#f8fbff" : "#1f2937");
-      setImportantStyle(el, "-webkit-text-fill-color", darkHeader ? "#f8fbff" : "#1f2937");
-      setImportantStyle(el, "background-color", darkHeader ? "#2f3542" : "#eef3f8");
+      /* Diseño v3: los encabezados de tabla son SIEMPRE superficies claras.
+         La rama oscura (#2f3542) generaba chips oscuros ilegibles. */
+      setImportantStyle(el, "color", "#475569");
+      setImportantStyle(el, "-webkit-text-fill-color", "#475569");
+      setImportantStyle(el, "background-color", "#f7f9fc");
       el.style.fontWeight = "700";
 
       Array.from(el.querySelectorAll("*")).forEach(function (child) {
-        setImportantStyle(child, "color", darkHeader ? "#f8fbff" : "#1f2937");
-        setImportantStyle(child, "-webkit-text-fill-color", darkHeader ? "#f8fbff" : "#1f2937");
+        setImportantStyle(child, "color", "#475569");
+        setImportantStyle(child, "-webkit-text-fill-color", "#475569");
         setImportantStyle(child, "background-color", "transparent");
       });
 
@@ -1101,9 +1108,9 @@
       while (parent && depth < 3) {
         var parentRect = parent.getBoundingClientRect();
         if (parentRect.height > 12 && parentRect.height < 72 && parentRect.width > rect.width * 0.8 && !isInsideNavigation(parent)) {
-          setImportantStyle(parent, "background-color", darkHeader ? "#2f3542" : "#eef3f8");
-          setImportantStyle(parent, "color", darkHeader ? "#f8fbff" : "#1f2937");
-          setImportantStyle(parent, "-webkit-text-fill-color", darkHeader ? "#f8fbff" : "#1f2937");
+          setImportantStyle(parent, "background-color", "#f7f9fc");
+          setImportantStyle(parent, "color", "#475569");
+          setImportantStyle(parent, "-webkit-text-fill-color", "#475569");
         }
         parent = parent.parentElement;
         depth += 1;

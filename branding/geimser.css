@@ -583,20 +583,25 @@ body,
   color-scheme: light !important;
 }
 
+/* Diseño v3: el tema oscuro de Zammad se NEUTRALIZA por completo.
+   Antes estas variables quedaban oscuras con data-theme="dark" y los
+   componentes core que las consumen (p.ej. .scrollPageHeader, que vive
+   FUERA de .ticketZoom) quedaban como franjas oscuras con texto oscuro
+   heredado. Una sola fuente de verdad: tema claro Geimser en todo. */
 html[data-theme="dark"] body,
 html[data-theme="dark"] #app {
-  --background-primary: #0f1117;
-  --background-secondary: #161b25;
-  --background-tertiary: #202737;
-  --background-modifier-accent: rgba(210, 225, 245, 0.16);
-  --background-modifier-accent-light: rgba(75, 179, 240, 0.14);
-  --border: rgba(210, 225, 245, 0.16);
-  --text-normal: #f8fbff;
-  --text-muted: #b8c4d4;
-  --text-light: #d7e3f0;
-  --text-link: #8fd3ff;
-  --text-inverted: #0f1117;
-  color-scheme: dark !important;
+  --background-primary: #f5f7fb;
+  --background-secondary: #ffffff;
+  --background-tertiary: #eef2f7;
+  --background-modifier-accent: rgba(0, 31, 61, 0.12);
+  --background-modifier-accent-light: rgba(0, 75, 141, 0.08);
+  --border: rgba(0, 31, 61, 0.12);
+  --text-normal: #1d1d1f;
+  --text-muted: #667085;
+  --text-light: #667085;
+  --text-link: #004b8d;
+  --text-inverted: #ffffff;
+  color-scheme: light !important;
 }
 
 #app,
@@ -1512,9 +1517,9 @@ html[data-theme="dark"] #app {
 #app th .table-column-title,
 #app .table .js-tableHead,
 #app .table .table-column-title {
-  background: #2f3137 !important;
-  background-color: #2f3137 !important;
-  color: #f3f7fb !important;
+  background: #f7f9fc !important;
+  background-color: #f7f9fc !important;
+  color: #475569 !important;
 }
 
 #app thead th *,
@@ -1523,7 +1528,7 @@ html[data-theme="dark"] #app {
 #app .table-column-title * {
   background: transparent !important;
   background-color: transparent !important;
-  color: #f3f7fb !important;
+  color: #475569 !important;
 }
 
 #app .table .is-active,
@@ -4800,7 +4805,8 @@ a:hover,
   width: 34px !important;
 }
 
-/* Final lock: overview/table headers must never be dark text on dark bars. */
+/* Final lock: overview/table headers are light surfaces with dark text —
+   elimina de raíz la clase de bugs "texto oscuro sobre barra oscura". */
 #app .content table thead,
 #app .content table thead tr,
 #app .content table thead th,
@@ -4812,10 +4818,10 @@ a:hover,
 #app .content [class*="Table"] [class*="Header"],
 #app .content [class*="overview"] [class*="header"],
 #app .content [class*="Overview"] [class*="Header"] {
-  background: #2f3542 !important;
-  background-color: #2f3542 !important;
-  color: #f8fbff !important;
-  -webkit-text-fill-color: #f8fbff !important;
+  background: #f7f9fc !important;
+  background-color: #f7f9fc !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
   text-shadow: none !important;
 }
 
@@ -4826,8 +4832,8 @@ a:hover,
 #app .content [class*="Table"] [class*="Header"] *,
 #app .content [class*="overview"] [class*="header"] *,
 #app .content [class*="Overview"] [class*="Header"] * {
-  color: #f8fbff !important;
-  -webkit-text-fill-color: #f8fbff !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
   text-shadow: none !important;
 }
 
@@ -6291,4 +6297,805 @@ a:hover,
     width: 1px !important;
   }
 
+}
+/* ═══════════════════════════════════════════════════════════════════════
+   GEIMSER DESIGN SYSTEM v3 — REFACTOR VISUAL COMPLETO
+   ─────────────────────────────────────────────────────────────────────────
+   Principios:
+   1. Una sola familia de superficies: chrome claro + nav lateral oscura.
+      Las barras intermedias oscuras (page-header, thead, sidebars de
+      contenido) desaparecen: eran la fuente sistémica de fallas de
+      contraste (texto oscuro heredado sobre barras oscuras de Zammad).
+   2. Contraste WCAG AA mínimo en todo texto (≥4.5:1 cuerpo, ≥3:1 UI).
+   3. Jerarquía moderna: bordes hairline + sombras suaves, radios 8–12px,
+      tipografía 13.5–14px con títulos densos.
+   Esta capa va AL FINAL del archivo: a igual especificidad gana sobre
+   cualquier lock anterior.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --g3-surface: #f3f5f9;
+  --g3-panel: #ffffff;
+  --g3-panel-soft: #f7f9fc;
+  --g3-line: #e4e9f1;
+  --g3-line-strong: #cbd5e1;
+  --g3-text: #0f172a;
+  --g3-text-2: #334155;
+  --g3-text-3: #64748b;
+  --g3-brand: #0057a8;
+  --g3-brand-strong: #00407e;
+  --g3-brand-soft: #e8f1fb;
+  --g3-accent: #f5a623;
+  --g3-focus: 0 0 0 3px rgba(0, 112, 210, 0.28);
+  --g3-radius: 10px;
+  --g3-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 4px rgba(15, 23, 42, 0.04);
+  --g3-shadow-md: 0 2px 6px rgba(15, 23, 42, 0.06), 0 10px 28px rgba(15, 23, 42, 0.07);
+}
+
+/* ─── 1. SUPERFICIE BASE ──────────────────────────────────────────────── */
+#app .content,
+#app .main,
+#app .main-content,
+#app .dashboard,
+#app .overview,
+#app .settings,
+#app .admin,
+#app .ticketZoom,
+#app .page {
+  background: var(--g3-surface) !important;
+}
+
+/* ─── 2. PAGE HEADER — claro, legible, moderno ────────────────────────
+   Antes: barra #2f3542 de Zammad con texto #4b5563 heredado (ratio 1.3:1).
+   Ahora: superficie blanca, título denso, acciones fantasma. */
+#app .page-header,
+#app .pageHeader,
+#app .content .page-header,
+#app .main .page-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  min-height: 56px !important;
+  margin: 0 0 14px !important;
+  padding: 10px 18px !important;
+  background: var(--g3-panel) !important;
+  background-color: var(--g3-panel) !important;
+  border: 1px solid var(--g3-line) !important;
+  border-radius: var(--g3-radius) !important;
+  box-shadow: var(--g3-shadow-sm) !important;
+  color: var(--g3-text) !important;
+}
+
+#app .page-header *,
+#app .pageHeader * {
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+  text-shadow: none !important;
+}
+
+#app .page-header h1,
+#app .page-header .page-header-title,
+#app .pageHeader h1 {
+  margin: 0 !important;
+  color: var(--g3-text) !important;
+  font-size: 17px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.25 !important;
+}
+
+#app .page-header small,
+#app .page-header .page-header-meta,
+#app .page-header [class*="meta"] {
+  color: var(--g3-text-3) !important;
+  -webkit-text-fill-color: var(--g3-text-3) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+}
+
+/* Variantes de alta especificidad: deben ganar al lock
+   `#app .content [class*="overview"] [class*="header"]` (1,3,0). */
+#app .content .overview-table .page-header,
+#app .content [class*="overview"] .page-header,
+#app .content [class*="Overview"] .page-header {
+  background: var(--g3-panel) !important;
+  background-color: var(--g3-panel) !important;
+  border: 1px solid var(--g3-line) !important;
+  border-radius: var(--g3-radius) !important;
+  box-shadow: var(--g3-shadow-sm) !important;
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+}
+
+#app .content .overview-table .page-header *,
+#app .content [class*="overview"] .page-header *,
+#app .content [class*="Overview"] .page-header * {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+  text-shadow: none !important;
+}
+
+#app .content .overview-table .page-header h1,
+#app .content .overview-table .page-header h2,
+#app .content [class*="overview"] .page-header h1,
+#app .content [class*="overview"] .page-header h2 {
+  margin: 0 !important;
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+  font-size: 17px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.25 !important;
+}
+
+#app .content .overview-table .page-header .page-header-meta,
+#app .content [class*="overview"] .page-header .page-header-meta,
+#app .content .overview-table .page-header small {
+  color: var(--g3-text-3) !important;
+  -webkit-text-fill-color: var(--g3-text-3) !important;
+}
+
+/* Botones de acción del header (p.ej. "Opciones") — estilo fantasma */
+#app .page-header .btn,
+#app .page-header .btn--action,
+#app .btn.btn--action {
+  background: var(--g3-panel) !important;
+  background-color: var(--g3-panel) !important;
+  border: 1px solid var(--g3-line-strong) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: var(--g3-text-2) !important;
+  -webkit-text-fill-color: var(--g3-text-2) !important;
+  font-size: 12px !important;
+  font-weight: 650 !important;
+  min-height: 32px !important;
+  padding: 5px 12px !important;
+}
+
+#app .page-header .btn:hover,
+#app .page-header .btn--action:hover,
+#app .btn.btn--action:hover {
+  background: var(--g3-panel-soft) !important;
+  background-color: var(--g3-panel-soft) !important;
+  border-color: #b6c2d2 !important;
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+  transform: none !important;
+}
+
+/* ─── 3. NAV DE OVERVIEWS (segunda columna) ──────────────────────────── */
+#app .content > .sidebar:not(.NavBarAdmin),
+#app .content.overviews > .sidebar {
+  background: var(--g3-panel) !important;
+  background-color: var(--g3-panel) !important;
+  border-right: 1px solid var(--g3-line) !important;
+  color: var(--g3-text-2) !important;
+}
+
+#app .content .sidebar .nav.nav-pills.nav-stacked {
+  display: grid !important;
+  gap: 2px !important;
+  padding: 10px 8px !important;
+}
+
+#app .content .sidebar .nav-pills li {
+  margin: 0 !important;
+}
+
+#app .content .sidebar .nav-pills li a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  min-height: 38px !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  box-shadow: inset 3px 0 0 transparent !important;
+  color: var(--g3-text-2) !important;
+  -webkit-text-fill-color: var(--g3-text-2) !important;
+  font-size: 13.5px !important;
+  font-weight: 550 !important;
+  line-height: 1.3 !important;
+  text-decoration: none !important;
+  transition: background 0.12s ease, color 0.12s ease !important;
+}
+
+#app .content .sidebar .nav-pills li a *,
+#app .content .sidebar .nav-pills li a span {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+#app .content .sidebar .nav-pills li a:hover {
+  background: #f1f5fa !important;
+  background-color: #f1f5fa !important;
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+}
+
+#app .content .sidebar .nav-pills li.active a,
+#app .content .sidebar .nav-pills li.is-active a {
+  background: var(--g3-brand-soft) !important;
+  background-color: var(--g3-brand-soft) !important;
+  box-shadow: inset 3px 0 0 var(--g3-accent) !important;
+  color: var(--g3-brand-strong) !important;
+  -webkit-text-fill-color: var(--g3-brand-strong) !important;
+  font-weight: 700 !important;
+}
+
+#app .content .sidebar .nav-pills li.active a *,
+#app .content .sidebar .nav-pills li.is-active a * {
+  color: var(--g3-brand-strong) !important;
+  -webkit-text-fill-color: var(--g3-brand-strong) !important;
+}
+
+/* Contadores del nav de overviews — pill discreta */
+#app .content .sidebar .nav-pills li a .badge,
+#app .content .sidebar .nav-pills li a [class*="count"],
+#app .content .sidebar .nav-pills li a span:last-child:not(:first-child) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 22px !important;
+  min-height: 19px !important;
+  padding: 1px 7px !important;
+  border-radius: 999px !important;
+  background: #eef2f7 !important;
+  background-color: #eef2f7 !important;
+  color: var(--g3-text-3) !important;
+  -webkit-text-fill-color: var(--g3-text-3) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+}
+
+#app .content .sidebar .nav-pills li.active a .badge,
+#app .content .sidebar .nav-pills li.active a span:last-child:not(:first-child) {
+  background: #d6e7f8 !important;
+  background-color: #d6e7f8 !important;
+  color: var(--g3-brand-strong) !important;
+  -webkit-text-fill-color: var(--g3-brand-strong) !important;
+}
+
+/* ─── 4. TABLAS — superficie limpia, encabezado claro ────────────────── */
+#app .table-overview,
+#app .content .page-content {
+  background: var(--g3-panel) !important;
+  background-color: var(--g3-panel) !important;
+}
+
+#app .content table,
+#app .content .table {
+  background: var(--g3-panel) !important;
+  border: 1px solid var(--g3-line) !important;
+  border-radius: var(--g3-radius) !important;
+  box-shadow: var(--g3-shadow-sm) !important;
+  overflow: hidden !important;
+}
+
+#app thead th,
+#app table thead th,
+#app .content table thead th,
+#app .content .table thead th,
+#app .js-tableHead,
+#app .table-column-title,
+#app th .table-column-title,
+#app .table .js-tableHead,
+#app .table .table-column-title {
+  background: var(--g3-panel-soft) !important;
+  background-color: var(--g3-panel-soft) !important;
+  border-bottom: 1px solid var(--g3-line) !important;
+  color: var(--g3-text-3) !important;
+  -webkit-text-fill-color: var(--g3-text-3) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  padding: 10px 14px !important;
+}
+
+#app thead th *,
+#app .content table thead th *,
+#app .content .table thead th * {
+  color: var(--g3-text-3) !important;
+  -webkit-text-fill-color: var(--g3-text-3) !important;
+}
+
+#app .content table tbody td,
+#app .content .table tbody td {
+  border-bottom: 1px solid #eef2f7 !important;
+  color: #1e293b !important;
+  font-size: 13.5px !important;
+  padding: 11px 14px !important;
+  vertical-align: middle !important;
+}
+
+#app .content table tbody tr:hover td,
+#app .content .table tbody tr:hover td {
+  background: #f4f8fd !important;
+}
+
+#app .content table tbody tr:last-child td {
+  border-bottom: 0 !important;
+}
+
+/* Filas no leídas / destacadas */
+#app .content table tbody tr.item-unread td,
+#app .content table tbody tr[class*="unread"] td {
+  font-weight: 650 !important;
+  color: var(--g3-text) !important;
+}
+
+/* ─── 5. DASHBOARD — tabs segmentadas + widgets ──────────────────────── */
+#app .dashboard .tabs--big,
+#app .content .dashboard .tabs--big {
+  display: inline-flex !important;
+  gap: 3px !important;
+  margin: 16px auto 4px !important;
+  padding: 3px !important;
+  background: #e8edf4 !important;
+  background-color: #e8edf4 !important;
+  border: 1px solid var(--g3-line) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+#app .dashboard .tabs--big .tab,
+#app .content .dashboard .tabs--big .tab {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+  padding: 7px 18px !important;
+  transition: background 0.12s ease, color 0.12s ease !important;
+}
+
+#app .dashboard .tabs--big .tab *,
+#app .content .dashboard .tabs--big .tab * {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+#app .dashboard .tabs--big .tab:hover,
+#app .content .dashboard .tabs--big .tab:hover {
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+}
+
+#app .dashboard .tabs--big .tab.active,
+#app .dashboard .tabs--big .tab.is-active,
+#app .content .dashboard .tabs--big .tab.active,
+#app .content .dashboard .tabs--big .tab.is-active {
+  background: var(--g3-panel) !important;
+  background-color: var(--g3-panel) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12) !important;
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+  font-weight: 700 !important;
+}
+
+#app .dashboard .tabs--big .tab.active *,
+#app .dashboard .tabs--big .tab.is-active *,
+#app .content .dashboard .tabs--big .tab.active *,
+#app .content .dashboard .tabs--big .tab.is-active * {
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+}
+
+/* Widgets de estadísticas del dashboard */
+#app .dashboard .stat-widgets .stat-widget,
+#app .dashboard [class*="stat-widget"],
+#app .dashboard .box {
+  background: var(--g3-panel) !important;
+  border: 1px solid var(--g3-line) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--g3-shadow-sm) !important;
+  transition: box-shadow 0.15s ease, transform 0.13s ease !important;
+}
+
+#app .dashboard .stat-widget:hover,
+#app .dashboard .box:hover {
+  box-shadow: var(--g3-shadow-md) !important;
+  transform: translateY(-1px) !important;
+}
+
+#app .dashboard .stat-widget .stat-title,
+#app .dashboard .stat-widget h2,
+#app .dashboard .stat-widget h3 {
+  color: var(--g3-text-3) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+/* Flujo de actividad del dashboard — tarjeta coherente */
+#app .dashboard .sidebar.optional h2,
+#app .content.horizontal > .sidebar.optional h2 {
+  color: var(--g3-text) !important;
+  font-size: 15px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* ─── 6. BOTONES SECUNDARIOS COHERENTES ──────────────────────────────── */
+#app .content .btn:not(.btn--primary):not(.btn-primary):not(.button--primary):not([type="submit"]):not(.btn--danger):not(.btn-danger):not(.btn--success):not(.btn-success),
+#app .modal .btn:not(.btn--primary):not(.btn-primary):not([type="submit"]):not(.btn--danger):not(.btn--success) {
+  background: var(--g3-panel) !important;
+  background-color: var(--g3-panel) !important;
+  border: 1px solid var(--g3-line-strong) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: var(--g3-text-2) !important;
+  font-weight: 600 !important;
+}
+
+#app .content .btn:not(.btn--primary):not(.btn-primary):not(.button--primary):not([type="submit"]):not(.btn--danger):not(.btn-danger):not(.btn--success):not(.btn-success):hover {
+  background: var(--g3-panel-soft) !important;
+  background-color: var(--g3-panel-soft) !important;
+  border-color: #b6c2d2 !important;
+  color: var(--g3-text) !important;
+  transform: none !important;
+}
+
+/* ─── 7. PAGINACIÓN ──────────────────────────────────────────────────── */
+#app .pagination,
+#app .js-pager {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+#app .pagination a,
+#app .pagination .btn,
+#app .js-pager a,
+#app .js-page {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  padding: 0 9px !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--g3-text-2) !important;
+  -webkit-text-fill-color: var(--g3-text-2) !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+}
+
+#app .pagination a:hover,
+#app .js-page:hover {
+  background: var(--g3-panel-soft) !important;
+  background-color: var(--g3-panel-soft) !important;
+  border-color: var(--g3-line) !important;
+}
+
+#app .pagination .active a,
+#app .pagination a.active,
+#app .js-page.is-selected,
+#app .js-page.active {
+  background: var(--g3-brand) !important;
+  background-color: var(--g3-brand) !important;
+  border-color: var(--g3-brand) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* ─── 8. ADMIN — nav lateral refinada ────────────────────────────────── */
+#app .sidebar.NavBarAdmin {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-right: 1px solid var(--g3-line) !important;
+}
+
+#app .sidebar.NavBarAdmin,
+#app .sidebar.NavBarAdmin a,
+#app .sidebar.NavBarAdmin a *,
+#app .sidebar.NavBarAdmin li,
+#app .sidebar.NavBarAdmin span,
+#app .sidebar.NavBarAdmin div {
+  color: var(--g3-text-2) !important;
+  -webkit-text-fill-color: var(--g3-text-2) !important;
+  text-shadow: none !important;
+}
+
+#app .sidebar.NavBarAdmin h1,
+#app .sidebar.NavBarAdmin h2,
+#app .sidebar.NavBarAdmin h3,
+#app .sidebar.NavBarAdmin h4,
+#app .sidebar.NavBarAdmin .menu-header {
+  color: var(--g3-text-3) !important;
+  -webkit-text-fill-color: var(--g3-text-3) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+}
+
+#app .sidebar.NavBarAdmin a {
+  border-radius: 8px !important;
+  font-size: 13.5px !important;
+  font-weight: 550 !important;
+  transition: background 0.12s ease, color 0.12s ease !important;
+}
+
+#app .sidebar.NavBarAdmin a:hover,
+#app .sidebar.NavBarAdmin li:hover > a {
+  background: #f1f5fa !important;
+  background-color: #f1f5fa !important;
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+}
+
+#app .sidebar.NavBarAdmin .active,
+#app .sidebar.NavBarAdmin .is-active,
+#app .sidebar.NavBarAdmin .active a,
+#app .sidebar.NavBarAdmin .is-active a,
+#app .sidebar.NavBarAdmin .active a *,
+#app .sidebar.NavBarAdmin .is-active a * {
+  background: var(--g3-brand-soft) !important;
+  background-color: var(--g3-brand-soft) !important;
+  color: var(--g3-brand-strong) !important;
+  -webkit-text-fill-color: var(--g3-brand-strong) !important;
+  font-weight: 700 !important;
+}
+
+/* En CMDB el panel de enfoque admin vive sobre esta nav — ahora clara */
+#app.geimser-route-cmdb .sidebar.NavBarAdmin,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin * {
+  color: var(--g3-text-2) !important;
+  -webkit-text-fill-color: var(--g3-text-2) !important;
+}
+
+#app.geimser-route-cmdb .geimser-admin-focus-panel,
+#app.geimser-route-cmdb .geimser-admin-focus-panel strong,
+#app.geimser-route-cmdb .geimser-admin-focus-panel * {
+  border-color: var(--g3-line) !important;
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+}
+
+#app.geimser-route-cmdb .geimser-admin-focus-toggle {
+  background: var(--g3-panel-soft) !important;
+  border: 1px solid var(--g3-line-strong) !important;
+  color: var(--g3-text-2) !important;
+  -webkit-text-fill-color: var(--g3-text-2) !important;
+}
+
+#app.geimser-route-cmdb .geimser-admin-focus-toggle:hover {
+  background: var(--g3-brand-soft) !important;
+  color: var(--g3-brand-strong) !important;
+  -webkit-text-fill-color: var(--g3-brand-strong) !important;
+}
+
+#app.geimser-route-cmdb .sidebar.NavBarAdmin .is-active a,
+#app.geimser-route-cmdb .sidebar.NavBarAdmin .active a {
+  background: var(--g3-brand-soft) !important;
+  color: var(--g3-brand-strong) !important;
+  -webkit-text-fill-color: var(--g3-brand-strong) !important;
+}
+
+/* ─── 9. TICKET ZOOM — título y detalles ─────────────────────────────── */
+#app.geimser-route-ticket .ticketZoom .ticket-title-update,
+#app.geimser-route-ticket .ticketZoom .js-objectTitle {
+  font-size: 18px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.3 !important;
+}
+
+#app.geimser-route-ticket .ticketZoom .ticket-article {
+  box-shadow: var(--g3-shadow-sm) !important;
+}
+
+/* ─── 10. NOTIFICACIONES (noty) — WCAG AA ────────────────────────────── */
+.noty_bar,
+.noty_body,
+.noty_text,
+.noty_message {
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  text-shadow: none !important;
+}
+
+.noty_bar.noty_type__success,
+.noty-success {
+  background-color: rgba(20, 96, 50, 0.95) !important;
+  color: #ffffff !important;
+}
+
+.noty_bar.noty_type__error,
+.noty-error {
+  background-color: rgba(150, 27, 27, 0.95) !important;
+  color: #ffffff !important;
+}
+
+.noty_bar.noty_type__warning,
+.noty-warning {
+  background-color: rgba(116, 53, 14, 0.95) !important;
+  color: #ffffff !important;
+}
+
+.noty_bar.noty_type__info,
+.noty-info,
+.noty_bar.noty_type__information {
+  background-color: rgba(27, 60, 166, 0.95) !important;
+  color: #ffffff !important;
+}
+
+.noty_bar .icon,
+.noty_bar svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* ─── 11. FOCO VISIBLE — accesibilidad en todo el producto ───────────── */
+#app a:focus-visible,
+#app button:focus-visible,
+#app [role="button"]:focus-visible,
+#app input:focus-visible,
+#app select:focus-visible,
+#app textarea:focus-visible,
+.hero-unit a:focus-visible,
+.hero-unit button:focus-visible {
+  box-shadow: var(--g3-focus) !important;
+  outline: none !important;
+}
+
+/* ─── 12. LOGIN — refinamiento ───────────────────────────────────────── */
+.hero-unit {
+  border-radius: 16px !important;
+  border-color: var(--g3-line) !important;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.10), 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+}
+
+.hero-unit button[type="submit"] {
+  border-radius: 10px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+.hero-unit input.form-control,
+.hero-unit .form-control {
+  border-radius: 10px !important;
+}
+
+/* ─── 13. MODO OSCURO — normalizado ──────────────────────────────────
+   El producto fuerza intencionalmente el tema claro (color-scheme:light
+   en las capas base) para garantizar contraste estable en todas las
+   superficies de Zammad. El toggle de modo oscuro del popup de perfil
+   solo conserva su efecto en el propio popup (data-geimser-popup-theme).
+   Cualquier residuo de superficies oscuras de Zammad se neutraliza: */
+html[data-theme="dark"] #app .content,
+html[data-theme="dark"] #app .main,
+html[data-theme="dark"] #app .page {
+  background: var(--g3-surface) !important;
+  color: var(--g3-text) !important;
+}
+
+/* ─── 14. DETALLES FINALES ───────────────────────────────────────────── */
+/* Skeleton/empty states centrados y legibles */
+#app .content .zammad-placeholder,
+#app .content [class*="placeholder"]:not(input):not(textarea),
+#app .content [class*="emptyState"],
+#app .content [class*="EmptyState"] {
+  color: var(--g3-text-3) !important;
+}
+
+/* Selección de texto con marca */
+#app ::selection {
+  background: rgba(0, 112, 210, 0.18) !important;
+  color: inherit !important;
+}
+
+/* Tags / etiquetas de ticket */
+#app .js-tag,
+#app .tag,
+#app [class*="ticketTag"] {
+  background: var(--g3-brand-soft) !important;
+  border: 1px solid #cfe2f5 !important;
+  border-radius: 999px !important;
+  color: var(--g3-brand-strong) !important;
+  -webkit-text-fill-color: var(--g3-brand-strong) !important;
+  font-size: 11.5px !important;
+  font-weight: 650 !important;
+  padding: 2px 9px !important;
+}
+
+/* ─── 15. TICKET ZOOM — encabezado fijo (vive FUERA de .ticketZoom) ──── */
+#app .scrollPageHeader {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-bottom: 1px solid var(--g3-line) !important;
+  color: var(--g3-text) !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+#app .scrollPageHeader *,
+#app .scrollPageHeader .ticket-number,
+#app .scrollPageHeader .ticket-number-copy-header {
+  color: var(--g3-text-2) !important;
+  -webkit-text-fill-color: var(--g3-text-2) !important;
+  text-shadow: none !important;
+}
+
+#app .scrollPageHeader .ticket-title-update,
+#app .scrollPageHeader .js-objectTitle {
+  color: var(--g3-text) !important;
+  -webkit-text-fill-color: var(--g3-text) !important;
+  font-size: 17px !important;
+  font-weight: 750 !important;
+  letter-spacing: -0.01em !important;
+}
+
+#app .scrollPageHeader .btn,
+#app .scrollPageHeader [role="button"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid var(--g3-line-strong) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: var(--g3-text-2) !important;
+  -webkit-text-fill-color: var(--g3-text-2) !important;
+}
+
+#app .scrollPageHeader .btn:hover,
+#app .scrollPageHeader [role="button"]:hover {
+  background: var(--g3-panel-soft) !important;
+  background-color: var(--g3-panel-soft) !important;
+}
+
+/* ─── 16. AVATARES — nunca deformados ────────────────────────────────── */
+#app .ticketZoom .avatar,
+#app .ticketZoom .js-avatar,
+#app .attributeBar .avatar,
+#app .article-new .avatar {
+  flex: 0 0 auto !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  line-height: 1 !important;
+}
+
+#app .ticketZoom .avatar.size-50 {
+  width: 50px !important;
+  min-width: 50px !important;
+  max-width: 50px !important;
+  height: 50px !important;
+  min-height: 50px !important;
+  max-height: 50px !important;
+}
+
+/* ─── 17. CONTADOR DE NOTIFICACIONES — texto blanco sobre rojo ───────── */
+#app .activity-counter,
+#app .js-notificationsCounter,
+#app [class*="notificationsCounter"] {
+  background: #d92d20 !important;
+  background-color: #d92d20 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-weight: 750 !important;
+  text-shadow: none !important;
 }

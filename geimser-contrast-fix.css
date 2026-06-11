@@ -1,0 +1,125 @@
+/*
+ * geimser-contrast-fix.css — OBSOLETO (2026-06-11)
+ * Estas correcciones fueron integradas y reemplazadas por la capa
+ * "GEIMSER DESIGN SYSTEM v3" al final de branding/geimser.css.
+ * No aplicar este archivo por separado.
+ */
+/* ── 1. NOTIFICACIONES (noty) ──────────────────────────────────────────────
+   Problema: .noty_text usa rgb(15,17,23) sobre rgba(0,0,0,0.75) → ratio 1.11
+   Fix: texto blanco sobre fondo semitransparente oscuro
+*/
+.noty_bar,
+.noty_body,
+.noty_text,
+.noty_message {
+  color: #ffffff !important;
+}
+
+.noty_bar.noty_type__success,
+.noty-success {
+  background-color: rgba(22, 101, 52, 0.92) !important; /* verde oscuro */
+  color: #ffffff !important;
+}
+
+.noty_bar.noty_type__error,
+.noty-error {
+  background-color: rgba(153, 27, 27, 0.92) !important;
+  color: #ffffff !important;
+}
+
+.noty_bar.noty_type__warning,
+.noty-warning {
+  background-color: rgba(120, 53, 15, 0.92) !important;
+  color: #ffffff !important;
+}
+
+.noty_bar.noty_type__info,
+.noty-info {
+  background-color: rgba(30, 64, 175, 0.92) !important;
+  color: #ffffff !important;
+}
+
+/* Íconos dentro de notificaciones */
+.noty_bar .icon,
+.noty_bar svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+/* ── 2. BADGE / CONTADOR DE NOTIFICACIONES ────────────────────────────────
+   Problema: número de notificaciones puede quedar con bajo contraste
+*/
+.js-notificationsCounter,
+.notification-badge,
+[class*="badge"] {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* ── 3. BOTÓN "INICIAR SESIÓN" (preview en branding) ──────────────────────
+   Problema: btn--login aparece azul muy claro (#93c5fd) sobre fondo blanco
+*/
+.btn--login,
+.login-form .btn--primary,
+.login-page .btn {
+  background-color: #1d4ed8 !important; /* azul sólido WCAG AA */
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+}
+
+.btn--login:hover,
+.login-form .btn--primary:hover {
+  background-color: #1e40af !important;
+}
+
+/* ── 4. TEXTOS DE ESTADO / SECUNDARIOS EN EL SIDEBAR ──────────────────────
+   Problema: textos de estado "online/offline" pueden tener bajo contraste
+   sobre fondos claros en ciertos temas
+*/
+.user-popover-content .status,
+.sidebar-user .status,
+.user-menu .status {
+  color: #374151 !important; /* gris oscuro legible */
+}
+
+/* ── 5. LABELS DE FORMULARIO EN PANEL ADMIN ───────────────────────────────
+   Algunos labels en ALL-CAPS usan tamaño pequeño — asegurar legibilidad
+*/
+.settings-entry .form-label,
+.settings-entry label,
+.setting-entry .label {
+  color: #111827 !important;
+  font-weight: 500;
+}
+
+/* ── 6. HEADERS DE SECCIÓN EN SIDEBAR ADMIN ──────────────────────────────
+   Problema: "Canales", "Ajustes", "IA" pueden aparecer en gris muy claro
+*/
+.sidebar .navigation-group-title,
+.settings-navigation .group-title,
+[class*="nav-section"] {
+  color: #6b7280 !important; /* gris accesible — ratio ~4.6:1 sobre blanco */
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── 7. ÍCONOS Y TEXTOS EN SIDEBAR OSCURO ─────────────────────────────────
+   El sidebar oscuro (rgb(15,17,23)) ya tiene buen contraste, pero reforzar
+   el hover state
+*/
+#navigation.navigation .list-button:hover,
+#navigation.navigation a:hover {
+  color: #f9fafb !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── 8. PLACEHOLDER TEXT ──────────────────────────────────────────────────
+   Placeholders deben tener al menos 3:1 (texto grande/UI) o 4.5:1 (cuerpo)
+*/
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important; /* gris — ratio 4.6:1 sobre blanco */
+  opacity: 1;
+}
