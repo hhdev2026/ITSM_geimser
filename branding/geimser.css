@@ -4715,3 +4715,87 @@ html[data-theme="dark"] .geimser-native-cmdb-assets {
   font-size: 15px !important;
   font-weight: 750 !important;
 }
+
+/* ─── 10. FLUJO DE ACTIVIDAD — tematizado (anula el lock heredado) ──────
+   El bloque funcional heredado fija #ffffff con especificidad (1,5,0);
+   aquí se replican sus selectores con tokens para que el panel siga el
+   tema activo. Mismo peso, posterior en el archivo → gana. */
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entries,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entry,
+#app.geimser-route-profile .activity-stream,
+#app.geimser-route-profile .activityStream,
+#app.geimser-route-profile .activity-list,
+#app.geimser-route-activity-flow .geimser-activity-surface,
+#app .geimser-activity-surface,
+#app .geimser-activity-surface article,
+#app .geimser-activity-surface li,
+#app .geimser-activity-surface [class*="item"] {
+  background: var(--gx-panel) !important;
+  background-color: var(--gx-panel) !important;
+  color: var(--gx-text) !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entry,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional li[class*="activity"] {
+  border-bottom: 1px solid var(--gx-line) !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional h1,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional h2,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional h3,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional p,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional span,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional div,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-body,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-message,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-text,
+#app .geimser-activity-surface .activity-body,
+#app .geimser-activity-surface .activity-message,
+#app .geimser-activity-surface .activity-text {
+  color: var(--gx-text) !important;
+  -webkit-text-fill-color: var(--gx-text) !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional a,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .link,
+#app .geimser-activity-surface a,
+#app .geimser-activity-surface .link,
+#app .geimser-activity-surface .activity-body a,
+#app .geimser-activity-surface .activity-message a,
+#app .geimser-activity-surface .activity-text a {
+  color: var(--gx-link) !important;
+  -webkit-text-fill-color: var(--gx-link) !important;
+  font-weight: 650 !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional small,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional time,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="meta"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="time"],
+#app .geimser-activity-surface small,
+#app .geimser-activity-surface time,
+#app .geimser-activity-surface .activity-time,
+#app .geimser-activity-surface .humanTimeFromNow.activity-time,
+#app .geimser-activity-surface [class*="meta"],
+#app .geimser-activity-surface [class*="time"] {
+  color: var(--gx-text-3) !important;
+  -webkit-text-fill-color: var(--gx-text-3) !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .avatar,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional [class*="avatar"],
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-avatar .avatar,
+#app .geimser-activity-surface .avatar,
+#app .geimser-activity-surface [class*="avatar"] {
+  background: var(--gx-accent) !important;
+  background-color: var(--gx-accent) !important;
+  color: #1d1303 !important;
+  -webkit-text-fill-color: #1d1303 !important;
+  text-shadow: none !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-avatar {
+  background: transparent !important;
+  background-color: transparent !important;
+}
