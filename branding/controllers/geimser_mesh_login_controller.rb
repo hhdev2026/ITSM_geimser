@@ -7,8 +7,8 @@ require 'set'
 require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
-  before_action :authentication_check, except: %i[bot_login]
-  before_action :require_internal_user!, except: %i[bot_login bot_session]
+  before_action :authentication_check, except: %i[bot_login search]
+  before_action :require_internal_user!, except: %i[bot_login bot_session search]
   before_action :require_admin!, only: %i[show]
 
   def show
