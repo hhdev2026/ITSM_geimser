@@ -226,7 +226,7 @@ class GeimserMeshLoginController < ApplicationController
 
     uri = URI.parse(requested)
     origin = "#{uri.scheme}://#{uri.host}#{uri.port && ![80, 443].include?(uri.port) ? ":#{uri.port}" : ''}"
-    return origin if allowed.include?(origin) || origin.end_with?('.vercel.app')
+    return origin if allowed.include?(origin)
 
     allowed.first
   rescue URI::InvalidURIError
@@ -234,7 +234,7 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   def bot_allowed_origins
-    ENV.fetch('GEIMSER_BOT_ORIGINS', 'https://iabot.geimser.cl,https://botitsm.vercel.app,http://localhost:3000')
+    ENV.fetch('GEIMSER_BOT_ORIGINS', 'https://iabot.geimser.cl,https://botitsm.vercel.app,https://botitsm-atlas-devs-projects.vercel.app,https://botitsm-git-main-atlas-devs-projects.vercel.app,http://localhost:3000')
       .split(',')
       .map(&:strip)
       .reject(&:blank?)
