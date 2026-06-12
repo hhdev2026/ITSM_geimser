@@ -1,4 +1,5 @@
 require 'base64'
+require 'erb'
 require 'json'
 require 'openssl'
 require 'securerandom'
@@ -7,7 +8,7 @@ require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
   before_action :authentication_check
-  before_action :require_internal_user!
+  before_action :require_internal_user!, except: %i[bot_login bot_session]
   before_action :require_admin!, only: %i[show]
 
   def show
@@ -49,6 +50,48 @@ class GeimserMeshLoginController < ApplicationController
       users: users,
       orphan_assets: orphan_assets(users, assets),
     }
+  end
+
+  def bot_session
+    render json: bot_identity_payload
+  end
+
+  def bot_login
+    origin = safe_bot_origin
+    payload = bot_identity_payload.merge(type: 'geimser:itsm-identity')
+    nonce = content_security_policy_nonce
+
+    render html: [
+      '<!doctype html>',
+      '<html lang="es">',
+      '<head>',
+      '<meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      '<title>Conectando con Mesa de Ayuda</title>',
+      '<style>',
+      'body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07101d;color:#e5eefb;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}',
+      '.box{max-width:360px;padding:28px;text-align:center}',
+      '.mark{display:inline-grid;width:44px;height:44px;place-items:center;border:1px solid rgba(85,244,255,.28);border-radius:12px;background:rgba(85,244,255,.08);color:#55f4ff;font-weight:800;margin-bottom:14px}',
+      'h1{font-size:18px;margin:0 0 8px}p{font-size:13px;line-height:1.5;margin:0;color:#9fb1c8}',
+      '</style>',
+      '</head>',
+      '<body>',
+      '<main class="box">',
+      '<span class="mark">S</span>',
+      '<h1>Login ITSM confirmado</h1>',
+      '<p>Volviendo al asistente de soporte.</p>',
+      '</main>',
+      "<script#{nonce.present? ? " nonce=\"#{ERB::Util.html_escape(nonce)}\"" : ''}>",
+      '(function(){',
+      "var origin=#{origin.to_json};",
+      "var payload=#{payload.to_json};",
+      'if(window.opener&&!window.opener.closed){window.opener.postMessage(payload,origin);}',
+      'setTimeout(function(){window.close();},650);',
+      '}());',
+      '</script>',
+      '</body>',
+      '</html>',
+    ].join.html_safe, layout: false
   end
 
   def search
@@ -156,6 +199,45 @@ class GeimserMeshLoginController < ApplicationController
     ActiveSupport::SecurityUtils.secure_compare(token, expected)
   rescue StandardError
     false
+  end
+
+  def bot_identity_payload
+    {
+      authenticated: true,
+      user: serialize_bot_user(current_user),
+    }
+  end
+
+  def serialize_bot_user(user)
+    {
+      id: user.id,
+      login: user.login,
+      email: user.email.presence || user.login,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      name: [user.firstname, user.lastname].compact_blank.join(' ').presence || user.email.presence || user.login,
+    }
+  end
+
+  def safe_bot_origin
+    requested = params[:return_origin].to_s.presence
+    allowed = bot_allowed_origins
+    return allowed.first if requested.blank?
+
+    uri = URI.parse(requested)
+    origin = "#{uri.scheme}://#{uri.host}#{uri.port && ![80, 443].include?(uri.port) ? ":#{uri.port}" : ''}"
+    return origin if allowed.include?(origin) || origin.end_with?('.vercel.app')
+
+    allowed.first
+  rescue URI::InvalidURIError
+    allowed.first
+  end
+
+  def bot_allowed_origins
+    ENV.fetch('GEIMSER_BOT_ORIGINS', 'https://iabot.geimser.cl,https://botitsm.vercel.app,http://localhost:3000')
+      .split(',')
+      .map(&:strip)
+      .reject(&:blank?)
   end
 
   def require_internal_user!
