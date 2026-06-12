@@ -4699,6 +4699,22 @@ html[data-theme="dark"] .geimser-native-cmdb-assets {
   -webkit-text-fill-color: var(--gx-text) !important;
 }
 
+#app.geimser-route-ticket .ticketZoom .ticket-article .textBubble-overflowContainer,
+#app.geimser-route-ticket .ticketZoom .ticket-article .textBubble-overflowContainer *,
+#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content p,
+#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content div,
+#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content span,
+#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content pre,
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-body p,
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-body div,
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-body span,
+#app.geimser-route-ticket .ticketZoom .ticket-article .article-body pre {
+  color: var(--gx-text) !important;
+  -webkit-text-fill-color: var(--gx-text) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
 /* Avatares generados por Zammad (color por usuario): asegurar texto legible */
 #app .avatar.user-popover,
 #app .ticketZoom .avatar {

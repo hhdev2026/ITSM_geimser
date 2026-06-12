@@ -252,6 +252,8 @@ class GeimserMeshLoginController < ApplicationController
       firstname: user.firstname,
       lastname: user.lastname,
       name: [user.firstname, user.lastname].compact_blank.join(' ').presence || user.email.presence || user.login,
+      area: user.organization&.name,
+      organization: user.organization&.name,
     }
   end
 
