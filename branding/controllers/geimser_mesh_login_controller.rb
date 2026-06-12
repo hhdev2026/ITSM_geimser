@@ -7,7 +7,7 @@ require 'set'
 require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
-  before_action :authentication_check
+  before_action :authentication_check, except: %i[bot_login]
   before_action :require_internal_user!, except: %i[bot_login bot_session]
   before_action :require_admin!, only: %i[show]
 
@@ -58,6 +58,8 @@ class GeimserMeshLoginController < ApplicationController
 
   def bot_login
     origin = safe_bot_origin
+    return render_bot_login_redirect(origin) if current_user.blank?
+
     payload = bot_identity_payload.merge(type: 'geimser:itsm-identity')
     nonce = content_security_policy_nonce
 
@@ -206,6 +208,40 @@ class GeimserMeshLoginController < ApplicationController
       authenticated: true,
       user: serialize_bot_user(current_user),
     }
+  end
+
+  def render_bot_login_redirect(origin)
+    nonce = content_security_policy_nonce
+    render html: [
+      '<!doctype html>',
+      '<html lang="es">',
+      '<head>',
+      '<meta charset="utf-8">',
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      '<title>Login ITSM requerido</title>',
+      '<style>',
+      'body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07101d;color:#e5eefb;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}',
+      '.box{max-width:380px;padding:28px;text-align:center}',
+      '.mark{display:inline-grid;width:44px;height:44px;place-items:center;border:1px solid rgba(85,244,255,.28);border-radius:12px;background:rgba(85,244,255,.08);color:#55f4ff;font-weight:800;margin-bottom:14px}',
+      'h1{font-size:18px;margin:0 0 8px}p{font-size:13px;line-height:1.5;margin:0 0 18px;color:#9fb1c8}a{display:inline-flex;border-radius:8px;background:#55f4ff;color:#07101d;font-weight:700;padding:10px 14px;text-decoration:none}',
+      '</style>',
+      '</head>',
+      '<body>',
+      '<main class="box">',
+      '<span class="mark">S</span>',
+      '<h1>Inicia sesión en ITSM</h1>',
+      '<p>Después del login volveré automáticamente al asistente.</p>',
+      '<a href="/#login">Iniciar sesión</a>',
+      '</main>',
+      "<script#{nonce.present? ? " nonce=\"#{ERB::Util.html_escape(nonce)}\"" : ''}>",
+      '(function(){',
+      "window.localStorage.setItem('geimserBotReturnOrigin', #{origin.to_json});",
+      "window.location.replace('/#login');",
+      '}());',
+      '</script>',
+      '</body>',
+      '</html>',
+    ].join.html_safe, layout: false
   end
 
   def serialize_bot_user(user)

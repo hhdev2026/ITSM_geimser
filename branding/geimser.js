@@ -2116,6 +2116,28 @@
     loadCmdbView(panel);
   }
 
+  function completePendingBotLogin() {
+    var session = currentSession();
+    if (!session) return;
+
+    var origin;
+    try {
+      origin = window.localStorage.getItem("geimserBotReturnOrigin");
+    } catch (_error) {
+      origin = "";
+    }
+
+    if (!origin) return;
+
+    try {
+      window.localStorage.removeItem("geimserBotReturnOrigin");
+    } catch (_error) {
+      // Best effort only.
+    }
+
+    window.location.href = "/geimser/bot/login?return_origin=" + encodeURIComponent(origin);
+  }
+
   function applyGeimserUi() {
     var app = document.querySelector("#app");
     if (!app) return;
@@ -2139,6 +2161,7 @@
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();
     ensurePasswordVisibilityToggle();
+    completePendingBotLogin();
   }
 
   window.GeimserContrastAudit = function () {
