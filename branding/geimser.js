@@ -517,6 +517,80 @@
     }
   }
 
+  function normalizeArticleContentContrast() {
+    /* Causa raíz del bajo contraste en la ticketera: el cuerpo de un
+       artículo (correo del cliente) es HTML AJENO, no UI nuestra. Los
+       remitentes (Outlook, firmas, plantillas de marketing) cada vez más
+       fijan sus propios colores con `style="color: ... !important"` para
+       defenderse del modo oscuro de Gmail/Outlook. Por cascada CSS, un
+       estilo inline con !important SIEMPRE le gana a una regla de hoja de
+       estilos con !important, sin importar cuántas capas de selectores se
+       apilen en geimser.css — por eso los parches puramente CSS de este
+       bloque (ver historial) nunca cierran el problema de raíz.
+       La única forma de ganarle de verdad es mutar el propio atributo
+       `style` del elemento (no competir con una regla nueva), así que este
+       normalizador mide el contraste real ya renderizado y, solo si está
+       por debajo de AA (4.5:1), reescribe el color (y si hace falta el
+       fondo) directamente sobre ese elemento. Si el correo ya es legible,
+       no se toca nada de su diseño original. */
+    var app = document.querySelector("#app");
+    if (!app || !app.classList.contains("geimser-route-ticket")) return;
+
+    var scopes = Array.from(app.querySelectorAll(
+      ".ticket-article-item .richtext-content, .ticket-article-item .article-body"
+    )).filter(function (scope) {
+      return !scope.closest("[contenteditable], .js-writeArea, .article-new");
+    });
+    if (!scopes.length) return;
+
+    scopes.forEach(function (scope) {
+      var panelBg = effectiveBackground(scope);
+
+      Array.from(scope.querySelectorAll("*")).forEach(function (el) {
+        if (el.getAttribute("data-geimser-contrast") === "done") return;
+        if (el.closest("[contenteditable]")) return;
+
+        var rect = el.getBoundingClientRect();
+        if (rect.width < 2 || rect.height < 2) return;
+
+        var style = window.getComputedStyle(el);
+        var fg = parseRgb(style.color);
+        if (!fg) return;
+
+        var ownBg = parseRgb(style.backgroundColor);
+        var hasOwnBg = Boolean(ownBg && ownBg.a >= 0.6);
+        var bg = hasOwnBg ? ownBg : panelBg;
+
+        if (contrastRatio(fg, bg) >= 4.5) {
+          el.setAttribute("data-geimser-contrast", "done");
+          return;
+        }
+
+        if (hasOwnBg && contrastRatio(fg, ownBg) >= 4.5) {
+          // El correo trae su propio fondo y, contra ESE fondo, su texto
+          // es legible (p.ej. un resaltado amarillo con texto negro).
+          // No lo tocamos: solo nos importa lo que de verdad no se lee.
+          el.setAttribute("data-geimser-contrast", "done");
+          return;
+        }
+
+        if (hasOwnBg) {
+          // El fondo propio del correo choca con su propio texto: lo
+          // anulamos para que se vea el panel del tema y luego corregimos
+          // el texto contra ese panel.
+          setImportantStyle(el, "background-color", "transparent");
+          setImportantStyle(el, "background-image", "none");
+          bg = panelBg;
+        }
+
+        var fixedColor = luminance(bg) < 0.5 ? "#f3f7fb" : "#1d1d1f";
+        setImportantStyle(el, "color", fixedColor);
+        setImportantStyle(el, "-webkit-text-fill-color", fixedColor);
+        el.setAttribute("data-geimser-contrast", "done");
+      });
+    });
+  }
+
   function normalizeProfileContrast() {
     /* Diseño v4: solo marca la superficie de detalle de usuario con una
        clase para que el CSS la tematice; además limpia cualquier estilo
@@ -2146,6 +2220,7 @@
     normalizeCmdbAdminNavigation();
     normalizeNativeControlContrast();
     normalizeTicketContrast();
+    normalizeArticleContentContrast();
     normalizeProfileContrast();
     repairActivityFlowLayout();
     removeZammadBranding();

@@ -2726,39 +2726,13 @@ body:has(.hero-unit) .hero-unit ~ hr {
   white-space: nowrap !important;
 }
 
-#app.geimser-route-ticket .ticketZoom .ticket-article,
-#app.geimser-route-ticket .ticketZoom .ticket-article *,
-#app.geimser-route-ticket .ticketZoom .ticket-article-item,
-#app.geimser-route-ticket .ticketZoom .ticket-article-item *,
-#app.geimser-route-ticket .ticketZoom .article-header,
-#app.geimser-route-ticket .ticketZoom .article-header *,
-#app.geimser-route-ticket .ticketZoom .article-meta,
-#app.geimser-route-ticket .ticketZoom .article-meta * {
-  color: #172033 !important;
-  -webkit-text-fill-color: #172033 !important;
-  text-shadow: none !important;
-}
-
-#app.geimser-route-ticket .ticketZoom .ticket-article a,
-#app.geimser-route-ticket .ticketZoom .ticket-article a *,
-#app.geimser-route-ticket .ticketZoom .ticket-article .text-muted,
-#app.geimser-route-ticket .ticketZoom .ticket-article .text-muted *,
-#app.geimser-route-ticket .ticketZoom .ticket-article [class*="muted"],
-#app.geimser-route-ticket .ticketZoom .ticket-article [class*="muted"] *,
-#app.geimser-route-ticket .ticketZoom .ticket-article [class*="secondary"],
-#app.geimser-route-ticket .ticketZoom .ticket-article [class*="secondary"] * {
-  color: #64748b !important;
-  -webkit-text-fill-color: #64748b !important;
-  text-shadow: none !important;
-}
-
-#app.geimser-route-ticket .ticketZoom .ticket-article .article-subject,
-#app.geimser-route-ticket .ticketZoom .ticket-article .article-subject *,
-#app.geimser-route-ticket .ticketZoom .ticket-article .article-content,
-#app.geimser-route-ticket .ticketZoom .ticket-article .article-content * {
-  color: #172033 !important;
-  -webkit-text-fill-color: #172033 !important;
-}
+/* NOTA: el color de .ticket-article/.article-content/.textBubble ya NO se
+   fija aquí. Ese rol es de la capa de tokens de tema en la sección 5.3 (más
+   abajo, "gana al bloque funcional por orden") + del normalizador JS
+   normalizeArticleContentContrast(), que corrige por contraste real el
+   contenido externo (correos) que trae sus propios colores inline. Fijar
+   colores duros aquí (#172033, #64748b...) quedó muerto bajo el tema oscuro
+   real de v4 y solo generaba confusión — ver geimser-itsm-frontend memoria. */
 
 #app.geimser-route-ticket .ticketZoom .article-new label,
 #app.geimser-route-ticket .ticketZoom .article-new label *,
@@ -4699,21 +4673,14 @@ html[data-theme="dark"] .geimser-native-cmdb-assets {
   -webkit-text-fill-color: var(--gx-text) !important;
 }
 
-#app.geimser-route-ticket .ticketZoom .ticket-article .textBubble-overflowContainer,
-#app.geimser-route-ticket .ticketZoom .ticket-article .textBubble-overflowContainer *,
-#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content p,
-#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content div,
-#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content span,
-#app.geimser-route-ticket .ticketZoom .ticket-article .richtext-content pre,
-#app.geimser-route-ticket .ticketZoom .ticket-article .article-body p,
-#app.geimser-route-ticket .ticketZoom .ticket-article .article-body div,
-#app.geimser-route-ticket .ticketZoom .ticket-article .article-body span,
-#app.geimser-route-ticket .ticketZoom .ticket-article .article-body pre {
-  color: var(--gx-text) !important;
-  -webkit-text-fill-color: var(--gx-text) !important;
-  opacity: 1 !important;
-  text-shadow: none !important;
-}
+/* NOTA: antes había aquí una lista de tags (richtext-content p/div/span/pre,
+   article-body p/div/span/pre) repitiendo el mismo color. Es 100%
+   redundante con ".ticket-article *" más arriba (sección 5.3), que ya
+   cubre cualquier descendiente sin importar el tag — exactamente el patrón
+   de parche-sobre-parche que generaba ruido sin cambiar nada en pantalla.
+   El contraste real contra contenido externo (HTML de correos con sus
+   propios estilos inline, a veces con !important) lo resuelve ahora
+   normalizeArticleContentContrast() en geimser.js. */
 
 /* Avatares generados por Zammad (color por usuario): asegurar texto legible */
 #app .avatar.user-popover,
