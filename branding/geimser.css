@@ -259,6 +259,65 @@ body {
   color: var(--gx-text-2) !important;
 }
 
+#app.geimser-route-map .content.active,
+#app.geimser-route-map .content.horizontal,
+#app.geimser-route-map .main-content {
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+#geimser-map-container.geimser-map-container {
+  background: #0f1522 !important;
+  box-sizing: border-box !important;
+  color: #ffffff !important;
+  display: block;
+  inset: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+
+#geimser-map-container .geimser-map-shellbar {
+  align-items: center;
+  background: #111827;
+  border-bottom: 1px solid #334155;
+  box-sizing: border-box;
+  color: #ffffff;
+  display: flex;
+  gap: 16px;
+  height: 48px;
+  justify-content: space-between;
+  padding: 8px 14px;
+}
+
+#geimser-map-container .geimser-map-shellbar h3 {
+  color: #ffffff !important;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+}
+
+#geimser-map-container .geimser-map-shellbar a {
+  border: 1px solid #93c5fd;
+  border-radius: 6px;
+  color: #bfdbfe !important;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 8px 12px;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+
+#geimser-map-container iframe {
+  background: #0f1522;
+  border: 0;
+  box-sizing: border-box;
+  display: block;
+  height: calc(100% - 48px);
+  width: 100%;
+}
+
 #app .content small,
 #app .content .small,
 #app .content .text-muted,
@@ -5042,4 +5101,67 @@ html[data-theme="dark"] .geimser-cmdb-row.is-selected small {
 #app .content td .dropdown-menu,
 #app .content [class*="action"] .dropdown-menu {
   z-index: 1100 !important;
+}
+
+/* --- Custom Login Styling to match Screenshot --- */
+
+.login.fullscreen {
+  background-color: #0f1522 !important;
+  background-image: none !important;
+}
+
+.login.fullscreen .fullscreen-body > p {
+  display: none !important;
+}
+
+.login.fullscreen .js-maintenanceLogin {
+  background: transparent !important;
+  border: 1px solid #e19535 !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  padding: 24px !important;
+  text-align: left !important;
+  box-shadow: none !important;
+}
+
+.login.fullscreen .hero-unit:not(.js-maintenanceLogin) {
+  background-color: #1a2235 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+  padding: 40px !important;
+}
+
+.login.fullscreen .hero-unit .form-group label,
+.login.fullscreen .hero-unit .checkbox-replacement .label-text {
+  color: #a0aec0 !important;
+  font-weight: 500 !important;
+}
+
+.login.fullscreen .hero-unit input.form-control {
+  background-color: #0f1522 !important;
+  border: 1px solid #2d3748 !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  padding: 10px 12px !important;
+}
+
+.login.fullscreen .hero-unit button[type="submit"] {
+  background: #50a0f0 !important;
+  color: #000000 !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  padding: 12px !important;
+  height: auto !important;
+  margin-top: 15px !important;
+}
+
+.login.fullscreen .hero-unit a {
+  color: #50a0f0 !important;
+  font-weight: bold !important;
+}
+
+.login.fullscreen .poweredBy {
+  display: none !important;
 }

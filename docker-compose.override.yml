@@ -21,11 +21,19 @@ services:
   zammad-nginx:
     <<: *geimser-zammad-build
     platform: ${DOCKER_PLATFORM:-linux/amd64}
+    volumes:
+      - ./branding/geimser.css:/opt/zammad/public/assets/geimser.css:ro
+      - ./branding/geimser.js:/opt/zammad/public/assets/geimser.js:ro
+      - ./inventory-map-dist:/opt/zammad/public/assets/inventory-map:ro
   zammad-postgresql:
     platform: ${DOCKER_PLATFORM:-linux/amd64}
   zammad-railsserver:
     <<: *geimser-zammad-build
     platform: ${DOCKER_PLATFORM:-linux/amd64}
+    volumes:
+      - ./branding/geimser.css:/opt/zammad/public/assets/geimser.css:ro
+      - ./branding/geimser.js:/opt/zammad/public/assets/geimser.js:ro
+      - ./inventory-map-dist:/opt/zammad/public/assets/inventory-map:ro
     healthcheck:
       start_period: 600s
       retries: 10

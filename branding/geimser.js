@@ -300,6 +300,10 @@
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-cmdb" aria-hidden="true"></span>',
         '  <span>CMDB ITSM</span>',
         '</a>',
+        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="map" href="#inventory-map">',
+        '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></span>',
+        '  <span>Mapa Interactivo</span>',
+        '</a>',
         '<button class="geimser-sidebar-shortcut" data-geimser-shortcut="remote" type="button">',
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-remote" aria-hidden="true"></span>',
         '  <span>Toma remota</span>',
@@ -313,6 +317,12 @@
       remoteShortcut.addEventListener("click", function () {
         openRemoteModal("equipos");
       });
+    }
+
+    var mapShortcut = existing.querySelector('[data-geimser-shortcut="map"]');
+    if (mapShortcut && !mapShortcut.dataset.geimserBound) {
+      mapShortcut.dataset.geimserBound = "true";
+      // We no longer intercept the click. The browser will navigate to #inventory-map natively.
     }
 
     var reference = sidebarReferenceItem(sidebar);
@@ -360,10 +370,12 @@
     var isTicketCreate = /^#ticket\/create(?:\/|$)/.test(hash);
     var isTicket = /^#ticket(?:\/|$)/.test(hash);
     var isCmdb = hash === "#system/integration/idoit";
+    var isMap = hash === "#inventory-map";
     app.classList.toggle("geimser-route-profile", isProfile || hasActivityFlow || hasProfileDetail);
     app.classList.toggle("geimser-route-ticket-create", isTicketCreate);
     app.classList.toggle("geimser-route-ticket", isTicket);
     app.classList.toggle("geimser-route-cmdb", isCmdb);
+    app.classList.toggle("geimser-route-map", isMap);
     app.classList.toggle("geimser-route-native", isProfile || hasActivityFlow || hasProfileDetail || isTicketCreate);
     app.classList.toggle("geimser-route-activity-flow", hasActivityFlow);
   }
@@ -2308,3 +2320,69 @@
   observer = new MutationObserver(scheduleApply);
   observeChanges();
 })();
+
+(function() {
+  function handleMapRoute() {
+    var isMapRoute = window.location.hash === '#inventory-map';
+    var container = document.getElementById('geimser-map-container');
+    var mapVersion = '20260630c';
+    
+    if (isMapRoute) {
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'geimser-map-container';
+      }
+
+      container.className = 'geimser-map-container';
+      container.style.position = 'absolute';
+      container.style.top = '0';
+      container.style.right = '0';
+      container.style.bottom = '0';
+      container.style.left = '0';
+      container.style.width = '100%';
+      container.style.height = '100%';
+      container.style.zIndex = '999';
+      container.style.backgroundColor = '#0f1522';
+
+      if (container.dataset.geimserVersion !== mapVersion) {
+        container.dataset.geimserVersion = mapVersion;
+        container.innerHTML = 
+          '<div class="geimser-map-shellbar">' +
+          '  <h3>Geimser ITSM - Mapa de Activos</h3>' +
+          '  <a href="#dashboard">Cerrar Mapa</a>' +
+          '</div>' +
+          '<iframe title="Mapa de Activos ITSM" src="/assets/inventory-map/index.html?v=' + mapVersion + '-' + Date.now() + '"></iframe>';
+      }
+
+      var mainEl = document.querySelector('#app .content.active') ||
+        document.querySelector('#app .content.horizontal') ||
+        document.querySelector('#app .main-content') ||
+        document.querySelector('#app .content') ||
+        document.getElementById('main');
+      if (!mainEl) return; // Wait until Zammad renders the active content area
+
+      if (container.parentElement !== mainEl) {
+        mainEl.style.position = 'relative';
+        mainEl.style.overflow = 'hidden';
+        mainEl.appendChild(container);
+      }
+      container.style.display = 'block';
+      
+      var notFound = mainEl.querySelector('.notFound');
+      if(notFound) notFound.style.display = 'none';
+
+    } else {
+      if (container) {
+        container.style.display = 'none';
+      }
+    }
+  }
+
+  window.addEventListener('hashchange', handleMapRoute);
+  
+  // Disparar en el load y periodicamente por si Zammad recarga el main
+  window.addEventListener('load', handleMapRoute);
+  setInterval(handleMapRoute, 500);
+})();
+
+
