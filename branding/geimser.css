@@ -3551,7 +3551,7 @@ body:has(.hero-unit) .hero-unit ~ hr {
   height: 22px !important;
   left: auto !important;
   margin-left: auto !important;
-  margin-right: 0 !important;
+  margin-right: 24px !important;
   min-width: 28px !important;
   min-height: 22px !important;
   max-width: none !important;
@@ -3655,7 +3655,7 @@ body:has(.hero-unit) .hero-unit ~ hr {
 #app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills > li > a > .badge,
 #app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills > li > a > .badge.badge--text {
   margin-left: auto !important;
-  margin-right: 0 !important;
+  margin-right: 24px !important;
 }
 
 /* 4.4 Botones */
