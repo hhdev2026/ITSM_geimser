@@ -345,14 +345,15 @@
     if (!app) return;
     var hash = window.location.hash || "";
     var isProfile = /^#profile(?:\/|$)/.test(hash);
-    /* Zammad mantiene en el DOM las vistas ya visitadas (ocultas). Las
-       heurísticas de texto deben mirar SOLO el panel activo; si no, las
-       clases de ruta se acumulan y se filtran estilos de perfil/actividad
-       a todas las páginas (causa histórica del texto oscuro sobre barras
-       oscuras en overviews y admin). */
+    /* Zammad mantiene en el DOM las vistas ya visitadas (ocultas). Miramos
+       solo el panel activo para evitar que clases de ruta se filtren desde
+       vistas ocultas hacia overviews, admin u otros módulos. */
     var activePane = app.querySelector(".content.active") || app;
+    var isDashboard = /^#dashboard(?:\/|$)/.test(hash) || hash === "";
+    var activityPanel = activePane.querySelector(".js-activityContent") ||
+      activePane.querySelector(".content.horizontal > .sidebar.optional .activity-entries");
     var pageText = (activePane.textContent || "").replace(/\s+/g, " ");
-    var hasActivityFlow = /\bFlujo de Actividad\b/i.test(pageText);
+    var hasActivityFlow = Boolean(isDashboard && activityPanel);
     var hasProfileDetail = /CORREO ELECTR[ÓO]NICO/i.test(pageText) &&
       /Tickets de Usuario|Tickets de la organizaci[oó]n/i.test(pageText) &&
       /FRECUENCIA|Tickets abiertos|Cerrar tickets/i.test(pageText);
@@ -676,9 +677,10 @@
       el.style.setProperty("white-space", "normal", "important");
     }
 
-    var anchors = Array.from(app.querySelectorAll("h1, h2, h3, header, aside, section, article, div")).filter(function (el) {
-      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
-      if (!/\bFlujo de Actividad\b/i.test(text)) return false;
+    var anchors = Array.from(app.querySelectorAll(".js-activityContent, .activity-entries")).map(function (el) {
+      return el.closest(".content.horizontal > .sidebar.optional, .sidebar.optional, aside, section, article, div");
+    }).filter(function (el, index, list) {
+      if (!el || list.indexOf(el) !== index) return false;
       var rect = el.getBoundingClientRect();
       return rect.width > 20 && rect.height > 20 && rect.left > 220 && rect.left < viewportWidth - 20;
     });
@@ -688,8 +690,7 @@
       var depth = 0;
       while (current && current !== app && depth < 8) {
         var rect = current.getBoundingClientRect();
-        var text = (current.textContent || "").replace(/\s+/g, " ").trim();
-        if (rect.left > 220 && /\bFlujo de Actividad\b/i.test(text)) {
+        if (rect.left > 220 && current.querySelector(".js-activityContent, .activity-entries")) {
           resetNode(current);
           Array.from(current.querySelectorAll(".geimser-activity-surface, [style]")).forEach(resetNode);
         }
@@ -1198,14 +1199,15 @@
 
   function markActivitySurfaces(app) {
     var viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-    var titleRegex = /Flujo de Actividad/i;
-    var itemRegex = /(Admin Geimser|inici[oó] nueva sesi[oó]n|actualiz[oó] el usuario|cre[oó] el usuario|Lunes \d{1,2}:\d{2})/i;
-    var candidates = Array.from(app.querySelectorAll(".content.horizontal > .sidebar.optional, aside, section, article, nav")).filter(function (el) {
+    var activityRoots = Array.from(app.querySelectorAll(".js-activityContent, .activity-entries")).map(function (el) {
+      return el.closest(".content.horizontal > .sidebar.optional, .sidebar.optional, aside, section, article, nav");
+    });
+    var candidates = activityRoots.filter(function (el, index, list) {
+      if (!el || list.indexOf(el) !== index) return false;
       var rect = el.getBoundingClientRect();
       if (rect.width < 180 || rect.height < 160) return false;
       if (rect.left < viewportWidth * 0.68) return false;
-      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
-      return titleRegex.test(text) || itemRegex.test(text);
+      return true;
     });
 
     candidates.forEach(function (el) {
@@ -1233,12 +1235,12 @@
       if (rect.width < 170 || rect.height < 150) return false;
       if (rect.left < viewportWidth * 0.68) return false;
 
-      var text = (el.textContent || "").replace(/\s+/g, " ").trim();
       var bg = parseRgb(window.getComputedStyle(el).backgroundColor);
       var isDarkBlue = bg && bg.b > bg.r && bg.b >= bg.g && luminance(bg) < 0.16;
+      var hasActivityMarkup = Boolean(el.querySelector(".js-activityContent, .activity-entries, .activity-entry"));
 
       return el.classList.contains("geimser-activity-surface") ||
-        /Flujo de Actividad|Admin Geimser|Lunes \d{1,2}:\d{2}/i.test(text) ||
+        hasActivityMarkup ||
         isDarkBlue;
     });
 

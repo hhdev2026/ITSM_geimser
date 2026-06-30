@@ -2364,11 +2364,82 @@ body:has(.hero-unit) .hero-unit ~ hr {
 #app.geimser-route-activity-flow .content.horizontal > .sidebar.optional {
   box-sizing: border-box !important;
   display: block !important;
-  flex: 0 0 min(390px, calc(100vw - 320px)) !important;
-  min-width: min(320px, calc(100vw - 320px)) !important;
-  width: min(390px, calc(100vw - 320px)) !important;
-  padding: 18px 20px !important;
+  flex: 0 0 58px !important;
+  max-width: 58px !important;
+  min-width: 58px !important;
+  width: 58px !important;
+  padding: 12px 10px !important;
   border-left: 1px solid rgba(0, 31, 61, 0.10) !important;
+  position: relative !important;
+  overflow: visible !important;
+  transition: flex-basis 180ms ease, width 180ms ease, min-width 180ms ease, max-width 180ms ease, padding 180ms ease !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional::before {
+  align-items: center !important;
+  background: var(--gx-panel-2) !important;
+  border: 1px solid var(--gx-line) !important;
+  border-radius: 999px !important;
+  box-shadow: var(--gx-shadow-sm) !important;
+  color: var(--gx-text) !important;
+  content: "" !important;
+  display: flex !important;
+  height: 38px !important;
+  justify-content: center !important;
+  left: 10px !important;
+  position: absolute !important;
+  top: 12px !important;
+  width: 38px !important;
+  z-index: 8 !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional::after {
+  border-right: 2px solid var(--gx-text) !important;
+  border-top: 2px solid var(--gx-text) !important;
+  content: "" !important;
+  display: block !important;
+  height: 9px !important;
+  left: 23px !important;
+  position: absolute !important;
+  top: 26px !important;
+  transform: rotate(225deg) !important;
+  transition: transform 180ms ease !important;
+  width: 9px !important;
+  z-index: 9 !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional:hover,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional:focus-within {
+  flex: 0 0 min(390px, calc(100vw - 320px)) !important;
+  max-width: min(390px, calc(100vw - 320px)) !important;
+  min-width: min(320px, calc(100vw - 320px)) !important;
+  padding: 18px 20px !important;
+  width: min(390px, calc(100vw - 320px)) !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional:hover::before,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional:focus-within::before {
+  left: 20px !important;
+  top: 18px !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional:hover::after,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional:focus-within::after {
+  left: 33px !important;
+  top: 32px !important;
+  transform: rotate(45deg) !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional > * {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 120ms ease !important;
+}
+
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional:hover > *,
+#app.geimser-route-activity-flow .content.horizontal > .sidebar.optional:focus-within > * {
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 #app.geimser-route-activity-flow .content.horizontal > .sidebar.optional .activity-entries,
