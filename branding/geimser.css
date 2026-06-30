@@ -3477,13 +3477,13 @@ body:has(.hero-unit) .hero-unit ~ hr {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  gap: 10px !important;
+  gap: 12px !important;
   box-sizing: border-box !important;
   min-height: 38px !important;
   min-width: 0 !important;
   max-width: 100% !important;
-  overflow: visible !important;
-  padding: 8px 58px 8px 12px !important;
+  overflow: hidden !important;
+  padding: 8px 28px 8px 12px !important;
   position: relative !important;
   width: 100% !important;
   border-radius: var(--gx-radius-sm) !important;
@@ -3500,10 +3500,11 @@ body:has(.hero-unit) .hero-unit ~ hr {
   transition: background 0.12s ease, color 0.12s ease !important;
 }
 
-#app .content .sidebar .nav-pills li a > :not(.badge):not(.counter):not([class*="badge"]):not([class*="Badge"]):not([class*="counter"]):not([class*="Counter"]),
+#app .content .sidebar .nav-pills li a > .local,
+#app .content .sidebar .nav-pills li a > .tab-name,
 #app .content .sidebar .nav-pills li a > span:first-child {
   display: block !important;
-  flex: 1 1 100% !important;
+  flex: 1 1 auto !important;
   min-width: 0 !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
@@ -3539,13 +3540,9 @@ body:has(.hero-unit) .hero-unit ~ hr {
   -webkit-text-fill-color: var(--gx-brand-strong) !important;
 }
 
-#app .content .sidebar .nav-pills li a .badge,
-#app .content .sidebar .nav-pills li a .counter,
-#app .content .sidebar .nav-pills li a [class*="badge"],
-#app .content .sidebar .nav-pills li a [class*="Badge"],
-#app .content .sidebar .nav-pills li a [class*="counter"],
-#app .content .sidebar .nav-pills li a [class*="Counter"],
-#app .content .sidebar .nav-pills li a span:last-child:not(:first-child) {
+#app .content .sidebar .nav-pills li a > .badge,
+#app .content .sidebar .nav-pills li a > .tab-badge,
+#app .content .sidebar .nav-pills li a > .counter {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -3553,15 +3550,16 @@ body:has(.hero-unit) .hero-unit ~ hr {
   flex: 0 0 auto !important;
   height: 22px !important;
   left: auto !important;
-  margin: 0 !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
   min-width: 28px !important;
   min-height: 22px !important;
   max-width: none !important;
   padding: 1px 7px !important;
-  position: absolute !important;
-  right: 16px !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
+  position: static !important;
+  right: auto !important;
+  top: auto !important;
+  transform: none !important;
   border-radius: 999px !important;
   background: var(--gx-panel-3) !important;
   background-color: var(--gx-panel-3) !important;
@@ -3572,7 +3570,57 @@ body:has(.hero-unit) .hero-unit ~ hr {
 }
 
 #app .content .sidebar .nav-pills li.active a .badge,
-#app .content .sidebar .nav-pills li.active a span:last-child:not(:first-child) {
+#app .content .sidebar .nav-pills li.active a > .tab-badge {
+  background: var(--gx-brand-soft-2) !important;
+  background-color: var(--gx-brand-soft-2) !important;
+  color: var(--gx-brand-strong) !important;
+  -webkit-text-fill-color: var(--gx-brand-strong) !important;
+}
+
+#app .content.overviews .tabs--inline .tab {
+  align-items: center !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  gap: 12px !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  padding-right: 28px !important;
+}
+
+#app .content.overviews .tabs--inline .tab-name {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-align: left !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#app .content.overviews .tabs--inline .tab-badge {
+  align-items: center !important;
+  background: var(--gx-panel-3) !important;
+  background-color: var(--gx-panel-3) !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+  color: var(--gx-text-3) !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  height: 22px !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  min-width: 28px !important;
+  padding: 1px 7px !important;
+  position: static !important;
+  transform: none !important;
+  -webkit-text-fill-color: var(--gx-text-3) !important;
+}
+
+#app .content.overviews .tabs--inline .tab.active .tab-badge {
   background: var(--gx-brand-soft-2) !important;
   background-color: var(--gx-brand-soft-2) !important;
   color: var(--gx-brand-strong) !important;
