@@ -3627,6 +3627,37 @@ body:has(.hero-unit) .hero-unit ~ hr {
   -webkit-text-fill-color: var(--gx-brand-strong) !important;
 }
 
+/* Zammad overview sidebar: keep the native flex badge contract, but restore
+   the right gutter that its nav-pills active/hover state expects. */
+#app .content.overviews > .sidebar:not(.NavBarAdmin) {
+  box-sizing: border-box !important;
+  overflow: visible !important;
+  padding-right: 18px !important;
+}
+
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav.nav-pills.nav-stacked {
+  box-sizing: border-box !important;
+  padding: 10px 0 10px 8px !important;
+  width: 100% !important;
+}
+
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills.nav-stacked > li > a,
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills.nav-stacked > li > a:hover,
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills.nav-stacked > li > a:focus,
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills.nav-stacked > li.active > a,
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills.nav-stacked > li.active > a:hover,
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills.nav-stacked > li.active > a:focus {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+}
+
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills > li > a > .badge,
+#app .content.overviews > .sidebar:not(.NavBarAdmin) .nav-pills > li > a > .badge.badge--text {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
 /* 4.4 Botones */
 #app button,
 #app .btn,
