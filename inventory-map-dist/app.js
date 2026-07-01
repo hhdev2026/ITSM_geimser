@@ -180,11 +180,22 @@ function renderSeat(seat) {
       dot = '<span class="workspace-dot empty"></span>';
     }
   }
+  let tooltipHtml = '';
+  if (data && (data.user_name || data.asset_hostname)) {
+    tooltipHtml = `
+      <div class="workspace-tooltip">
+        ${data.user_name ? `<div style="margin-bottom: 2px;">👤 ${escapeHtml(data.user_name)}</div>` : ''}
+        ${data.asset_hostname ? `<div>💻 ${escapeHtml(data.asset_hostname)}</div>` : ''}
+      </div>
+    `;
+  }
+
   return `
     <button class="${classes.join(" ")}" data-seat="${seat.code}" style="${boxStyle(seat, seat.floor)}" title="${escapeHtml(seat.room)} - ${seat.label}">
       <span class="workspace-label">${escapeHtml(seat.label)}</span>
       <span class="workspace-action">Configurar</span>
       ${dot}
+      ${tooltipHtml}
     </button>
   `;
 }
@@ -251,7 +262,7 @@ function renderEditForm() {
         <label for="asset">Equipo (Activo IT)</label>
         <select id="asset" name="asset_id">
           <option value="">-- Sin asignar --</option>
-          ${state.options.assets.map((asset) => `<option value="${asset.id}" ${String(asset.id) === state.form.asset_id ? "selected" : ""}>${escapeHtml(asset.name)} (${escapeHtml(asset.ip || "")})</option>`).join("")}
+          ${state.options.assets.map((asset) => `<option value="${asset.id}" ${String(asset.id) === state.form.asset_id ? "selected" : ""}>${escapeHtml(asset.name)} (${escapeHtml(asset.occupant || asset.ip || "")})</option>`).join("")}
         </select>
       </div>
       <div class="actions">
@@ -318,8 +329,32 @@ function bindEvents() {
       console.error("Failed to fetch recommendation", error);
     }
   });
-  document.querySelector("select[name='asset_id']")?.addEventListener("change", (event) => {
+  document.querySelector("select[name='asset_id']")?.addEventListener("change", async (event) => {
     state.form.asset_id = event.target.value;
+    if (!state.form.asset_id) return;
+    try {
+      const response = await fetch(`${API_BASE}/inventory-map/recommend-user/${state.form.asset_id}`, { credentials: "include" });
+      if (response.ok) {
+        const recommendation = await response.json();
+        if (recommendation.user_id) {
+          state.form.user_id = String(recommendation.user_id);
+          state.form.temp_user_name = null;
+          render();
+        } else if (recommendation.pc_username) {
+          if (!state.options.users.find(u => u.id === 'temp_user')) {
+             state.options.users.push({ id: 'temp_user', name: recommendation.pc_username + ' (PC)', email: 'No integrado' });
+          } else {
+             const tempUser = state.options.users.find(u => u.id === 'temp_user');
+             tempUser.name = recommendation.pc_username + ' (PC)';
+          }
+          state.form.user_id = 'temp_user';
+          state.form.temp_user_name = recommendation.pc_username;
+          render();
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch user recommendation", error);
+    }
   });
   document.querySelector("[data-form]")?.addEventListener("submit", saveAssignment);
 }
@@ -363,8 +398,9 @@ async function saveAssignment(event) {
       body: JSON.stringify({
         workspace_id: state.selected.id || null,
         code: state.selected.code,
-        user_id: state.form.user_id ? parseInt(state.form.user_id, 10) : null,
-        asset_id: state.form.asset_id ? parseInt(state.form.asset_id, 10) : null
+        user_id: (state.form.user_id && state.form.user_id !== 'temp_user') ? parseInt(state.form.user_id, 10) : null,
+        asset_id: state.form.asset_id ? parseInt(state.form.asset_id, 10) : null,
+        temp_user_name: (state.form.user_id === 'temp_user' && state.form.temp_user_name) ? state.form.temp_user_name : null
       })
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);

@@ -249,14 +249,13 @@ button {
   position: relative;
   height: min(640px, calc(100vh - 238px));
   min-height: var(--grid-min-height, 500px);
-  background-image:
-    linear-gradient(#e5e7eb 1px, transparent 1px),
-    linear-gradient(90deg, #e5e7eb 1px, transparent 1px);
-  background-size: calc(100% / 13) calc(100% / 29);
+  background-color: #f8fafc; /* Soft slate background */
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .floor-p2 .grid {
-  background-size: calc(100% / 14) calc(100% / 29);
+  background-size: 24px 24px;
 }
 
 .room,
@@ -266,16 +265,20 @@ button {
   align-items: center;
   justify-content: center;
   text-align: center;
-  border: 2px solid #111827;
+  border-width: 1px;
+  border-style: solid;
+  border-color: transparent;
+  border-radius: 2px;
   font-size: 11px;
   line-height: 1.12;
-  font-weight: 900;
-  overflow: hidden;
+  font-weight: 700;
+  overflow: visible;
 }
 
 .room {
   padding: 4px;
-  color: #1f2937;
+  color: #374151;
+  background-color: #f1f5f9;
 }
 
 .room-label {
@@ -288,15 +291,16 @@ button {
 }
 
 .room-soft {
+  background-color: #e0e7ff; /* Very soft blue background for labels */
+  color: #1e3a8a;
   border-color: transparent;
-  color: #2f5597;
 }
 
 .workspace {
   flex-direction: column;
   gap: 2px;
-  color: #14532d;
-  background: #d9ead3;
+  color: #64748b;
+  background: #f1f5f9; /* Empty workspace is grey */
   transition: transform 140ms ease, background-color 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
 }
 
@@ -316,10 +320,10 @@ button {
 .workspace.is-selected {
   z-index: 6;
   transform: scale(1.14);
-  border-color: #2563eb;
-  background: #bfdbfe;
-  color: #0f172a;
-  box-shadow: 0 0 0 4px rgb(37 99 235 / 25%), 0 14px 24px rgb(15 23 42 / 30%);
+  border-color: #3b82f6;
+  background: #dbeafe;
+  color: #1e293b;
+  box-shadow: 0 0 0 4px rgb(59 130 246 / 20%), 0 10px 15px rgb(15 23 42 / 10%);
 }
 
 .workspace:hover .workspace-action,
@@ -328,28 +332,71 @@ button {
 }
 
 .workspace.has-record {
-  color: #111827;
-  background: #b6d7a8;
+  color: #064e3b;
+  background: #bbf7d0; /* Soft green */
 }
 
 .workspace.is-online {
-  border-color: #16a34a;
-  box-shadow: 0 0 12px rgb(34 197 94 / 70%);
+  border-color: #22c55e;
+  box-shadow: none;
 }
 
 .workspace.is-offline {
-  border-color: #dc2626;
-  box-shadow: 0 0 12px rgb(239 68 68 / 70%);
+  border-color: #ef4444;
+  box-shadow: none;
 }
 
 .workspace-dot {
   position: absolute;
-  top: -5px;
-  right: -5px;
-  width: 11px;
-  height: 11px;
-  border: 1px solid #fff;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
+  background: #9ca3af;
+}
+
+.workspace-dot.online {
+  background: #22c55e;
+}
+
+.workspace-dot.offline {
+  background: #ef4444;
+}
+
+.workspace-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1e293b;
+  color: #f8fafc;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  line-height: 1.5;
+  text-align: left;
+  font-weight: 500;
+}
+
+.workspace-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #1e293b transparent transparent transparent;
+}
+
+.workspace:hover .workspace-tooltip {
+  display: block;
 }
 
 .modal-backdrop {
