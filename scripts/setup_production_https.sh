@@ -124,7 +124,9 @@ server {
     proxy_set_header X-Forwarded-Proto \$scheme;
     proxy_set_header X-Forwarded-Ssl on;
     proxy_redirect off;
-    proxy_cookie_path / "/; Secure; SameSite=Lax";
+    proxy_hide_header X-Frame-Options;
+    add_header Content-Security-Policy "frame-ancestors 'self' https://www.geimser.cl https://geimser.cl" always;
+    proxy_cookie_path / "/; Secure; SameSite=None; Partitioned";
   }
 }
 

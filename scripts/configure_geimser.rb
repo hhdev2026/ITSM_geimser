@@ -186,6 +186,24 @@ end
 
 admin = User.create_or_update(**admin_attributes)
 
+demo_organization = Organization.create_if_not_exists(name: 'Geimser Demo', active: true)
+demo_group = Group.create_if_not_exists(name: 'Demo Comercial', active: true)
+demo_user = User.create_or_update(
+  login: ENV.fetch('GEIMSER_DEMO_USER', 'demo@geimser.local'),
+  firstname: 'Demo',
+  lastname: 'Geimser',
+  email: ENV.fetch('GEIMSER_DEMO_USER', 'demo@geimser.local'),
+  active: true,
+  organization_id: demo_organization.id,
+  roles: [Role.find_by(name: 'Agent')].compact,
+  created_by_id: 1,
+  updated_by_id: 1,
+)
+
+demo_user_group = UserGroup.find_or_initialize_by(user_id: demo_user.id, group_id: demo_group.id)
+demo_user_group.access = 'full'
+demo_user_group.save!
+
 group = Group.find_by(name: 'Users') || Group.first
 if group
   user_group = UserGroup.find_or_initialize_by(user_id: admin.id, group_id: group.id)

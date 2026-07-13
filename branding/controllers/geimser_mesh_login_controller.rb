@@ -1,15 +1,17 @@
 require 'base64'
 require 'erb'
 require 'json'
+require 'net/http'
 require 'openssl'
 require 'securerandom'
 require 'set'
 require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
-  before_action :authentication_check, except: %i[bot_login search]
-  before_action :require_internal_user!, except: %i[bot_login bot_session search]
+  before_action :authentication_check, except: %i[bot_login demo demo_session search]
+  before_action :require_internal_user!, except: %i[bot_login bot_session demo demo_session search]
   before_action :require_admin!, only: %i[show]
+  skip_before_action :verify_authenticity_token, only: %i[demo_session]
 
   def show
     key = mesh_login_key
@@ -96,6 +98,42 @@ class GeimserMeshLoginController < ApplicationController
     ].join.html_safe, layout: false
   end
 
+  def demo
+    nonce = content_security_policy_nonce
+    render html: [
+      '<!doctype html>',
+      '<html lang="es">',
+      '<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
+      '<title>Geimser ITSM · Demo</title>',
+      '<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#07101d;color:#e7f4ff;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.box{text-align:center}.spinner{width:26px;height:26px;margin:0 auto 14px;border:2px solid rgba(255,255,255,.12);border-top-color:#27d8f4;border-radius:50%;animation:s .9s linear infinite}strong,span{display:block}strong{font-size:15px}span{margin-top:7px;color:rgba(255,255,255,.42);font-size:12px}@keyframes s{to{transform:rotate(360deg)}}</style>',
+      '</head><body><main class="box"><i class="spinner"></i><strong>Abriendo ITSM real</strong><span id="status">Validando acceso comercial…</span></main>',
+      "<script#{nonce.present? ? " nonce=\"#{ERB::Util.html_escape(nonce)}\"" : ''}>",
+      '(async function(){',
+      'var ticket=new URLSearchParams(window.location.hash.slice(1)).get("ticket");',
+      'var status=document.getElementById("status");',
+      'if(!ticket){status.textContent="El acceso demo no es válido.";return;}',
+      'try{var response=await fetch("/geimser/demo/session",{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({ticket:ticket})});var payload=await response.json();if(!response.ok||!payload.redirect){throw new Error(payload.error||"No fue posible abrir ITSM.")}window.location.replace(payload.redirect);}catch(error){status.textContent=error.message||"No fue posible abrir ITSM.";}',
+      '}());',
+      '</script></body></html>',
+    ].join.html_safe, layout: false
+  end
+
+  def demo_session
+    payload = JSON.parse(request.raw_post.presence || '{}')
+    return render json: { error: 'Acceso demo expirado.' }, status: :unauthorized unless valid_demo_ticket?(payload['ticket'])
+
+    user = User.find_by(login: ENV.fetch('GEIMSER_DEMO_USER', 'demo@geimser.local'))
+    return render json: { error: 'La cuenta demo no está configurada.' }, status: :service_unavailable if user.blank?
+
+    current_user_set(user, 'geimser_demo')
+    session[:persistent] = true
+    session[:authentication_type] = 'geimser_demo'
+    request.env['rack.session.options'][:expire_after] = 1.hour
+    render json: { redirect: '/#dashboard' }
+  rescue JSON::ParserError
+    render json: { error: 'Solicitud inválida.' }, status: :bad_request
+  end
+
   def search
     return render json: [], status: :unauthorized if !valid_cmdb_token?
 
@@ -107,6 +145,21 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   private
+
+  def valid_demo_ticket?(ticket)
+    return false if ticket.blank?
+
+    uri = URI.parse(ENV.fetch('GEIMSER_DEMO_VERIFY_URL', 'https://www.geimser.cl/api/experience/demo-ticket'))
+    request = Net::HTTP::Post.new(uri)
+    request['Content-Type'] = 'application/json'
+    request.body = { product: 'itsm', ticket: ticket.to_s }.to_json
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', open_timeout: 4, read_timeout: 6) do |http|
+      http.request(request)
+    end
+    response.is_a?(Net::HTTPSuccess) && JSON.parse(response.body)['valid'] == true
+  rescue StandardError
+    false
+  end
 
   def mesh_login_key
     key = ENV['MESH_LOGIN_KEY'].to_s.strip

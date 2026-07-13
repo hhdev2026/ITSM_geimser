@@ -18,4 +18,9 @@ Rails.application.config.content_security_policy do |policy|
     "http://#{zammad_fqdn}",
     mesh_origin,
   )
+  policy.frame_ancestors(
+    :self,
+    'https://www.geimser.cl',
+    'https://geimser.cl',
+  )
 end
