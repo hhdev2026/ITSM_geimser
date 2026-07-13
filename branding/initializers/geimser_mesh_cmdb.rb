@@ -269,6 +269,28 @@ class GeimserMeshCmdb
   end
 end
 
+class GeimserInventoryWorkspace < ActiveRecord::Base
+  self.table_name = 'geimser_inventory_workspaces'
+
+  class << self
+    def ensure_table
+      return if ActiveRecord::Base.connection.table_exists?(table_name)
+
+      ActiveRecord::Base.connection.create_table(table_name) do |table|
+        table.string :code, null: false
+        table.integer :user_id
+        table.integer :asset_id
+        table.string :temp_user_name
+        table.timestamps null: false
+      end
+
+      ActiveRecord::Base.connection.add_index(table_name, :code, unique: true, name: 'idx_geimser_inventory_code')
+      ActiveRecord::Base.connection.add_index(table_name, :user_id, name: 'idx_geimser_inventory_user')
+      ActiveRecord::Base.connection.add_index(table_name, :asset_id, name: 'idx_geimser_inventory_asset')
+    end
+  end
+end
+
 module GeimserMeshIdoitBridge
   def verify(api_token, endpoint, client_id = nil, verify_ssl: false)
     return GeimserMeshCmdb.idoit_object_types if GeimserMeshCmdb.mesh_backend_config?(api_token, endpoint)

@@ -602,19 +602,33 @@ img[alt="Geimser ITSM"] {
   box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.16) !important;
 }
 
+.geimser-password-field,
 .hero-unit .geimser-password-field,
-.login .geimser-password-field {
+.login .geimser-password-field,
+.geimser-force-password-form .geimser-password-field {
   position: relative;
 }
 
+.geimser-force-password-form .geimser-password-field {
+  display: block;
+}
+
+.geimser-force-password-form label .geimser-password-field {
+  width: 100%;
+}
+
+.geimser-password-field input,
 .hero-unit .geimser-password-field input,
-.login .geimser-password-field input {
+.login .geimser-password-field input,
+.geimser-force-password-form .geimser-password-field input {
   width: 100%;
   padding-right: 48px !important;
 }
 
+.geimser-password-toggle,
 .hero-unit .geimser-password-toggle,
-.login .geimser-password-toggle {
+.login .geimser-password-toggle,
+.geimser-force-password-form .geimser-password-toggle {
   position: absolute;
   right: 6px;
   top: 50%;
@@ -635,17 +649,23 @@ img[alt="Geimser ITSM"] {
   cursor: pointer;
 }
 
+.geimser-password-toggle:hover,
+.geimser-password-toggle:focus-visible,
 .hero-unit .geimser-password-toggle:hover,
 .login .geimser-password-toggle:hover,
 .hero-unit .geimser-password-toggle:focus-visible,
-.login .geimser-password-toggle:focus-visible {
+.login .geimser-password-toggle:focus-visible,
+.geimser-force-password-form .geimser-password-toggle:hover,
+.geimser-force-password-form .geimser-password-toggle:focus-visible {
   background: rgba(0, 75, 141, 0.09) !important;
   color: #004b8d !important;
   outline: none;
 }
 
+.geimser-password-toggle svg,
 .hero-unit .geimser-password-toggle svg,
-.login .geimser-password-toggle svg {
+.login .geimser-password-toggle svg,
+.geimser-force-password-form .geimser-password-toggle svg {
   width: 19px;
   height: 19px;
   fill: none;
@@ -653,6 +673,182 @@ img[alt="Geimser ITSM"] {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.geimser-temp-password-banner {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(68, 154, 255, 0.45);
+  border-radius: 8px;
+  background: #eaf5ff !important;
+  color: #102033 !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+.geimser-temp-password-banner strong {
+  color: #0b3a68 !important;
+  font-weight: 800;
+}
+
+.geimser-temp-password-banner span,
+.geimser-temp-password-banner code {
+  color: #102033 !important;
+}
+
+.geimser-temp-password-banner code {
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 75, 141, 0.18);
+  font-weight: 800;
+}
+
+.geimser-temp-password-note {
+  margin-top: 7px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #102033 !important;
+  color: #eef7ff !important;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.geimser-temp-password-note strong {
+  color: #8bd8ff !important;
+  font-weight: 800;
+}
+
+#app .geimser-temp-password-input {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #2f8de4 !important;
+  box-shadow: 0 0 0 3px rgba(47, 141, 228, 0.16) !important;
+}
+
+.geimser-force-password-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(3, 7, 18, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.geimser-force-password-card {
+  width: min(520px, 100%);
+  border: 1px solid rgba(125, 211, 252, 0.38);
+  border-radius: 10px;
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+}
+
+.geimser-force-password-header {
+  padding: 24px 26px 18px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.geimser-force-password-header span {
+  display: inline-flex;
+  margin-bottom: 10px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #7dd3fc !important;
+  color: #082f49 !important;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.geimser-force-password-header h2 {
+  margin: 0 0 8px;
+  color: #ffffff !important;
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.geimser-force-password-header p {
+  margin: 0;
+  color: #cbd5e1 !important;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.geimser-force-password-form {
+  display: grid;
+  gap: 14px;
+  padding: 22px 26px 26px;
+}
+
+.geimser-force-password-form label {
+  display: grid;
+  gap: 7px;
+  color: #dbeafe !important;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.geimser-force-password-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid rgba(125, 211, 252, 0.55) !important;
+  border-radius: 8px;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  font-size: 15px;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.08) !important;
+}
+
+.geimser-force-password-form input:focus {
+  outline: none;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25) !important;
+}
+
+.geimser-force-password-error {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fee2e2 !important;
+  color: #7f1d1d !important;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.geimser-force-password-form button {
+  min-height: 46px;
+  border: 0;
+  border-radius: 8px;
+  background: #16a34a !important;
+  color: #ffffff !important;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.geimser-force-password-form button:hover,
+.geimser-force-password-form button:focus-visible {
+  background: #15803d !important;
+  outline: none;
+}
+
+.geimser-force-password-form button:disabled {
+  opacity: 0.68;
+  cursor: wait;
+}
+
+.geimser-force-password-modal.is-success .geimser-force-password-card {
+  border-color: rgba(74, 222, 128, 0.65);
 }
 
 .hero-unit button[type="submit"] {

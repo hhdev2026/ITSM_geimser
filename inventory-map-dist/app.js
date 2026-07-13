@@ -1,4 +1,4 @@
-const API_BASE = `${window.location.protocol}//${window.location.hostname}:8000/api`;
+const API_BASE = "/api";
 
 const state = {
   workspaces: [],
@@ -8,6 +8,8 @@ const state = {
   form: { user_id: "", asset_id: "" },
   status: "Cargando plano..."
 };
+
+let optionsRefreshTimer = null;
 
 const floors = {
   p1: { title: "PISO 1", subtitle: "Sala KREA", cols: 8, rows: 12, width: 560 },
@@ -139,6 +141,7 @@ function render() {
     </main>
   `;
   bindEvents();
+  syncOptionsRefreshTimer();
 }
 
 function renderFloorButton(floor) {
@@ -247,6 +250,15 @@ function renderDetails() {
   `;
 }
 
+function getRemoteControlHtml(assetId) {
+  if (!assetId || !state.options || !state.options.assets) return '';
+  const asset = state.options.assets.find(a => String(a.id) === String(assetId));
+  if (asset && /^node\/\//.test(String(asset.node_id || ""))) {
+    return `<a href="https://remoto.geimser.cl/?viewmode=11&gotonode=${asset.node_id}&geimserautoconnect=1" target="_blank" class="button button-primary" style="display:inline-flex; align-items:center; gap:5px; background-color: #f39c12; border-color: #e67e22; padding: 4px 10px; font-size: 13px; text-decoration: none;"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg> Tomar Equipo</a>`;
+  }
+  return '';
+}
+
 function renderEditForm() {
   return `
     <form class="panel edit-form config-panel" data-form>
@@ -255,15 +267,18 @@ function renderEditForm() {
         <label for="user">Usuario asignado</label>
         <select id="user" name="user_id">
           <option value="">-- Sin asignar --</option>
-          ${state.options.users.map((user) => `<option value="${user.id}" ${String(user.id) === state.form.user_id ? "selected" : ""}>${escapeHtml(user.name)} (${escapeHtml(user.email || "")})</option>`).join("")}
+          ${state.options.users.map((user) => `<option value="${user.id}" ${String(user.id) === state.form.user_id ? "selected" : ""}>${escapeHtml(userOptionLabel(user))}</option>`).join("")}
         </select>
       </div>
       <div class="field">
         <label for="asset">Equipo (Activo IT)</label>
         <select id="asset" name="asset_id">
           <option value="">-- Sin asignar --</option>
-          ${state.options.assets.map((asset) => `<option value="${asset.id}" ${String(asset.id) === state.form.asset_id ? "selected" : ""}>${escapeHtml(asset.name)} (${escapeHtml(asset.occupant || asset.ip || "")})</option>`).join("")}
+          ${state.options.assets.map((asset) => `<option value="${asset.id}" ${String(asset.id) === state.form.asset_id ? "selected" : ""}>${escapeHtml(assetOptionLabel(asset))}</option>`).join("")}
         </select>
+        <div id="remote-control-container" style="margin-top: 8px;">
+          ${getRemoteControlHtml(state.form.asset_id)}
+        </div>
       </div>
       <div class="actions">
         <button class="button button-secondary" type="button" data-cancel>Cancelar</button>
@@ -281,21 +296,26 @@ function bindEvents() {
       render();
     });
   });
-  document.querySelectorAll(".workspace-action").forEach((label) => {
-    label.addEventListener("click", (event) => {
-      event.stopPropagation();
-    });
-  });
   document.querySelectorAll("[data-seat]").forEach((button) => {
     button.addEventListener("click", async () => {
+      await loadOptions();
       const seat = workspaces.find((item) => item.code === button.dataset.seat);
       state.selected = selectedSeatRecord(seat);
+      
+      let formUserId = state.selected?.user_id ? String(state.selected.user_id) : "";
+      
+      // Si no hay ID pero hay nombre (ej. un usuario de Zammad guardado en temp_user_name)
+      // Buscamos su ID en las opciones para que el combobox aparezca seleccionado.
+      if (!formUserId && state.selected?.user_name) {
+         const match = state.options?.users?.find(u => u.name === state.selected.user_name);
+         if (match) formUserId = String(match.id);
+      }
+      
       state.form = {
-        user_id: state.selected?.user_id ? String(state.selected.user_id) : "",
+        user_id: formUserId,
         asset_id: state.selected?.asset_id ? String(state.selected.asset_id) : ""
       };
-      render();
-      await loadOptions();
+      
       render();
     });
   });
@@ -329,8 +349,18 @@ function bindEvents() {
       console.error("Failed to fetch recommendation", error);
     }
   });
+  document.querySelector("select[name='user_id']")?.addEventListener("blur", renderIfSelectionIsStable);
+  document.querySelector("select[name='asset_id']")?.addEventListener("blur", renderIfSelectionIsStable);
   document.querySelector("select[name='asset_id']")?.addEventListener("change", async (event) => {
     state.form.asset_id = event.target.value;
+    
+    // Actualizar botón de control remoto
+    const rcContainer = document.getElementById("remote-control-container");
+    if (rcContainer) {
+      rcContainer.innerHTML = getRemoteControlHtml(state.form.asset_id);
+    }
+    event.target.value = state.form.asset_id;
+    
     if (!state.form.asset_id) return;
     try {
       const response = await fetch(`${API_BASE}/inventory-map/recommend-user/${state.form.asset_id}`, { credentials: "include" });
@@ -376,31 +406,131 @@ async function loadOptions() {
   try {
     const response = await fetch(`${API_BASE}/inventory-map/options`, { credentials: "include" });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    state.options = await response.json();
+    state.options = mergeOptions(await response.json());
   } catch (error) {
     console.error("Options fetch failed", error);
-    state.options = { users: [], assets: [] };
+    state.options = state.options || { users: [], assets: [] };
   }
+}
+
+function mergeOptions(nextOptions) {
+  const options = nextOptions || { users: [], assets: [] };
+  if (state.form.user_id === "temp_user" && state.form.temp_user_name) {
+    const exists = options.users.some((user) => user.id === "temp_user");
+    if (!exists) {
+      options.users = [
+        ...options.users,
+        { id: "temp_user", name: `${state.form.temp_user_name} (PC)`, email: "No integrado" }
+      ];
+    }
+  }
+  return options;
+}
+
+async function refreshOptionsFromSelect() {
+  const selectedCode = state.selected?.code;
+  await loadOptions();
+  if (!selectedCode || state.selected?.code !== selectedCode) return;
+  updateSelectOptions();
+}
+
+function updateSelectOptions() {
+  const userSelect = document.querySelector("select[name='user_id']");
+  const assetSelect = document.querySelector("select[name='asset_id']");
+
+  if (userSelect) {
+    const currentValue = state.form.user_id || userSelect.value || "";
+    userSelect.innerHTML = `
+      <option value="">-- Sin asignar --</option>
+      ${state.options.users.map((user) => `<option value="${user.id}">${escapeHtml(userOptionLabel(user))}</option>`).join("")}
+    `;
+    userSelect.value = currentValue;
+  }
+
+  if (assetSelect) {
+    const currentValue = state.form.asset_id || assetSelect.value || "";
+    assetSelect.innerHTML = `
+      <option value="">-- Sin asignar --</option>
+      ${state.options.assets.map((asset) => `<option value="${asset.id}">${escapeHtml(assetOptionLabel(asset))}</option>`).join("")}
+    `;
+    assetSelect.value = currentValue;
+  }
+
+  const rcContainer = document.getElementById("remote-control-container");
+  if (rcContainer) {
+    rcContainer.innerHTML = getRemoteControlHtml(state.form.asset_id);
+  }
+}
+
+function userOptionLabel(user) {
+  const detail = user.email || user.area || "";
+  return detail ? `${user.name} (${detail})` : user.name;
+}
+
+function assetOptionLabel(asset) {
+  const detail = asset.occupant || "Sin usuario";
+  return detail ? `${asset.name} (${detail})` : asset.name;
+}
+
+function selectIsActive() {
+  return document.activeElement?.matches?.("select[name='user_id'], select[name='asset_id']");
+}
+
+function renderIfSelectionIsStable() {
+  setTimeout(() => {
+    if (state.selected && !selectIsActive()) render();
+  }, 120);
+}
+
+function syncOptionsRefreshTimer() {
+  if (!state.selected) {
+    if (optionsRefreshTimer) {
+      clearInterval(optionsRefreshTimer);
+      optionsRefreshTimer = null;
+    }
+    return;
+  }
+
+  if (optionsRefreshTimer) return;
+  optionsRefreshTimer = setInterval(async () => {
+    if (!state.selected) return;
+    await loadOptions();
+    if (!selectIsActive()) render();
+  }, 5000);
 }
 
 async function saveAssignment(event) {
   event.preventDefault();
   if (!state.selected) return;
   try {
-    const csrf = document.cookie.match(/(^| )csrf_token=([^;]+)/);
+    const csrf = await csrfToken();
+    
+    let submitUserId = state.form.user_id;
+    let submitTempName = state.form.temp_user_name;
+    
+    if (submitUserId && String(submitUserId).startsWith("zammad_")) {
+      const zUser = state.options.users.find(u => String(u.id) === String(submitUserId));
+      submitTempName = zUser ? zUser.name : "Usuario Zammad";
+      submitUserId = null;
+    } else if (submitUserId === "temp_user") {
+      submitUserId = null;
+    } else {
+      submitUserId = submitUserId ? parseInt(submitUserId, 10) : null;
+    }
+
     const response = await fetch(`${API_BASE}/inventory-map/assign`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-csrf-token": csrf ? csrf[2] : ""
+        "X-CSRF-Token": csrf
       },
       credentials: "include",
       body: JSON.stringify({
         workspace_id: state.selected.id || null,
         code: state.selected.code,
-        user_id: (state.form.user_id && state.form.user_id !== 'temp_user') ? parseInt(state.form.user_id, 10) : null,
+        user_id: submitUserId,
         asset_id: state.form.asset_id ? parseInt(state.form.asset_id, 10) : null,
-        temp_user_name: (state.form.user_id === 'temp_user' && state.form.temp_user_name) ? state.form.temp_user_name : null
+        temp_user_name: submitTempName || null
       })
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -415,23 +545,28 @@ async function saveAssignment(event) {
 }
 
 function connectSocket() {
+  // Realtime status updates are optional; the local Rails backend serves fresh data on load/save.
+}
+
+async function csrfToken() {
+  const token = document.querySelector('meta[name="csrf-token"]')?.content;
+  if (token) return token;
+
   try {
-    const socket = new WebSocket("ws://localhost:8000/api/inventory/ws");
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      if (message.type !== "status_update") return;
-      state.workspaces = state.workspaces.map((item) => {
-        const change = message.changes.find((entry) => entry.ip === item.asset_ip);
-        return change ? { ...item, asset_status: change.status } : item;
-      });
-      if (state.selected) {
-        state.selected = byCode(state.selected.code) || state.selected;
-      }
-      render();
-    };
+    const parentDocument = window.parent && window.parent !== window ? window.parent.document : null;
+    const parentToken = parentDocument?.querySelector('meta[name="csrf-token"]')?.content;
+    if (parentToken) return parentToken;
   } catch (error) {
-    console.error("WebSocket failed", error);
+    console.warn("No se pudo leer el CSRF del contenedor Zammad", error);
   }
+
+  const cookie = document.cookie.match(/(?:^|; )csrf_token=([^;]+)/);
+  if (cookie) return decodeURIComponent(cookie[1]);
+
+  const response = await fetch(`${API_BASE}/inventory-map/csrf`, { credentials: "include" });
+  if (!response.ok) return "";
+  const payload = await response.json();
+  return payload.csrf_token || "";
 }
 
 function escapeHtml(value) {
@@ -453,6 +588,6 @@ function monitorIcon() {
   `;
 }
 
-await loadInventory();
+await Promise.all([loadInventory(), loadOptions()]);
 render();
 connectSocket();

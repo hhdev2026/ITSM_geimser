@@ -2,6 +2,14 @@
   if (window.__geimserUiLoaded) return;
   window.__geimserUiLoaded = true;
 
+  var GEIMSER_GENERIC_PASSWORD = "GEimser.2026!";
+  var GEIMSER_FORCE_PASSWORD_KEY = "geimser_must_change_password";
+  var geimserPasswordChangeState = {
+    checking: false,
+    lastCheck: 0,
+    userId: null
+  };
+
   function patchTranslationPrompt() {
     if (!window.App || !App.LocalStorage || App.LocalStorage.__geimserTranslationPatch) {
       return false;
@@ -1128,7 +1136,16 @@
   }
 
   function ensurePasswordVisibilityToggle() {
-    var fields = Array.from(document.querySelectorAll(".hero-unit input, .login input")).filter(function (input) {
+    var fields = Array.from(document.querySelectorAll(
+      ".hero-unit input, .login input, .geimser-force-password-form input, #app input"
+    )).filter(function (input) {
+      if (input.closest(".geimser-password-field")) return false;
+      if (input.closest(".geimser-force-password-modal")) return input.type === "password";
+
+      var isPublicPasswordArea = Boolean(input.closest(".hero-unit, .login"));
+      var isManageUserArea = Boolean(input.closest("#app")) && (window.location.hash || "").indexOf("#manage/users") === 0;
+      if (!isPublicPasswordArea && !isManageUserArea) return false;
+
       var label = [
         input.type,
         input.name,
@@ -1142,8 +1159,6 @@
     });
 
     fields.forEach(function (input) {
-      if (input.closest(".geimser-password-field")) return;
-
       var wrapper = document.createElement("div");
       wrapper.className = "geimser-password-field";
       input.parentNode.insertBefore(wrapper, input);
@@ -1167,6 +1182,255 @@
       });
 
       wrapper.appendChild(button);
+    });
+  }
+
+  function geimserCsrfToken() {
+    var meta = document.querySelector("meta[name='csrf-token']");
+    return meta ? meta.getAttribute("content") : "";
+  }
+
+  function geimserSetInputValue(input, value) {
+    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+    setter.call(input, value);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function isVisibleElement(el) {
+    if (!el || !el.getBoundingClientRect) return false;
+    var rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  }
+
+  function ensureTemporaryPasswordUserForm() {
+    var app = document.querySelector("#app");
+    var hash = window.location.hash || "";
+    if (!app || !/^#manage\/users(?:\/|$)?/.test(hash)) {
+      document.querySelectorAll(".geimser-temp-password-banner").forEach(function (el) {
+        el.remove();
+      });
+      return;
+    }
+
+    var passwordInputs = Array.from(app.querySelectorAll("input[type='password'], input[name*='password'], input[id*='password']")).filter(function (input) {
+      return !input.closest(".geimser-force-password-modal") && isVisibleElement(input);
+    });
+
+    passwordInputs.forEach(function (input) {
+      input.classList.add("geimser-temp-password-input");
+      input.setAttribute("autocomplete", "new-password");
+      if (input.value !== GEIMSER_GENERIC_PASSWORD) {
+        geimserSetInputValue(input, GEIMSER_GENERIC_PASSWORD);
+      }
+
+      var field = input.closest(".form-group, .controls, .field, label") || input.parentElement;
+      if (field && !field.querySelector(".geimser-temp-password-note")) {
+        var note = document.createElement("div");
+        note.className = "geimser-temp-password-note";
+        note.innerHTML = 'Clave temporal: <strong>' + GEIMSER_GENERIC_PASSWORD + '</strong>. El usuario debera cambiarla al iniciar sesion.';
+        field.appendChild(note);
+      }
+    });
+
+    var form = passwordInputs[0] && passwordInputs[0].closest("form");
+    if (!form || form.querySelector(".geimser-temp-password-banner")) return;
+
+    var banner = document.createElement("div");
+    banner.className = "geimser-temp-password-banner";
+    banner.innerHTML = [
+      '<strong>Creacion de usuario</strong>',
+      '<span>Se asignara automaticamente la clave temporal <code>' + GEIMSER_GENERIC_PASSWORD + '</code> y el usuario debera crear una clave segura en su primer ingreso.</span>'
+    ].join("");
+    form.insertBefore(banner, form.firstElementChild);
+  }
+
+  function sessionNeedsPasswordChange(session) {
+    if (!session || !session.preferences) return false;
+    return session.preferences[GEIMSER_FORCE_PASSWORD_KEY] === true ||
+      session.preferences[GEIMSER_FORCE_PASSWORD_KEY] === "true" ||
+      session.preferences[GEIMSER_FORCE_PASSWORD_KEY] === 1;
+  }
+
+  function setLocalPasswordChangePreference(value) {
+    var session = currentSession();
+    if (session) {
+      session.preferences = session.preferences || {};
+      session.preferences[GEIMSER_FORCE_PASSWORD_KEY] = value;
+    }
+  }
+
+  function renderPasswordChangeError(modal, message) {
+    var error = modal.querySelector(".geimser-force-password-error");
+    if (!error) return;
+    error.textContent = message || "No se pudo cambiar la contrasena. Revisa los datos e intenta nuevamente.";
+    error.hidden = false;
+  }
+
+  function extractPasswordChangeNotice(payload) {
+    if (!payload) return "";
+    if (Array.isArray(payload.notice)) return payload.notice.join(" ");
+    if (typeof payload.notice === "string") return payload.notice;
+    if (payload.error) return payload.error;
+    if (payload.message && payload.message !== "failed") return payload.message;
+    return "";
+  }
+
+  function securePasswordMessage(value) {
+    var uppercase = (value.match(/[A-Z]/g) || []).length;
+    var lowercase = (value.match(/[a-z]/g) || []).length;
+    if (value.length < 10) return "La nueva contrasena debe tener al menos 10 caracteres.";
+    if (uppercase < 2 || lowercase < 2) return "La nueva contrasena debe incluir al menos 2 mayusculas y 2 minusculas.";
+    if (!/[0-9]/.test(value)) return "La nueva contrasena debe incluir al menos un numero.";
+    if (!/[^A-Za-z0-9]/.test(value)) return "La nueva contrasena debe incluir al menos un simbolo.";
+    return "";
+  }
+
+  function buildForcedPasswordModal() {
+    var existing = document.querySelector(".geimser-force-password-modal");
+    if (existing) return existing;
+
+    var modal = document.createElement("div");
+    modal.className = "geimser-force-password-modal";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.innerHTML = [
+      '<div class="geimser-force-password-card">',
+      '  <div class="geimser-force-password-header">',
+      '    <span>Seguridad de cuenta</span>',
+      '    <h2>Cambia tu contrasena</h2>',
+      '    <p>Tu usuario fue creado con una clave temporal. Para continuar, define una contrasena segura que solo tu conozcas.</p>',
+      '  </div>',
+      '  <form class="geimser-force-password-form">',
+      '    <label>Clave actual<input type="password" name="password_old" autocomplete="current-password" required></label>',
+      '    <label>Nueva clave<input type="password" name="password_new" autocomplete="new-password" required minlength="10"></label>',
+      '    <label>Confirmar nueva clave<input type="password" name="password_confirm" autocomplete="new-password" required minlength="10"></label>',
+      '    <div class="geimser-force-password-error" hidden></div>',
+      '    <button type="submit">Guardar nueva clave</button>',
+      '  </form>',
+      '</div>'
+    ].join("");
+
+    modal.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") event.preventDefault();
+    });
+
+    modal.querySelector("form").addEventListener("submit", function (event) {
+      event.preventDefault();
+      submitForcedPasswordChange(modal);
+    });
+
+    document.body.appendChild(modal);
+    ensurePasswordVisibilityToggle();
+    window.setTimeout(function () {
+      var firstInput = modal.querySelector("input");
+      if (firstInput) firstInput.focus();
+    }, 30);
+    return modal;
+  }
+
+  function submitForcedPasswordChange(modal) {
+    var form = modal.querySelector("form");
+    var button = modal.querySelector("button[type='submit']");
+    var oldPassword = form.elements.password_old.value;
+    var newPassword = form.elements.password_new.value;
+    var confirmPassword = form.elements.password_confirm.value;
+
+    if (newPassword !== confirmPassword) {
+      renderPasswordChangeError(modal, "La nueva contrasena y la confirmacion no coinciden.");
+      return;
+    }
+
+    var securityMessage = securePasswordMessage(newPassword);
+    if (securityMessage) {
+      renderPasswordChangeError(modal, securityMessage);
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Guardando...";
+
+    fetch("/api/v1/users/password_change", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "X-CSRF-Token": geimserCsrfToken()
+      },
+      body: JSON.stringify({
+        password_old: oldPassword,
+        password_new: newPassword
+      })
+    }).then(function (response) {
+      return response.json().catch(function () {
+        return {};
+      }).then(function (payload) {
+        if (!response.ok || payload.message !== "ok") {
+          throw new Error(extractPasswordChangeNotice(payload));
+        }
+        return payload;
+      });
+    }).then(function () {
+      setLocalPasswordChangePreference(false);
+      modal.classList.add("is-success");
+      modal.querySelector(".geimser-force-password-header p").textContent = "Clave actualizada correctamente. Ya puedes continuar trabajando.";
+      window.setTimeout(function () {
+        modal.remove();
+      }, 700);
+    }).catch(function (error) {
+      renderPasswordChangeError(modal, error.message);
+    }).finally(function () {
+      button.disabled = false;
+      button.textContent = "Guardar nueva clave";
+    });
+  }
+
+  function showForcedPasswordChange() {
+    buildForcedPasswordModal();
+  }
+
+  function ensureForcedPasswordChange() {
+    var session = currentSession();
+    var hash = window.location.hash || "";
+    var isPublicScreen = /^#(login|password_reset|signup|register)?$/.test(hash) ||
+      Boolean(document.querySelector(".hero-unit"));
+
+    if (!session || isPublicScreen) {
+      return;
+    }
+
+    if (sessionNeedsPasswordChange(session)) {
+      showForcedPasswordChange();
+      return;
+    }
+
+    var now = Date.now();
+    if (geimserPasswordChangeState.checking || now - geimserPasswordChangeState.lastCheck < 10000) return;
+
+    geimserPasswordChangeState.checking = true;
+    geimserPasswordChangeState.lastCheck = now;
+
+    fetch("/api/v1/users/me", {
+      method: "GET",
+      credentials: "same-origin",
+      headers: {
+        "Accept": "application/json"
+      }
+    }).then(function (response) {
+      if (!response.ok) return null;
+      return response.json();
+    }).then(function (user) {
+      if (!user) return;
+      geimserPasswordChangeState.userId = user.id || null;
+      if (user.preferences) {
+        setLocalPasswordChangePreference(Boolean(user.preferences[GEIMSER_FORCE_PASSWORD_KEY]));
+        if (user.preferences[GEIMSER_FORCE_PASSWORD_KEY]) showForcedPasswordChange();
+      }
+    }).catch(function (_error) {
+      // Best effort: the server still keeps the flag until password_change succeeds.
+    }).finally(function () {
+      geimserPasswordChangeState.checking = false;
     });
   }
 
@@ -2250,6 +2514,8 @@
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();
     ensurePasswordVisibilityToggle();
+    ensureTemporaryPasswordUserForm();
+    ensureForcedPasswordChange();
     completePendingBotLogin();
   }
 

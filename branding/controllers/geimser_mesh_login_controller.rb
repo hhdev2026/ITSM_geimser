@@ -54,6 +54,83 @@ class GeimserMeshLoginController < ApplicationController
     }
   end
 
+  def inventory_map
+    GeimserInventoryWorkspace.ensure_table
+
+    records = GeimserInventoryWorkspace.order(:code).to_a
+    users_by_id = User.where(id: records.filter_map(&:user_id)).index_by(&:id)
+    assets_by_id = GeimserMeshCmdb::RemoteAsset.where(id: records.filter_map(&:asset_id)).index_by(&:id)
+
+    render json: records.map { |record| serialize_inventory_workspace(record, users_by_id[record.user_id], assets_by_id[record.asset_id]) }
+  end
+
+  def inventory_csrf
+    render json: { csrf_token: form_authenticity_token }
+  end
+
+  def inventory_options
+    GeimserInventoryWorkspace.ensure_table
+
+    render json: {
+      users: inventory_users.map { |user| serialize_inventory_user_option(user) },
+      assets: GeimserMeshCmdb.sync.map { |record| serialize_inventory_asset_option(record) },
+    }
+  end
+
+  def recommend_asset
+    user = User.find_by(id: params[:user_id])
+    return render json: {} if user.blank?
+
+    assets = GeimserMeshCmdb.sync
+    platform = user_platform_index[user.login.to_s.downcase] || user_platform_index[user.email.to_s.downcase]
+    matched = assets_for_user(user, platform, assets.map { |record| serialize_remote_asset(record) }).first
+    record = assets.find { |asset| asset.mesh_node_id == matched[:id] } if matched.present?
+
+    render json: record.present? ? { asset_id: record.id } : {}
+  end
+
+  def recommend_user
+    asset = GeimserMeshCmdb::RemoteAsset.find_by(id: params[:asset_id])
+    return render json: {} if asset.blank?
+
+    user = matched_inventory_user_for_asset(asset)
+    if user.present?
+      return render json: {
+        user_id: user.id,
+        name: inventory_user_name(user),
+      }
+    end
+
+    pc_username = remote_asset_pc_username(asset)
+    render json: pc_username.present? ? { pc_username: pc_username } : {}
+  end
+
+  def assign_inventory_map
+    GeimserInventoryWorkspace.ensure_table
+
+    code = params[:code].to_s.strip
+    return render json: { error: 'code is required' }, status: :bad_request if code.blank?
+
+    user_id = params[:user_id].presence&.to_i
+    asset_id = params[:asset_id].presence&.to_i
+    user_id = nil if user_id.present? && !User.exists?(id: user_id)
+    asset_id = nil if asset_id.present? && !GeimserMeshCmdb::RemoteAsset.exists?(id: asset_id)
+
+    record = GeimserInventoryWorkspace.find_or_initialize_by(code: code)
+    record.assign_attributes(
+      user_id: user_id,
+      asset_id: asset_id,
+      temp_user_name: user_id.present? ? nil : params[:temp_user_name].to_s.strip.presence,
+    )
+    record.save!
+
+    render json: serialize_inventory_workspace(
+      record,
+      user_id.present? ? User.find_by(id: user_id) : nil,
+      asset_id.present? ? GeimserMeshCmdb::RemoteAsset.find_by(id: asset_id) : nil,
+    )
+  end
+
   def bot_session
     render json: bot_identity_payload
   end
@@ -365,6 +442,117 @@ class GeimserMeshLoginController < ApplicationController
       id: record.id,
       session_url: record.session_url,
     }
+  end
+
+  def inventory_users
+    base_scope = User.where(active: true)
+      .where.not(id: 1)
+      .where.not(login: [nil, '', '-'])
+      .where.not("LOWER(login) LIKE '%zammad.org'")
+
+    geimser_scope = base_scope.where("LOWER(login) LIKE '%@geimser.local' OR LOWER(email) LIKE '%@geimser.local'")
+    records = geimser_scope.order(:firstname, :lastname, :login).limit(2_000).to_a
+    return records if records.present?
+
+    base_scope.order(:firstname, :lastname, :login).limit(2_000).to_a
+  end
+
+  def serialize_inventory_workspace(record, user, asset)
+    details = asset.present? ? remote_asset_details(asset) : {}
+    {
+      id: record.id,
+      code: record.code,
+      room: inventory_room_for(record.code),
+      seat_label: record.code.to_s.split('-', 2).last,
+      user_id: user&.id,
+      asset_id: asset&.id,
+      user_name: user.present? ? inventory_user_name(user) : record.temp_user_name,
+      user_email: user&.email,
+      user_role: user&.roles&.map(&:name)&.join(', '),
+      user_area: user&.organization&.name,
+      asset_hostname: asset&.name.presence || asset&.hostname,
+      asset_ip: asset&.ip_address,
+      asset_status: inventory_asset_status(asset),
+      asset_brand: details[:manufacturer],
+      asset_model: details[:model],
+      asset_remote_url: asset&.session_url,
+      asset_node_id: asset&.mesh_node_id,
+    }
+  end
+
+  def serialize_inventory_user_option(user)
+    {
+      id: user.id,
+      name: inventory_user_name(user),
+      email: user.email,
+      area: user.organization&.name,
+    }
+  end
+
+  def serialize_inventory_asset_option(record)
+    details = remote_asset_details(record)
+    title = record.name.presence || record.hostname.presence || record.mesh_node_id
+    {
+      id: record.id,
+      node_id: record.mesh_node_id,
+      name: title,
+      hostname: record.hostname,
+      ip: record.ip_address,
+      status: inventory_asset_status(record),
+      raw_status: record.status,
+      occupant: remote_asset_pc_username(record),
+      session_url: record.session_url,
+      brand: details[:manufacturer],
+      model: details[:model],
+    }
+  end
+
+  def inventory_user_name(user)
+    [user.firstname, user.lastname].compact_blank.join(' ').presence || user.email.presence || user.login
+  end
+
+  def inventory_room_for(code)
+    prefix = code.to_s.split('-', 2).first
+    return 'Sala KREA (1er Piso)' if prefix == 'KREA'
+    return 'Sala Huerfanos 2do Piso' if prefix == 'HUERFANOS'
+    return 'SALA MERCED 2do Piso' if prefix == 'MERCED'
+
+    prefix
+  end
+
+  def inventory_asset_status(asset)
+    return if asset.blank?
+
+    asset.status == 'online' ? 'Activo' : 'Fuera de Linea'
+  end
+
+  def matched_inventory_user_for_asset(asset)
+    serialized_asset = serialize_remote_asset(asset)
+    platform_index = user_platform_index
+
+    inventory_users.find do |user|
+      platform = platform_index[user.login.to_s.downcase] || platform_index[user.email.to_s.downcase]
+      assets_for_user(user, platform, [serialized_asset]).present?
+    end
+  end
+
+  def remote_asset_pc_username(record)
+    raw = JSON.parse(record.raw.presence || '{}')
+    candidates = [
+      raw['user'],
+      raw['username'],
+      raw['users'],
+      raw['upnusers'],
+      raw['lusers'],
+      raw.dig('sysinfo', 'users'),
+      raw.dig('sysinfo', 'upnusers'),
+    ].flatten.compact_blank.map(&:to_s)
+
+    candidates
+      .map { |value| value.split(/[\\\/]/).last.split('@').first.strip }
+      .find { |value| value.length >= 3 }
+  rescue StandardError
+    nil
   end
 
   def serialize_remote_asset(record)
