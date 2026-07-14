@@ -11,7 +11,9 @@ class GeimserMeshLoginController < ApplicationController
   before_action :authentication_check, except: %i[bot_login demo demo_session search]
   before_action :require_internal_user!, except: %i[bot_login bot_session demo demo_session search]
   before_action :require_admin!, only: %i[show]
-  skip_before_action :verify_authenticity_token, only: %i[demo_session]
+  # The signed, short-lived demo ticket is the authorization proof for this
+  # endpoint. Zammad replaces Rails' default callback with verify_csrf_token.
+  skip_before_action :verify_csrf_token, only: %i[demo_session]
 
   def show
     key = mesh_login_key

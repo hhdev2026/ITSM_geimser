@@ -66,6 +66,8 @@ set_env ZAMMAD_HTTP_TYPE https
 set_env MESH_HOSTNAME "$MESH_HOST"
 set_env MESH_PUBLIC_URL "https://${MESH_HOST}"
 set_env MESH_LOGIN_USER "${MESH_LOGIN_USER:-admin}"
+set_env GEIMSER_DEMO_USER "${GEIMSER_DEMO_USER:-demo@geimser.local}"
+set_env GEIMSER_DEMO_VERIFY_URL "${GEIMSER_DEMO_VERIFY_URL:-https://www.geimser.cl/api/experience/demo-ticket}"
 ensure_env_secret MESH_LOGIN_KEY 80
 ensure_env_secret GEIMSER_CMDB_TOKEN
 ensure_env_secret GEIMSER_ADMIN_PASSWORD
@@ -126,7 +128,7 @@ server {
     proxy_redirect off;
     proxy_hide_header X-Frame-Options;
     add_header Content-Security-Policy "frame-ancestors 'self' https://www.geimser.cl https://geimser.cl" always;
-    proxy_cookie_path / "/; Secure; SameSite=None; Partitioned";
+    proxy_cookie_flags ~ secure httponly samesite=none;
   }
 }
 
@@ -171,6 +173,7 @@ certbot --nginx \
 docker-compose restart meshcentral
 docker-compose run --rm zammad-railsserver \
   bundle exec rails r /opt/zammad/contrib/geimser/configure_geimser.rb
+./scripts/verify_demo_account.sh
 docker-compose restart zammad-railsserver zammad-websocket zammad-scheduler zammad-nginx
 
 echo "Geimser ITSM disponible en https://${ITSM_HOST}"

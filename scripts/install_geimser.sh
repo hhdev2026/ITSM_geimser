@@ -63,6 +63,8 @@ ensure_env_secret GEIMSER_ADMIN_PASSWORD
 ensure_env_secret MESH_LOGIN_KEY 80
 ensure_env_value MESH_HOSTNAME remoto.geimser.cl
 ensure_env_value MESH_PUBLIC_URL https://remoto.geimser.cl
+ensure_env_value GEIMSER_DEMO_USER demo@geimser.local
+ensure_env_value GEIMSER_DEMO_VERIFY_URL https://www.geimser.cl/api/experience/demo-ticket
 
 if ! docker info >/dev/null 2>&1; then
   if command -v colima >/dev/null 2>&1; then
@@ -90,6 +92,7 @@ for _ in {1..90}; do
 done
 
 docker-compose run --rm zammad-railsserver bundle exec rails r /opt/zammad/contrib/geimser/configure_geimser.rb
+./scripts/verify_demo_account.sh
 
 echo "Aplicando estilos personalizados Geimser..."
 docker-compose restart zammad-nginx zammad-railsserver zammad-websocket zammad-scheduler

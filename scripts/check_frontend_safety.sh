@@ -43,6 +43,12 @@ reject '^[[:space:]]*fixSidebarSearchDropdowns\(\);' branding/geimser.js \
   'No se deben reposicionar resultados de busqueda mediante estilos inline.'
 reject 'skip_before_action[[:space:]]+:authentication_check' branding/controllers/geimser_mesh_login_controller.rb \
   'Ninguna ruta CMDB personalizada debe omitir autenticacion.'
+reject 'skip_before_action[[:space:]]+:verify_authenticity_token.*demo_session' branding/controllers/geimser_mesh_login_controller.rb \
+  'Zammad usa verify_csrf_token; el callback Rails por defecto no existe en este controlador.'
+if ! rg -q 'skip_before_action :verify_csrf_token, only: %i\[demo_session\]' branding/controllers/geimser_mesh_login_controller.rb; then
+  printf 'ERROR: demo_session debe omitir el callback CSRF real de Zammad.\n' >&2
+  exit 1
+fi
 reject "ENV\\.fetch\\('GEIMSER_CMDB_TOKEN',[[:space:]]*'geimser-cmdb-local'\\)" branding/controllers/geimser_mesh_login_controller.rb \
   'El token CMDB no puede tener un valor predeterminado conocido.'
 reject "ENV\\.fetch\\('GEIMSER_ADMIN_PASSWORD',[[:space:]]*'[^']+'\\)" scripts/configure_geimser.rb \
