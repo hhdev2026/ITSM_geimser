@@ -273,23 +273,31 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   def mesh_public_url
-    public_url = ENV['MESH_PUBLIC_URL'].to_s.strip
+    explicit_public_url = ENV['MESH_PUBLIC_URL'].to_s.strip
+    public_url = explicit_public_url
     public_url = "https://#{ENV['MESH_HOSTNAME']}" if public_url.blank? && ENV['MESH_HOSTNAME'].present?
     public_url = 'https://remoto.geimser.cl' if public_url.blank?
     public_url = "https://#{public_url}" if public_url !~ %r{\Ahttps?://}i
 
     uri = URI.parse(public_url)
-    itsm_hosts = [
-      request.host,
-      ENV['ZAMMAD_FQDN'].to_s.split(':').first,
-      'itsm.geimser.cl',
-    ].compact_blank
-
-    if uri.host.blank? || itsm_hosts.include?(uri.host)
+    if uri.host.blank?
       uri.host = 'remoto.geimser.cl'
+    elsif explicit_public_url.blank?
+      itsm_hosts = [
+        "#{request.host}:#{request.port}",
+        request.host,
+        ENV['ZAMMAD_FQDN'].to_s,
+        ENV['ZAMMAD_FQDN'].to_s.split(':').first,
+        'itsm.geimser.cl',
+      ].compact_blank
+
+      if itsm_hosts.include?(uri.host) || itsm_hosts.include?("#{uri.host}:#{uri.port}")
+        uri.host = 'remoto.geimser.cl'
+        uri.port = nil
+      end
     end
 
-    uri.scheme = 'https'
+    uri.scheme = uri.scheme.presence || 'https'
     uri.path = ''
     uri.query = nil
     uri.fragment = nil

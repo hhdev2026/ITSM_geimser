@@ -118,12 +118,42 @@ MESH_TITLE=Geimser ITSM
 MESH_TITLE2=Centro remoto
 ```
 
+El inicio automatico desde el ITSM depende de estas variables:
+
+```env
+MESH_PUBLIC_URL=https://remoto.geimser.cl
+MESH_HOSTNAME=remoto.geimser.cl
+MESH_LOGIN_USER=admin
+MESH_LOGIN_KEY=<160 caracteres hexadecimales>
+```
+
+`MESH_LOGIN_KEY` debe ser exactamente la misma llave configurada en MeshCentral como `settings.logincookieencryptionkey`. El script `configure_meshcentral.sh` la aplica automaticamente al `config.json` de MeshCentral.
+
+El usuario definido en `MESH_LOGIN_USER` debe existir dentro de MeshCentral. Para que el boton **Tomar Equipo** muestre los PCs del grupo QA en productivo, ese usuario debe ser administrador del sitio o tener permisos sobre ese grupo de dispositivos. Si el usuario existe pero no tiene acceso a QA, el login automatico funciona pero MeshCentral muestra **Mis Dispositivos** vacio.
+
 Despues de cambiar esos valores, reaplica la configuracion sin borrar volumenes:
 
 ```bash
 cd /opt/ITSM_geimser
 sudo ./scripts/configure_meshcentral.sh
 sudo docker compose up -d --force-recreate meshcentral
+```
+
+Para validar el usuario usado por el SSO:
+
+```bash
+cd /opt/ITSM_geimser
+sudo docker compose exec -T meshcentral node /opt/meshcentral/meshcentral --listuserids
+```
+
+Debe aparecer `user//admin` si `MESH_LOGIN_USER=admin`. En una instalacion nueva, puedes crear y promover ese usuario con MeshCentral detenido:
+
+```bash
+cd /opt/ITSM_geimser
+sudo docker compose stop meshcentral
+sudo docker compose run --rm --entrypoint node meshcentral /opt/meshcentral/meshcentral --createaccount admin --pass 'CAMBIAR_ESTA_CLAVE' --name 'Geimser ITSM' --email admin@geimser.local
+sudo docker compose run --rm --entrypoint node meshcentral /opt/meshcentral/meshcentral --adminaccount admin
+sudo docker compose up -d meshcentral
 ```
 
 Para crear el primer administrador en una instalacion nueva:

@@ -254,7 +254,11 @@ function getRemoteControlHtml(assetId) {
   if (!assetId || !state.options || !state.options.assets) return '';
   const asset = state.options.assets.find(a => String(a.id) === String(assetId));
   if (asset && /^node\/\//.test(String(asset.node_id || ""))) {
-    return `<a href="https://remoto.geimser.cl/?viewmode=11&gotonode=${asset.node_id}&geimserautoconnect=1" target="_blank" class="button button-primary" style="display:inline-flex; align-items:center; gap:5px; background-color: #f39c12; border-color: #e67e22; padding: 4px 10px; font-size: 13px; text-decoration: none;"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg> Tomar Equipo</a>`;
+    const nodeId = String(asset.node_id);
+    const gotonode = nodeId.split("/").pop();
+    const next = `/?node=${encodeURIComponent(nodeId)}&gotonode=${encodeURIComponent(gotonode)}&viewmode=11&hide=0&geimserautoconnect=1`;
+    const url = `/geimser/mesh/login?next=${encodeURIComponent(next)}`;
+    return `<a href="${escapeHtml(url)}" target="_blank" class="button button-primary" style="display:inline-flex; align-items:center; gap:5px; background-color: #f39c12; border-color: #e67e22; padding: 4px 10px; font-size: 13px; text-decoration: none;"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg> Tomar Equipo</a>`;
   }
   return '';
 }

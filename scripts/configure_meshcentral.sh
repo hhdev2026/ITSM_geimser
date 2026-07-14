@@ -19,13 +19,15 @@ MESH_HOSTNAME="${MESH_HOSTNAME:-$(load_env_value MESH_HOSTNAME)}"
 MESH_ALLOW_NEW_ACCOUNTS="${MESH_ALLOW_NEW_ACCOUNTS:-$(load_env_value MESH_ALLOW_NEW_ACCOUNTS)}"
 MESH_WEBRTC="${MESH_WEBRTC:-$(load_env_value MESH_WEBRTC)}"
 MESH_LOGIN_KEY="${MESH_LOGIN_KEY:-$(load_env_value MESH_LOGIN_KEY)}"
+MESH_LOGIN_USER="${MESH_LOGIN_USER:-$(load_env_value MESH_LOGIN_USER)}"
 MESH_TITLE="${MESH_TITLE:-$(load_env_value MESH_TITLE)}"
 MESH_TITLE2="${MESH_TITLE2:-$(load_env_value MESH_TITLE2)}"
 
 MESH_HOSTNAME="${MESH_HOSTNAME:-3.227.213.30}"
+MESH_LOGIN_USER="${MESH_LOGIN_USER:-admin}"
 MESH_TITLE="${MESH_TITLE:-Geimser ITSM}"
 MESH_TITLE2="${MESH_TITLE2:-Centro remoto}"
-export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC MESH_LOGIN_KEY MESH_TITLE MESH_TITLE2
+export MESH_HOSTNAME MESH_ALLOW_NEW_ACCOUNTS MESH_WEBRTC MESH_LOGIN_KEY MESH_LOGIN_USER MESH_TITLE MESH_TITLE2
 
 if command -v docker-compose >/dev/null 2>&1; then
   COMPOSE=(docker-compose)
@@ -86,6 +88,13 @@ fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
 console.log('MeshCentral configurado para ' + host);
 NODE
 "
+
+mesh_users="$("${COMPOSE[@]}" exec -T meshcentral node /opt/meshcentral/meshcentral --listuserids 2>/dev/null || "${COMPOSE[@]}" run --rm --entrypoint node meshcentral /opt/meshcentral/meshcentral --listuserids 2>/dev/null || true)"
+if ! printf '%s\n' "$mesh_users" | grep -Fxq "user//${MESH_LOGIN_USER}"; then
+  printf 'ADVERTENCIA: MESH_LOGIN_USER=%s no existe en MeshCentral.\n' "$MESH_LOGIN_USER" >&2
+  printf 'El SSO puede iniciar sesion, pero MeshCentral mostrara la vista vacia o el login si ese usuario no existe.\n' >&2
+  printf 'Crea ese usuario en MeshCentral y dale permisos sobre el grupo QA, o promuevelo como administrador del sitio.\n' >&2
+fi
 
 PROJECT_NAME="${COMPOSE_PROJECT_NAME:-$(basename "$PWD" | tr '[:upper:] ' '[:lower:]_' | sed 's/[^a-z0-9_-]/_/g')}"
 MESH_WEB_VOLUME="${PROJECT_NAME}_meshcentral-web"
