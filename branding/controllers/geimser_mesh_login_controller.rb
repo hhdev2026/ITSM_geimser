@@ -13,7 +13,7 @@ class GeimserMeshLoginController < ApplicationController
   before_action :require_admin!, only: %i[show]
   # The signed, short-lived demo ticket is the authorization proof for this
   # endpoint. Zammad replaces Rails' default callback with verify_csrf_token.
-  skip_before_action :verify_csrf_token, only: %i[demo_session]
+  skip_before_action :verify_csrf_token, only: %i[demo_session], raise: false
 
   def show
     key = mesh_login_key

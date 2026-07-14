@@ -5335,11 +5335,37 @@ html[data-theme="dark"] .geimser-cmdb-row.is-selected small {
 }
 
 .login.fullscreen .hero-unit input.form-control {
-  background-color: #0f1522 !important;
-  border: 1px solid #2d3748 !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #6fb8ff !important;
   border-radius: 8px !important;
-  color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0f172a !important;
+  color-scheme: light;
   padding: 10px 12px !important;
+}
+
+.login.fullscreen .hero-unit input.form-control::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}
+
+.login.fullscreen .hero-unit input.form-control:focus {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #50a0f0 !important;
+  box-shadow: 0 0 0 4px rgba(80, 160, 240, 0.22) !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.login.fullscreen .hero-unit input.form-control:-webkit-autofill,
+.login.fullscreen .hero-unit input.form-control:-webkit-autofill:hover,
+.login.fullscreen .hero-unit input.form-control:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0f172a !important;
 }
 
 .login.fullscreen .hero-unit button[type="submit"] {
