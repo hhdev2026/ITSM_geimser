@@ -5387,3 +5387,363 @@ html[data-theme="dark"] .geimser-cmdb-row.is-selected small {
 .login.fullscreen .poweredBy {
   display: none !important;
 }
+
+/* --- Secretos Seguros --- */
+#geimser-secrets-container.geimser-secrets-container {
+  position: absolute;
+  inset: 0;
+  z-index: 998;
+  overflow: auto;
+  background: var(--gx-bg);
+  color: var(--gx-text);
+}
+
+.geimser-secrets-page {
+  min-height: 100%;
+  padding: 28px;
+  display: grid;
+  gap: 18px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.geimser-secrets-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--gx-line);
+}
+
+.geimser-secrets-kicker {
+  display: inline-flex;
+  margin-bottom: 8px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--gx-brand-soft);
+  color: var(--gx-brand-strong);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.geimser-secrets-header h1 {
+  margin: 0;
+  color: var(--gx-text);
+  font-size: 28px;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.geimser-secrets-header p {
+  max-width: 680px;
+  margin: 8px 0 0;
+  color: var(--gx-text-2);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.geimser-secrets-close,
+.geimser-secrets-primary,
+.geimser-secrets-secondary,
+.geimser-secrets-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: 8px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.geimser-secrets-close,
+.geimser-secrets-secondary {
+  padding: 0 14px;
+  border: 1px solid var(--gx-line-strong);
+  background: var(--gx-panel-2);
+  color: var(--gx-link);
+}
+
+.geimser-secrets-primary {
+  width: 100%;
+  border: 0;
+  background: var(--gx-brand);
+  color: var(--gx-on-brand);
+}
+
+.geimser-secrets-primary:disabled {
+  opacity: .72;
+  cursor: wait;
+}
+
+.geimser-secrets-danger {
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--gx-danger);
+  background: var(--gx-danger-soft);
+  color: var(--gx-danger);
+}
+
+.geimser-secrets-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.15fr) minmax(280px, .85fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.geimser-secrets-card {
+  border: 1px solid var(--gx-line);
+  border-radius: 10px;
+  background: var(--gx-panel);
+  box-shadow: var(--gx-shadow-sm);
+}
+
+.geimser-secrets-form,
+.geimser-secrets-result,
+.geimser-secrets-history {
+  padding: 18px;
+}
+
+.geimser-secrets-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.geimser-secrets-card-head h2 {
+  margin: 0;
+  color: var(--gx-text);
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.geimser-secrets-card-head span {
+  color: var(--gx-text-3);
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.geimser-secrets-form {
+  display: grid;
+  gap: 14px;
+}
+
+.geimser-secrets-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--gx-text-2);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.geimser-secrets-form input,
+.geimser-secrets-form select,
+.geimser-secrets-form textarea,
+.geimser-secrets-linkbox input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--gx-input-border);
+  border-radius: 8px;
+  background: var(--gx-input-bg);
+  color: var(--gx-input-text);
+  -webkit-text-fill-color: var(--gx-input-text);
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  color-scheme: dark;
+}
+
+html[data-theme="light"] .geimser-secrets-form input,
+html[data-theme="light"] .geimser-secrets-form select,
+html[data-theme="light"] .geimser-secrets-form textarea,
+html[data-theme="light"] .geimser-secrets-linkbox input {
+  color-scheme: light;
+}
+
+.geimser-secrets-form input:focus,
+.geimser-secrets-form select:focus,
+.geimser-secrets-form textarea:focus,
+.geimser-secrets-linkbox input:focus {
+  outline: none;
+  border-color: var(--gx-brand);
+  box-shadow: var(--gx-focus-ring);
+}
+
+.geimser-secret-textarea-wrap {
+  position: relative;
+}
+
+.geimser-secret-textarea-wrap textarea {
+  min-height: 148px;
+  resize: vertical;
+  padding-right: 86px;
+}
+
+.geimser-secret-textarea.is-masked {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  text-shadow: 0 0 9px var(--gx-input-text);
+}
+
+.geimser-secret-eye {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-height: 32px;
+  border: 1px solid var(--gx-line-strong);
+  border-radius: 8px;
+  background: var(--gx-panel-2);
+  color: var(--gx-link);
+  font-weight: 800;
+}
+
+.geimser-secrets-two {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 12px;
+}
+
+.geimser-secrets-message {
+  min-height: 18px;
+  margin: 0;
+  color: var(--gx-text-3);
+  font-size: 13px;
+}
+
+.geimser-secrets-message.is-error {
+  color: var(--gx-danger);
+}
+
+.geimser-secrets-message.is-ok {
+  color: var(--gx-success);
+}
+
+.geimser-secrets-empty {
+  padding: 22px;
+  border: 1px dashed var(--gx-line-strong);
+  border-radius: 8px;
+  color: var(--gx-text-3);
+  text-align: center;
+}
+
+.geimser-secrets-linkbox {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.geimser-secrets-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.geimser-secrets-summary div {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--gx-panel-2);
+  border: 1px solid var(--gx-line);
+}
+
+.geimser-secrets-summary dt {
+  margin: 0 0 5px;
+  color: var(--gx-text-3);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.geimser-secrets-summary dd {
+  margin: 0;
+  color: var(--gx-text);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.geimser-secrets-table-wrap {
+  overflow: auto;
+}
+
+.geimser-secrets-history table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 780px;
+}
+
+.geimser-secrets-history th,
+.geimser-secrets-history td {
+  padding: 12px 11px;
+  border-bottom: 1px solid var(--gx-line);
+  color: var(--gx-text-2);
+  text-align: left;
+  font-size: 13px;
+}
+
+.geimser-secrets-history th {
+  color: var(--gx-text-3);
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.geimser-secrets-history td strong {
+  color: var(--gx-text);
+}
+
+.geimser-secrets-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.geimser-secrets-status.is-active {
+  background: var(--gx-success-soft);
+  color: var(--gx-success);
+}
+
+.geimser-secrets-status.is-consumed {
+  background: var(--gx-brand-soft);
+  color: var(--gx-brand-strong);
+}
+
+.geimser-secrets-status.is-expired,
+.geimser-secrets-status.is-deleted {
+  background: var(--gx-warning-soft);
+  color: var(--gx-warning);
+}
+
+@media (max-width: 980px) {
+  .geimser-secrets-page {
+    padding: 18px;
+  }
+
+  .geimser-secrets-grid,
+  .geimser-secrets-two,
+  .geimser-secrets-linkbox,
+  .geimser-secrets-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .geimser-secrets-header {
+    flex-direction: column;
+  }
+
+  .geimser-secrets-card-head {
+    display: grid;
+  }
+
+  .geimser-secrets-card-head span {
+    text-align: left;
+  }
+}

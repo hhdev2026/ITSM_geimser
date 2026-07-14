@@ -302,7 +302,7 @@
       existing.setAttribute("aria-label", "Accesos internos Geimser ITSM");
     }
 
-    if (!existing.querySelector('[data-geimser-shortcut="remote"]')) {
+    if (!existing.querySelector('[data-geimser-shortcut="secrets"]')) {
       existing.innerHTML = [
         '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="cmdb" href="#system/integration/idoit">',
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-cmdb" aria-hidden="true"></span>',
@@ -311,6 +311,10 @@
         '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="map" href="#inventory-map">',
         '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></span>',
         '  <span>Mapa Interactivo</span>',
+        '</a>',
+        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="secrets" href="#secure-secrets">',
+        '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M9 12h6"/><path d="M12 9v6"/></svg></span>',
+        '  <span>Secretos Seguros</span>',
         '</a>',
         '<button class="geimser-sidebar-shortcut" data-geimser-shortcut="remote" type="button">',
         '  <span class="geimser-sidebar-shortcut-icon geimser-sidebar-shortcut-icon-remote" aria-hidden="true"></span>',
@@ -379,11 +383,13 @@
     var isTicket = /^#ticket(?:\/|$)/.test(hash);
     var isCmdb = hash === "#system/integration/idoit";
     var isMap = hash === "#inventory-map";
+    var isSecrets = hash === "#secure-secrets";
     app.classList.toggle("geimser-route-profile", isProfile || hasActivityFlow || hasProfileDetail);
     app.classList.toggle("geimser-route-ticket-create", isTicketCreate);
     app.classList.toggle("geimser-route-ticket", isTicket);
     app.classList.toggle("geimser-route-cmdb", isCmdb);
     app.classList.toggle("geimser-route-map", isMap);
+    app.classList.toggle("geimser-route-secrets", isSecrets);
     app.classList.toggle("geimser-route-native", isProfile || hasActivityFlow || hasProfileDetail || isTicketCreate);
     app.classList.toggle("geimser-route-activity-flow", hasActivityFlow);
   }
@@ -2649,6 +2655,313 @@
   // Disparar en el load y periodicamente por si Zammad recarga el main
   window.addEventListener('load', handleMapRoute);
   setInterval(handleMapRoute, 500);
+})();
+
+(function() {
+  var loadedOnce = false;
+
+  function csrfToken() {
+    var meta = document.querySelector("meta[name='csrf-token']");
+    return meta ? meta.getAttribute("content") : "";
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
+      return {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char];
+    });
+  }
+
+  function formatDate(value) {
+    if (!value) return "-";
+    try {
+      return new Date(value).toLocaleString();
+    } catch (_error) {
+      return value;
+    }
+  }
+
+  function statusLabel(status) {
+    return {
+      active: "Activo",
+      consumed: "Leido",
+      expired: "Expirado",
+      deleted: "Eliminado"
+    }[status] || status || "-";
+  }
+
+  function requestJson(url, options) {
+    var request = Object.assign({
+      credentials: "include",
+      cache: "no-store",
+      headers: {}
+    }, options || {});
+
+    request.headers = Object.assign({
+      "Accept": "application/json"
+    }, request.headers || {});
+
+    if (request.body && !request.headers["Content-Type"]) {
+      request.headers["Content-Type"] = "application/json";
+    }
+
+    var token = csrfToken();
+    if (token) request.headers["X-CSRF-Token"] = token;
+
+    return fetch(url, request).then(function (response) {
+      return response.json().catch(function () { return {}; }).then(function (payload) {
+        if (!response.ok) {
+          throw new Error(payload.error || payload.message || ("HTTP " + response.status));
+        }
+        return payload;
+      });
+    });
+  }
+
+  function pageTemplate() {
+    return [
+      '<div class="geimser-secrets-page">',
+      '  <header class="geimser-secrets-header">',
+      '    <div>',
+      '      <span class="geimser-secrets-kicker">Seguridad</span>',
+      '      <h1>Secretos Seguros</h1>',
+      '      <p>Comparte contrasenas, tokens y mensajes sensibles mediante enlaces temporales de una sola lectura.</p>',
+      '    </div>',
+      '    <a class="geimser-secrets-close" href="#dashboard">Cerrar</a>',
+      '  </header>',
+      '  <section class="geimser-secrets-grid">',
+      '    <form class="geimser-secrets-card geimser-secrets-form" autocomplete="off">',
+      '      <div class="geimser-secrets-card-head">',
+      '        <h2>Nuevo secreto</h2>',
+      '        <span>El contenido no se guarda en texto plano.</span>',
+      '      </div>',
+      '      <label>Tipo de secreto<select name="secret_type"><option value="password">Contrasena</option><option value="token">Token</option><option value="api_key">API Key</option><option value="code">Codigo</option><option value="credential">Credencial</option><option value="message">Mensaje</option><option value="other">Otro</option></select></label>',
+      '      <label>Contenido secreto<div class="geimser-secret-textarea-wrap"><textarea class="geimser-secret-textarea is-masked" name="secret" rows="7" autocomplete="off" spellcheck="false" required maxlength="10240"></textarea><button type="button" class="geimser-secret-eye" title="Mostrar u ocultar">Mostrar</button></div></label>',
+      '      <div class="geimser-secrets-two">',
+      '        <label>Expiracion<select name="expires_in_seconds"><option value="600">10 minutos</option><option value="1800">30 minutos</option><option value="3600" selected>1 hora</option><option value="21600">6 horas</option><option value="43200">12 horas</option><option value="86400">1 dia</option><option value="259200">3 dias</option><option value="604800">7 dias</option></select></label>',
+      '        <label>Lecturas maximas<input name="max_views" type="number" min="1" max="5" value="1" inputmode="numeric"></label>',
+      '      </div>',
+      '      <label>Descripcion opcional<input name="description" type="text" maxlength="180" autocomplete="off" placeholder="Ej: Credenciales VPN temporal"></label>',
+      '      <button class="geimser-secrets-primary" type="submit">Generar enlace seguro</button>',
+      '      <p class="geimser-secrets-message" role="status"></p>',
+      '    </form>',
+      '    <aside class="geimser-secrets-card geimser-secrets-result" aria-live="polite">',
+      '      <div class="geimser-secrets-card-head">',
+      '        <h2>Enlace generado</h2>',
+      '        <span>Disponible solo al crear el secreto.</span>',
+      '      </div>',
+      '      <div class="geimser-secrets-empty">Cuando generes un enlace aparecera aqui para copiarlo.</div>',
+      '    </aside>',
+      '  </section>',
+      '  <section class="geimser-secrets-card geimser-secrets-history">',
+      '    <div class="geimser-secrets-card-head">',
+      '      <h2>Historial</h2>',
+      '      <button type="button" class="geimser-secrets-secondary" data-action="refresh">Actualizar</button>',
+      '    </div>',
+      '    <div class="geimser-secrets-table-wrap"><table><thead><tr><th>Descripcion</th><th>Tipo</th><th>Creado por</th><th>Expira</th><th>Estado</th><th>Lecturas</th><th></th></tr></thead><tbody><tr><td colspan="7">Cargando...</td></tr></tbody></table></div>',
+      '  </section>',
+      '</div>'
+    ].join("");
+  }
+
+  function renderResult(container, record) {
+    var result = container.querySelector(".geimser-secrets-result");
+    result.innerHTML = [
+      '<div class="geimser-secrets-card-head">',
+      '  <h2>Enlace generado</h2>',
+      '  <span>Copialo ahora; por seguridad el token no se vuelve a mostrar en el historial.</span>',
+      '</div>',
+      '<div class="geimser-secrets-linkbox">',
+      '  <input type="text" readonly value="' + escapeHtml(record.link || "") + '">',
+      '  <button type="button" class="geimser-secrets-secondary" data-action="copy-link">Copiar enlace</button>',
+      '</div>',
+      '<dl class="geimser-secrets-summary">',
+      '  <div><dt>Expira</dt><dd>' + escapeHtml(formatDate(record.expires_at)) + '</dd></div>',
+      '  <div><dt>Lecturas</dt><dd>' + escapeHtml(record.max_views) + '</dd></div>',
+      '  <div><dt>Estado</dt><dd>' + escapeHtml(statusLabel(record.status)) + '</dd></div>',
+      '</dl>',
+      '<button type="button" class="geimser-secrets-danger" data-action="delete-created" data-id="' + escapeHtml(record.id) + '">Eliminar enlace</button>'
+    ].join("");
+
+    var copy = result.querySelector('[data-action="copy-link"]');
+    copy.addEventListener("click", function () {
+      var input = result.querySelector("input");
+      input.select();
+      var value = input.value;
+      Promise.resolve(navigator.clipboard ? navigator.clipboard.writeText(value) : document.execCommand("copy")).then(function () {
+        copy.textContent = "Copiado";
+        setTimeout(function () { copy.textContent = "Copiar enlace"; }, 1400);
+      });
+    });
+
+    var deleteButton = result.querySelector('[data-action="delete-created"]');
+    deleteButton.addEventListener("click", function () {
+      deleteSecret(container, record.id);
+    });
+  }
+
+  function renderHistory(container, records) {
+    var tbody = container.querySelector(".geimser-secrets-history tbody");
+    if (!records || !records.length) {
+      tbody.innerHTML = '<tr><td colspan="7">Todavia no hay secretos creados.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = records.map(function (record) {
+      return [
+        '<tr>',
+        '<td><strong>' + escapeHtml(record.description || "Sin descripcion") + '</strong></td>',
+        '<td>' + escapeHtml(record.secret_type_label) + '</td>',
+        '<td>' + escapeHtml(record.created_by) + '</td>',
+        '<td>' + escapeHtml(formatDate(record.expires_at)) + '</td>',
+        '<td><span class="geimser-secrets-status is-' + escapeHtml(record.status) + '">' + escapeHtml(statusLabel(record.status)) + '</span></td>',
+        '<td>' + escapeHtml(record.view_count) + ' / ' + escapeHtml(record.max_views) + '</td>',
+        '<td>' + (record.active ? '<button type="button" class="geimser-secrets-danger" data-action="delete" data-id="' + escapeHtml(record.id) + '">Eliminar</button>' : '') + '</td>',
+        '</tr>'
+      ].join("");
+    }).join("");
+
+    tbody.querySelectorAll('[data-action="delete"]').forEach(function (button) {
+      button.addEventListener("click", function () {
+        deleteSecret(container, button.getAttribute("data-id"));
+      });
+    });
+  }
+
+  function loadHistory(container) {
+    return requestJson("/api/secure-secrets").then(function (payload) {
+      var message = container.querySelector(".geimser-secrets-message");
+      if (payload.key_configured === false) {
+        message.textContent = "Falta configurar GEIMSER_SECURE_SECRETS_KEY para habilitar la creacion.";
+        message.classList.add("is-error");
+      }
+      renderHistory(container, payload.records || []);
+    }).catch(function (error) {
+      renderHistory(container, []);
+      var message = container.querySelector(".geimser-secrets-message");
+      message.textContent = error.message || "No fue posible cargar el historial.";
+      message.classList.add("is-error");
+    });
+  }
+
+  function deleteSecret(container, id) {
+    if (!id) return;
+    requestJson("/api/secure-secrets/" + encodeURIComponent(id), {
+      method: "DELETE"
+    }).then(function () {
+      loadHistory(container);
+      var result = container.querySelector(".geimser-secrets-result");
+      result.innerHTML = [
+        '<div class="geimser-secrets-card-head"><h2>Enlace generado</h2><span>Disponible solo al crear el secreto.</span></div>',
+        '<div class="geimser-secrets-empty">El enlace fue eliminado.</div>'
+      ].join("");
+    }).catch(function (error) {
+      var message = container.querySelector(".geimser-secrets-message");
+      message.textContent = error.message || "No fue posible eliminar el enlace.";
+      message.classList.add("is-error");
+    });
+  }
+
+  function bindSecretsPage(container) {
+    var form = container.querySelector(".geimser-secrets-form");
+    var textarea = form.querySelector("textarea[name='secret']");
+    var eye = form.querySelector(".geimser-secret-eye");
+    var message = form.querySelector(".geimser-secrets-message");
+
+    eye.addEventListener("click", function () {
+      var masked = textarea.classList.toggle("is-masked");
+      eye.textContent = masked ? "Mostrar" : "Ocultar";
+      textarea.focus();
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      message.textContent = "";
+      message.classList.remove("is-error", "is-ok");
+
+      var data = new FormData(form);
+      var payload = {
+        secret_type: data.get("secret_type"),
+        secret: data.get("secret"),
+        expires_in_seconds: Number(data.get("expires_in_seconds")),
+        max_views: Number(data.get("max_views")),
+        description: data.get("description")
+      };
+
+      var submit = form.querySelector("button[type='submit']");
+      submit.disabled = true;
+      submit.textContent = "Generando...";
+
+      requestJson("/api/secure-secrets", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      }).then(function (response) {
+        textarea.value = "";
+        form.querySelector("input[name='description']").value = "";
+        message.textContent = "Enlace seguro generado.";
+        message.classList.add("is-ok");
+        renderResult(container, response.record);
+        loadHistory(container);
+      }).catch(function (error) {
+        message.textContent = error.message || "No fue posible crear el secreto.";
+        message.classList.add("is-error");
+      }).finally(function () {
+        submit.disabled = false;
+        submit.textContent = "Generar enlace seguro";
+      });
+    });
+
+    container.querySelector('[data-action="refresh"]').addEventListener("click", function () {
+      loadHistory(container);
+    });
+  }
+
+  function handleSecretsRoute() {
+    var isSecretsRoute = window.location.hash === '#secure-secrets';
+    var container = document.getElementById('geimser-secrets-container');
+
+    if (isSecretsRoute) {
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'geimser-secrets-container';
+        container.className = 'geimser-secrets-container';
+        container.innerHTML = pageTemplate();
+        bindSecretsPage(container);
+      }
+
+      var mainEl = document.querySelector('#app .content.active') ||
+        document.querySelector('#app .content.horizontal') ||
+        document.querySelector('#app .main-content') ||
+        document.querySelector('#app .content') ||
+        document.getElementById('main');
+      if (!mainEl) return;
+
+      if (container.parentElement !== mainEl) {
+        mainEl.style.position = 'relative';
+        mainEl.style.overflow = 'hidden';
+        mainEl.appendChild(container);
+      }
+
+      container.style.display = 'block';
+      var notFound = mainEl.querySelector('.notFound');
+      if (notFound) notFound.style.display = 'none';
+      if (!loadedOnce) {
+        loadedOnce = true;
+        loadHistory(container);
+      }
+    } else if (container) {
+      container.style.display = 'none';
+    }
+  }
+
+  window.addEventListener('hashchange', handleSecretsRoute);
+  window.addEventListener('load', handleSecretsRoute);
+  setInterval(handleSecretsRoute, 500);
 })();
 
 

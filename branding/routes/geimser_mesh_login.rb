@@ -13,4 +13,11 @@ Rails.application.routes.draw do
   get '/api/inventory-map/recommend-asset/:user_id', to: 'geimser_mesh_login#recommend_asset'
   get '/api/inventory-map/recommend-user/:asset_id', to: 'geimser_mesh_login#recommend_user'
   post '/api/inventory-map/assign', to: 'geimser_mesh_login#assign_inventory_map'
+
+  get '/api/secure-secrets', to: 'geimser_secure_secrets#index'
+  post '/api/secure-secrets', to: 'geimser_secure_secrets#create'
+  delete '/api/secure-secrets/:id', to: 'geimser_secure_secrets#destroy'
+  get '/secure-secrets/s/:token', to: 'geimser_secure_secrets#public_show'
+  get '/api/secure-secrets/public/:token', to: 'geimser_secure_secrets#public_metadata'
+  post '/api/secure-secrets/public/:token/reveal', to: 'geimser_secure_secrets#reveal'
 end

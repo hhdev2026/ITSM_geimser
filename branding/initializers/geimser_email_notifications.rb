@@ -21,8 +21,8 @@ module GeimserEmailNotifications
     Channel.where(area: 'Email::Notification').where.not(id: notification.id).update_all(active: false, updated_by_id: 1, updated_at: Time.current)
 
     Setting.set('notification_sender', '"Geimser ITSM" <soporte@geimser.cl>')
-    Setting.set('fqdn', 'itsm.geimser.cl')
-    Setting.set('http_type', 'https')
+    Setting.set('fqdn', ENV['ZAMMAD_FQDN'].presence || 'localhost:8080')
+    Setting.set('http_type', ENV['ZAMMAD_HTTP_TYPE'].presence || 'http')
   rescue => e
     Rails.logger.warn("Geimser email notification setup skipped: #{e.class}: #{e.message}")
   end
