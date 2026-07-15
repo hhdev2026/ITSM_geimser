@@ -256,9 +256,55 @@
     return /(^|[\s._-])admin($|[\s._-])/.test(sessionPermissionText());
   }
 
-  function internalSidebarAccess() {
-    return /ticket\.agent|(^|[\s._-])admin($|[\s._-])/.test(sessionPermissionText());
+  var geimserAccessState = {
+    requested: false,
+    loaded: false,
+    moduleAccess: false
+  };
+
+  function requestGeimserAccess() {
+    if (geimserAccessState.requested || !currentSession()) return;
+    geimserAccessState.requested = true;
+
+    fetch("/geimser/access", {
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" }
+    }).then(function (response) {
+      if (!response.ok) throw new Error("access failed");
+      return response.json();
+    }).then(function (payload) {
+      geimserAccessState.loaded = true;
+      geimserAccessState.moduleAccess = payload && payload.module_access === true;
+      scheduleApply();
+    }).catch(function () {
+      geimserAccessState.loaded = true;
+      geimserAccessState.moduleAccess = false;
+      scheduleApply();
+    });
   }
+
+  function agentOnlyAccess() {
+    var permissions = sessionPermissionText();
+    return !adminSidebarAccess() && /ticket\.(agent|customer)|(^|[\s._-])(agent|client|cliente|customer)($|[\s._-])/.test(permissions);
+  }
+
+  function geimserAccessKnown() {
+    return geimserAccessState.loaded;
+  }
+
+  function geimserModuleAccess() {
+    return Boolean(currentSession()) && geimserAccessState.loaded && geimserAccessState.moduleAccess;
+  }
+
+  function internalSidebarAccess() {
+    return geimserModuleAccess();
+  }
+
+  window.GeimserAccess = {
+    agentOnly: agentOnlyAccess,
+    known: geimserAccessKnown,
+    moduleAccess: geimserModuleAccess
+  };
 
   function findSidebarSurface() {
     var app = document.querySelector("#app");
@@ -289,6 +335,11 @@
     var existing = document.querySelector(".geimser-sidebar-shortcuts");
     var sessionReady = Boolean(currentSession());
     if (!sessionReady) {
+      return;
+    }
+
+    if (!geimserModuleAccess()) {
+      if (existing) existing.remove();
       return;
     }
 
@@ -379,7 +430,7 @@
     var hasProfileDetail = /CORREO ELECTR[ÓO]NICO/i.test(pageText) &&
       /Tickets de Usuario|Tickets de la organizaci[oó]n/i.test(pageText) &&
       /FRECUENCIA|Tickets abiertos|Cerrar tickets/i.test(pageText);
-    var isTicketCreate = /^#ticket\/create(?:\/|$)/.test(hash);
+    var isTicketCreate = /^#(?:ticket\/create|customer_ticket_new)(?:\/|$)/.test(hash);
     var isTicket = /^#ticket(?:\/|$)/.test(hash);
     var isCmdb = hash === "#system/integration/idoit";
     var isMap = hash === "#inventory-map";
@@ -392,6 +443,44 @@
     app.classList.toggle("geimser-route-secrets", isSecrets);
     app.classList.toggle("geimser-route-native", isProfile || hasActivityFlow || hasProfileDetail || isTicketCreate);
     app.classList.toggle("geimser-route-activity-flow", hasActivityFlow);
+  }
+
+  function agentRouteAllowed(hash) {
+    return hash === "" ||
+      /^#ticket(?:\/|$)/.test(hash) ||
+      /^#customer_ticket_new(?:\/|$)/.test(hash) ||
+      /^#dashboard(?:\/|$)/.test(hash) ||
+      /^#profile(?:\/|$)/.test(hash) ||
+      /^#logout(?:\/|$)/.test(hash);
+  }
+
+  function enforceAgentTicketOnlyRoutes() {
+    if (!geimserAccessKnown() || geimserModuleAccess()) return;
+
+    var hash = window.location.hash || "";
+    if (agentRouteAllowed(hash)) return;
+
+    window.location.hash = "#ticket/view";
+  }
+
+  function hideAgentRestrictedNavigation() {
+    if (!geimserAccessKnown() || geimserModuleAccess()) return;
+
+    var restrictedHref = /#(?:inventory-map|secure-secrets|system|manage|admin|core_workflow|text_module|template|report|calendar|channel|security|maintenance|monitoring)/i;
+    var restrictedText = /\b(Mapa Interactivo|Secretos Seguros|Toma remota|CMDB ITSM|Configuraci[oó]n|Herramientas|Administraci[oó]n|Usuarios|Roles|Grupos|Organizaciones|Canales|Sistema|Reportes)\b/i;
+
+    Array.from(document.querySelectorAll("#app a[href], #app button, #app [role='button']")).forEach(function (item) {
+      if (!isInsideNavigation(item)) return;
+
+      var href = item.getAttribute("href") || "";
+      var text = (item.textContent || "").replace(/\s+/g, " ").trim();
+      var restricted = restrictedHref.test(href) || restrictedText.test(text);
+      if (!restricted) return;
+
+      var row = item.closest("li, .menu-item, [role='listitem']") || item;
+      row.classList.add("geimser-agent-hidden");
+      row.style.setProperty("display", "none", "important");
+    });
   }
 
   function normalizeCmdbAdminNavigation() {
@@ -1118,6 +1207,55 @@
       link.setAttribute("title", "Llamada entrante - " + label);
       link.setAttribute("aria-label", label);
       replaceVisibleText(link, label);
+    });
+  }
+
+  function normalizeNewTicketButton() {
+    var app = document.querySelector("#app");
+    if (!app) return;
+
+    Array.from(app.querySelectorAll("a[href*='#ticket/create'], a[href*=\"#ticket/create\"], a[href*='#customer_ticket_new'], a[href*=\"#customer_ticket_new\"], button, [role='button']")).forEach(function (control) {
+      var href = control.getAttribute("href") || "";
+      var explicitCreateHref = /#(?:ticket\/create|customer_ticket_new)/i.test(href);
+      if (!explicitCreateHref && !isInsideNavigation(control)) return;
+
+      var rect = control.getBoundingClientRect();
+      var label = [
+        control.textContent,
+        control.getAttribute("title"),
+        control.getAttribute("aria-label"),
+        control.dataset && control.dataset.action
+      ].join(" ");
+
+      var visibleText = (control.textContent || "").replace(/\s+/g, " ").trim();
+      var isBottomCreatePlus = visibleText === "+" &&
+        rect.bottom >= (window.innerHeight || document.documentElement.clientHeight) - 74 &&
+        rect.left >= 0 &&
+        rect.left < 280;
+      var looksLikeCreateTicket = explicitCreateHref ||
+        /(?:nuevo|crear|new|create).{0,12}ticket|ticket.{0,12}(?:nuevo|crear|new|create)/i.test(label) ||
+        isBottomCreatePlus;
+      if (!looksLikeCreateTicket) return;
+
+      if (/nuevo ticket/i.test(visibleText)) return;
+
+      control.classList.add("geimser-new-ticket-button");
+      control.setAttribute("title", "Nuevo Ticket");
+      control.setAttribute("aria-label", "Nuevo Ticket");
+
+      var textNode = control.querySelector(".geimser-new-ticket-label");
+      if (!textNode) {
+        textNode = document.createElement("span");
+        textNode.className = "geimser-new-ticket-label";
+        textNode.textContent = "Nuevo Ticket";
+        control.appendChild(textNode);
+      }
+
+      Array.from(control.childNodes).forEach(function (node) {
+        if (node.nodeType === 3 && node.nodeValue && node.nodeValue.trim() === "+") {
+          node.nodeValue = "";
+        }
+      });
     });
   }
 
@@ -2500,7 +2638,9 @@
     var app = document.querySelector("#app");
     if (!app) return;
 
+    requestGeimserAccess();
     markRouteState();
+    enforceAgentTicketOnlyRoutes();
     normalizeCmdbAdminNavigation();
     normalizeNativeControlContrast();
     normalizeTicketContrast();
@@ -2512,7 +2652,9 @@
     markNavigationSurface();
     ensureSidebarBrand();
     ensureInternalSidebarShortcuts();
+    hideAgentRestrictedNavigation();
     normalizeSidebarTicketLabels();
+    normalizeNewTicketButton();
     ensureTicketRemoteAction();
     checkRemoteInstallFirstRun();
     forcePopupContrast();
@@ -2594,12 +2736,25 @@
 })();
 
 (function() {
+  function moduleAccessAllowed() {
+    if (!window.GeimserAccess || !window.GeimserAccess.known || !window.GeimserAccess.known()) return null;
+    return window.GeimserAccess.moduleAccess && window.GeimserAccess.moduleAccess();
+  }
+
   function handleMapRoute() {
     var isMapRoute = window.location.hash === '#inventory-map';
     var container = document.getElementById('geimser-map-container');
     var mapVersion = '20260630c';
     
     if (isMapRoute) {
+      var allowed = moduleAccessAllowed();
+      if (allowed === null) return;
+      if (!allowed) {
+        if (container) container.style.display = 'none';
+        window.location.hash = '#ticket/view';
+        return;
+      }
+
       if (!container) {
         container = document.createElement('div');
         container.id = 'geimser-map-container';
@@ -2659,6 +2814,11 @@
 
 (function() {
   var loadedOnce = false;
+
+  function moduleAccessAllowed() {
+    if (!window.GeimserAccess || !window.GeimserAccess.known || !window.GeimserAccess.known()) return null;
+    return window.GeimserAccess.moduleAccess && window.GeimserAccess.moduleAccess();
+  }
 
   function csrfToken() {
     var meta = document.querySelector("meta[name='csrf-token']");
@@ -2926,6 +3086,14 @@
     var container = document.getElementById('geimser-secrets-container');
 
     if (isSecretsRoute) {
+      var allowed = moduleAccessAllowed();
+      if (allowed === null) return;
+      if (!allowed) {
+        if (container) container.style.display = 'none';
+        window.location.hash = '#ticket/view';
+        return;
+      }
+
       if (!container) {
         container = document.createElement('div');
         container.id = 'geimser-secrets-container';

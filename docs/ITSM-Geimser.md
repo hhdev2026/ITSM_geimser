@@ -50,6 +50,36 @@ Tambien se crean campos para soporte remoto:
 
 Estos campos permiten asociar un ticket con el equipo o sesion remota correspondiente en MeshCentral.
 
+## RBAC operativo
+
+Solo el rol con permiso `admin` puede ver y usar CMDB ITSM, Mapa Interactivo, Secretos Seguros, Toma Remota y administracion. Los roles `Agent`, `Client`, `Cliente`, `Customer` y cualquier rol sin permiso `admin` quedan limitados al flujo de tickets segun los permisos nativos de Zammad.
+
+La restriccion se aplica en dos capas:
+
+- Frontend: `branding/geimser.js` oculta accesos laterales y redirige hashes restringidos hacia `#ticket/view`.
+- Backend: `GeimserRbac` bloquea APIs y endpoints propios de modulos Geimser para cualquier usuario sin permiso `admin`.
+
+Las rutas publicas de lectura de Secretos Seguros siguen disponibles para destinatarios externos, porque no exigen sesion.
+
+## Cierre de tickets
+
+El overlay agrega `GeimserTicketClosure`, que reutiliza estados y scheduler nativos de Zammad.
+
+- Cierre por confirmacion: si el cliente responde con una confirmacion clara de solucion, el ticket se cambia a estado cerrado, se registra auditoria y se envia correo.
+- Cierre automatico: cuando un tecnico deja el ticket en `pending close`, `resolved` o `resuelto`, el sistema fija una ventana de 24 horas. Si no hay respuesta del cliente, el scheduler `Geimser: cerrar tickets resueltos inactivos` cierra el ticket automaticamente.
+- Cierre manual: si un agente/admin cierra el ticket desde la UI, se registra auditoria y se envia correo de cierre.
+
+La auditoria queda en la tabla `geimser_ticket_closure_audits` con:
+
+- Ticket y numero.
+- Tipo de cierre: `manual` o `automatic`.
+- Disparador: confirmacion de cliente, cierre manual o inactividad.
+- Fecha de cierre.
+- Usuario que provoco el cierre.
+- Estado y fecha de envio del correo.
+
+Los correos HTML se renderizan desde plantillas en `app/views/geimser_ticket_closure_mailer/` dentro de la imagen Docker. El envio se ejecuta de forma asincrona con `GeimserTicketClosureMailJob` y usa el canal `Email::Notification` ya configurado por Zammad.
+
 ## Uso
 
 Ejecuta:

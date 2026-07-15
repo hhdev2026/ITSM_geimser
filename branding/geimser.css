@@ -3428,6 +3428,64 @@ body:has(.hero-unit) .hero-unit ~ hr {
   stroke: currentColor !important;
 }
 
+#app .geimser-agent-hidden {
+  display: none !important;
+}
+
+#app .geimser-new-ticket-button {
+  align-items: center !important;
+  border-radius: var(--gx-radius-sm) !important;
+  display: inline-flex !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  min-width: 118px !important;
+  width: auto !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  white-space: nowrap !important;
+}
+
+#app .geimser-sidebar-dock-item.geimser-new-ticket-button,
+#app .geimser-sidebar-footer .geimser-new-ticket-button {
+  flex: 1 1 132px !important;
+  min-width: 132px !important;
+  width: auto !important;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+#app .geimser-sidebar-dock:has(.geimser-new-ticket-button),
+#app .geimser-sidebar-footer:has(.geimser-new-ticket-button) {
+  display: flex !important;
+  grid-template-columns: none !important;
+}
+
+#app .geimser-sidebar-dock:has(.geimser-new-ticket-button) > :not(.geimser-new-ticket-button),
+#app .geimser-sidebar-footer:has(.geimser-new-ticket-button) > :not(.geimser-new-ticket-button) {
+  flex: 0 0 52px !important;
+}
+
+#app .geimser-new-ticket-label {
+  color: inherit !important;
+  display: inline-block !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  max-width: 104px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+@media (max-width: 760px) {
+  #app .geimser-new-ticket-button {
+    min-width: 104px !important;
+  }
+
+  #app .geimser-new-ticket-label {
+    max-width: 82px !important;
+  }
+}
+
 /* Avatares de marca */
 #app .geimser-sidebar-footer .avatar,
 #app .geimser-sidebar-footer [class*="avatar"],

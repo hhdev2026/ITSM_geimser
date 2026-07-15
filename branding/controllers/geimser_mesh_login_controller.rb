@@ -9,7 +9,7 @@ require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
   before_action :authentication_check, except: %i[bot_login demo demo_session search]
-  before_action :require_internal_user!, except: %i[bot_login bot_session demo demo_session search]
+  before_action :require_internal_user!, except: %i[access bot_login bot_session demo demo_session search]
   before_action :require_admin!, only: %i[show]
   # The signed, short-lived demo ticket is the authorization proof for this
   # endpoint. Zammad replaces Rails' default callback with verify_csrf_token.
@@ -20,6 +20,13 @@ class GeimserMeshLoginController < ApplicationController
     return render plain: 'Remote access is not configured.', status: :service_unavailable if key.blank?
 
     redirect_to mesh_target_url(mesh_login_token(key)), allow_other_host: true
+  end
+
+  def access
+    render json: {
+      module_access: geimser_module_access_allowed?,
+      admin: current_user&.permissions?('admin') == true,
+    }
   end
 
   def assets
@@ -419,7 +426,7 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   def require_internal_user!
-    return if current_user_has_permission?('ticket.agent') || current_user_has_permission?('admin')
+    return if geimser_module_access_allowed?
 
     render plain: 'Forbidden', status: :forbidden
   end

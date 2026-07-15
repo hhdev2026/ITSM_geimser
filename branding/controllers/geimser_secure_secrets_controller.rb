@@ -143,7 +143,7 @@ class GeimserSecureSecretsController < ApplicationController
   end
 
   def require_internal_user!
-    return if current_user_has_permission?('ticket.agent') || current_user_has_permission?('admin')
+    return if geimser_module_access_allowed?
 
     render plain: 'Forbidden', status: :forbidden
   end

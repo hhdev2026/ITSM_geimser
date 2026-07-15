@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   get '/geimser/mesh/login', to: 'geimser_mesh_login#show'
+  get '/geimser/access', to: 'geimser_mesh_login#access'
   get '/geimser/bot/login', to: 'geimser_mesh_login#bot_login'
   get '/geimser/bot/session', to: 'geimser_mesh_login#bot_session'
   get '/geimser/demo', to: 'geimser_mesh_login#demo'
