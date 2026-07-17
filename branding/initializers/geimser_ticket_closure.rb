@@ -49,6 +49,7 @@ module GeimserTicketClosure
 
   AUTO_CLOSE_AFTER = 24.hours
   RESOLUTION_PREFERENCE_KEY = 'geimser_resolved_at'
+  RESOLUTION_NOTICE_SENT_KEY = 'geimser_resolution_notice_sent_at'
 
   POSITIVE_CONFIRMATION = /
     \b(
@@ -126,6 +127,28 @@ module GeimserTicketClosure
 
     deadline = Time.current + AUTO_CLOSE_AFTER
     ticket.pending_time = deadline if ticket.pending_time.blank? || ticket.pending_time > deadline
+  end
+
+  def enqueue_resolution_notice!(ticket)
+    return unless pending_close?(ticket)
+
+    should_enqueue = false
+    ticket.with_lock do
+      ticket.reload
+      return unless pending_close?(ticket)
+
+      ticket.preferences ||= {}
+      return if ticket.preferences[RESOLUTION_NOTICE_SENT_KEY].present?
+
+      ticket.preferences[RESOLUTION_NOTICE_SENT_KEY] = Time.current.iso8601
+      ticket.save!(validate: false)
+      should_enqueue = true
+    end
+
+    return unless should_enqueue
+
+    add_resolution_notice_note(ticket.reload)
+    GeimserTicketResolutionNoticeMailJob.perform_later(ticket.id)
   end
 
   def process_auto_closures!
@@ -290,6 +313,28 @@ module GeimserTicketClosure
     Rails.logger.warn("Geimser ticket closure audit note skipped: #{error.class}: #{error.message}")
   end
 
+  def add_resolution_notice_note(ticket)
+    sender = Ticket::Article::Sender.find_by(name: 'System')
+    type = Ticket::Article::Type.find_by(name: 'note')
+    return if sender.blank? || type.blank?
+
+    Ticket::Article.create!(
+      ticket_id: ticket.id,
+      content_type: 'text/plain',
+      body: 'Se envio aviso al cliente: si no responde en 24 horas despues de marcar el ticket como resuelto, se cerrara automaticamente.',
+      internal: true,
+      sender: sender,
+      type: type,
+      created_by_id: 1,
+      updated_by_id: 1,
+      preferences: {
+        geimser_resolution_notice: true,
+      },
+    )
+  rescue StandardError => error
+    Rails.logger.warn("Geimser ticket resolution notice note skipped: #{error.class}: #{error.message}")
+  end
+
   module Mailer
     module_function
 
@@ -319,6 +364,21 @@ module GeimserTicketClosure
       raise
     end
 
+    def deliver_resolution_notice!(ticket_id)
+      ticket = Ticket.find_by(id: ticket_id)
+      recipient = ticket&.customer
+      return false if ticket.blank? || recipient.blank? || recipient.email.blank?
+
+      body = render_resolution_notice_body(ticket, recipient)
+      subject = "Ticket ##{ticket.number} resuelto - cierre automatico en 24 horas"
+      NotificationFactory::Mailer.deliver(
+        recipient: recipient,
+        subject: subject,
+        body: body,
+        content_type: 'text/html',
+      )
+    end
+
     def render_body(audit, ticket, recipient)
       template = audit.closure_type == 'automatic' ? 'automatic' : 'manual'
       path = Rails.root.join('app/views/geimser_ticket_closure_mailer', "ticket_closed_#{template}.html.erb")
@@ -327,6 +387,17 @@ module GeimserTicketClosure
         audit: audit,
         recipient: recipient,
         closed_at: localized_time(audit.closed_at, recipient),
+        summary: ticket_summary(ticket),
+        h: ERB::Util.method(:html_escape),
+      )
+    end
+
+    def render_resolution_notice_body(ticket, recipient)
+      path = Rails.root.join('app/views/geimser_ticket_closure_mailer', 'ticket_resolution_notice.html.erb')
+      ERB.new(path.read).result_with_hash(
+        ticket: ticket,
+        recipient: recipient,
+        deadline: localized_time(GeimserTicketClosure.resolution_deadline(ticket), recipient),
         summary: ticket_summary(ticket),
         h: ERB::Util.method(:html_escape),
       )
@@ -348,6 +419,10 @@ module GeimserTicketClosure
       source.to_s.html2text.squish.truncate(500)
     end
   end
+
+  def resolution_deadline(ticket)
+    resolved_at(ticket) + AUTO_CLOSE_AFTER
+  end
 end
 
 module GeimserTicketClosureTicketPatch
@@ -355,6 +430,7 @@ module GeimserTicketClosureTicketPatch
 
   included do
     before_update :geimser_set_pending_close_deadline
+    after_commit :geimser_send_resolution_notice, on: :update
     after_commit :geimser_record_manual_closure, on: :update
   end
 
@@ -364,6 +440,15 @@ module GeimserTicketClosureTicketPatch
     return unless will_save_change_to_state_id?
 
     GeimserTicketClosure.mark_resolved_deadline(self)
+  end
+
+  def geimser_send_resolution_notice
+    return unless saved_change_to_state_id?
+    return unless GeimserTicketClosure.pending_close?(self)
+
+    GeimserTicketClosure.enqueue_resolution_notice!(self)
+  rescue StandardError => error
+    Rails.logger.warn("Geimser ticket resolution notice skipped: #{error.class}: #{error.message}")
   end
 
   def geimser_record_manual_closure

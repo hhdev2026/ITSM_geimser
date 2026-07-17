@@ -10,6 +10,7 @@ COPY --chown=zammad:zammad branding/layouts/application.html.erb /opt/zammad/app
 COPY --chown=zammad:zammad branding/controllers/geimser_mesh_login_controller.rb /opt/zammad/app/controllers/geimser_mesh_login_controller.rb
 COPY --chown=zammad:zammad branding/controllers/geimser_secure_secrets_controller.rb /opt/zammad/app/controllers/geimser_secure_secrets_controller.rb
 COPY --chown=zammad:zammad branding/jobs/geimser_ticket_closure_mail_job.rb /opt/zammad/app/jobs/geimser_ticket_closure_mail_job.rb
+COPY --chown=zammad:zammad branding/jobs/geimser_ticket_resolution_notice_mail_job.rb /opt/zammad/app/jobs/geimser_ticket_resolution_notice_mail_job.rb
 COPY --chown=zammad:zammad branding/views/geimser_ticket_closure_mailer/ /opt/zammad/app/views/geimser_ticket_closure_mailer/
 COPY --chown=zammad:zammad branding/routes/geimser_mesh_login.rb /opt/zammad/config/routes/zz_geimser_mesh_login.rb
 COPY --chown=zammad:zammad branding/initializers/geimser_content_security_policy.rb /opt/zammad/config/initializers/zz_geimser_content_security_policy.rb
