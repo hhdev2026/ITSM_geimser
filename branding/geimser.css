@@ -19,13 +19,7 @@
    ════════════════════════════════════════════════════════════════════════ */
 
 /* ─── 0. TIPOGRAFÍA ÚNICA ────────────────────────────────────────────────── */
-@font-face {
-  font-family: "Inter";
-  src: url("/assets/geimser-fonts/inter-latin-wght-normal.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
 
 /* ─── 1. TOKENS ──────────────────────────────────────────────────────────── */
 :root,
@@ -185,7 +179,7 @@ body,
 #app textarea,
 #app select,
 #app button {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+  font-family: "Outfit", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
 }
 
 body {
@@ -5461,7 +5455,7 @@ html[data-theme="dark"] .geimser-cmdb-row.is-selected small {
   padding: 28px;
   display: grid;
   gap: 18px;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Outfit", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .geimser-secrets-header {

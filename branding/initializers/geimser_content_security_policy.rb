@@ -23,4 +23,6 @@ Rails.application.config.content_security_policy do |policy|
     'https://www.geimser.cl',
     'https://geimser.cl',
   )
+  policy.style_src :self, 'https://fonts.googleapis.com'
+  policy.font_src :self, 'https://fonts.gstatic.com'
 end
