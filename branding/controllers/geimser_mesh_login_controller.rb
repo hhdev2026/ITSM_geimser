@@ -9,6 +9,7 @@ require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
   before_action :authentication_check, except: %i[bot_login demo demo_session search]
+  before_action :allow_bot_session_origin!, only: %i[bot_session]
   before_action :require_internal_user!, except: %i[access bot_login bot_session demo demo_session search]
   before_action :require_admin!, only: %i[show]
   # The signed, short-lived demo ticket is the authorization proof for this
@@ -429,6 +430,20 @@ class GeimserMeshLoginController < ApplicationController
     return if geimser_module_access_allowed?
 
     render plain: 'Forbidden', status: :forbidden
+  end
+
+  def allow_bot_session_origin!
+    origin = request.headers['Origin'].to_s
+    return if origin.blank?
+
+    unless bot_allowed_origins.include?(origin)
+      render json: { error: 'Origin not allowed.' }, status: :forbidden
+      return
+    end
+
+    response.set_header('Access-Control-Allow-Origin', origin)
+    response.set_header('Access-Control-Allow-Credentials', 'true')
+    response.set_header('Vary', 'Origin')
   end
 
   def require_admin!
