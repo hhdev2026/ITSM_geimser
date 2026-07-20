@@ -365,7 +365,7 @@
         '</a>',
         '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="assistant" href="https://iabot.geimser.cl/dashboard" target="_blank" rel="noopener noreferrer">',
         '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 10.7 7.7 6 9l4.7 1.3L12 15l1.3-4.7L18 9l-4.7-1.3z"/><path d="m19 15-.7 2.3L16 18l2.3.7L19 21l.7-2.3L22 18l-2.3-.7z"/><path d="M5 15 4.3 17.3 2 18l2.3.7L5 21l.7-2.3L8 18l-2.3-.7z"/></svg></span>',
-        '  <span>Asistente IA</span>',
+        '  <span>Dashboard</span>',
         '</a>',
         '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="secrets" href="#secure-secrets">',
         '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M9 12h6"/><path d="M12 9v6"/></svg></span>',
