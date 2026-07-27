@@ -256,6 +256,17 @@
     return /(^|[\s._-])admin($|[\s._-])/.test(sessionPermissionText());
   }
 
+  function agentRoleAccess() {
+    return /ticket\.agent|(^|[\s._-])agent($|[\s._-])/.test(sessionPermissionText());
+  }
+
+  function customerTicketAccess() {
+    var permissions = sessionPermissionText();
+    return !adminSidebarAccess() &&
+      !agentRoleAccess() &&
+      /ticket\.customer|(^|[\s._-])(client|cliente|customer)($|[\s._-])/.test(permissions);
+  }
+
   var geimserAccessState = {
     requested: false,
     loaded: false,
@@ -302,6 +313,7 @@
 
   window.GeimserAccess = {
     agentOnly: agentOnlyAccess,
+    customerTicket: customerTicketAccess,
     known: geimserAccessKnown,
     moduleAccess: geimserModuleAccess
   };
@@ -465,6 +477,15 @@
     if (agentRouteAllowed(hash)) return;
 
     window.location.hash = "#ticket/view";
+  }
+
+  function enforceCustomerTicketCreateRoute() {
+    if (!geimserAccessKnown() || !customerTicketAccess()) return;
+
+    var hash = window.location.hash || "";
+    if (!/^#ticket\/create(?:\/|$)/.test(hash)) return;
+
+    window.location.hash = "#customer_ticket_new";
   }
 
   function hideAgentRestrictedNavigation() {
@@ -1217,6 +1238,7 @@
   function normalizeNewTicketButton() {
     var app = document.querySelector("#app");
     if (!app) return;
+    var forceCustomerCreate = geimserAccessKnown() && customerTicketAccess();
 
     Array.from(app.querySelectorAll("a[href*='#ticket/create'], a[href*=\"#ticket/create\"], a[href*='#customer_ticket_new'], a[href*=\"#customer_ticket_new\"], button, [role='button']")).forEach(function (control) {
       var href = control.getAttribute("href") || "";
@@ -1246,6 +1268,24 @@
       control.classList.add("geimser-new-ticket-button");
       control.setAttribute("title", "Nuevo Ticket");
       control.setAttribute("aria-label", "Nuevo Ticket");
+      if (forceCustomerCreate) {
+        if (control.matches("a[href]")) {
+          control.setAttribute("href", "#customer_ticket_new");
+        }
+
+        if (control.dataset && control.dataset.geimserCustomerCreateBound !== "true") {
+          control.dataset.geimserCustomerCreateBound = "true";
+          control.addEventListener("click", function (event) {
+            if (!customerTicketAccess()) return;
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if ((window.location.hash || "") !== "#customer_ticket_new") {
+              window.location.hash = "#customer_ticket_new";
+            }
+          }, true);
+        }
+      }
 
       var textNode = control.querySelector(".geimser-new-ticket-label");
       if (!textNode) {
@@ -2645,6 +2685,7 @@
     requestGeimserAccess();
     markRouteState();
     enforceAgentTicketOnlyRoutes();
+    enforceCustomerTicketCreateRoute();
     normalizeCmdbAdminNavigation();
     normalizeNativeControlContrast();
     normalizeTicketContrast();
