@@ -4424,6 +4424,195 @@ html[data-theme="light"] #app .content span[style*="color: white"] {
   text-transform: uppercase !important;
 }
 
+#app .geimser-dashboard-inventory {
+  margin: 16px 0 0 !important;
+  padding: 16px !important;
+  background: var(--gx-panel) !important;
+  background-color: var(--gx-panel) !important;
+  border: 1px solid var(--gx-line) !important;
+  border-radius: var(--gx-radius-sm) !important;
+  box-shadow: var(--gx-shadow-sm) !important;
+  color: var(--gx-text) !important;
+}
+
+#app .geimser-dashboard-inventory-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  margin: 0 0 14px !important;
+}
+
+#app .geimser-dashboard-inventory-head span {
+  display: block !important;
+  margin: 0 0 3px !important;
+  color: var(--gx-text-3) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  text-transform: uppercase !important;
+}
+
+#app .geimser-dashboard-inventory-head h2 {
+  margin: 0 !important;
+  color: var(--gx-text) !important;
+  font-size: 18px !important;
+  font-weight: 750 !important;
+}
+
+#app .geimser-dashboard-inventory-refresh,
+#app .geimser-dashboard-inventory-row button {
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  background: var(--gx-brand) !important;
+  background-color: var(--gx-brand) !important;
+  border: 1px solid var(--gx-brand-strong) !important;
+  border-radius: var(--gx-radius-sm) !important;
+  color: var(--gx-on-brand) !important;
+  font-size: 12px !important;
+  font-weight: 750 !important;
+}
+
+#app .geimser-dashboard-inventory-stats {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin-bottom: 12px !important;
+}
+
+#app .geimser-dashboard-inventory-stats article {
+  min-height: 64px !important;
+  padding: 10px 12px !important;
+  background: var(--gx-panel-2) !important;
+  background-color: var(--gx-panel-2) !important;
+  border: 1px solid var(--gx-line) !important;
+  border-radius: var(--gx-radius-sm) !important;
+}
+
+#app .geimser-dashboard-inventory-stats span {
+  display: block !important;
+  color: var(--gx-text-3) !important;
+  font-size: 11px !important;
+  font-weight: 750 !important;
+  text-transform: uppercase !important;
+}
+
+#app .geimser-dashboard-inventory-stats strong {
+  display: block !important;
+  margin-top: 5px !important;
+  color: var(--gx-text) !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+}
+
+#app .geimser-dashboard-inventory-list {
+  display: grid !important;
+  gap: 7px !important;
+  max-height: 360px !important;
+  overflow: auto !important;
+  padding-right: 4px !important;
+}
+
+#app .geimser-dashboard-inventory-row {
+  display: grid !important;
+  grid-template-columns: 10px minmax(180px, 1.5fr) minmax(150px, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 54px !important;
+  padding: 8px 10px !important;
+  background: var(--gx-panel-2) !important;
+  background-color: var(--gx-panel-2) !important;
+  border: 1px solid var(--gx-line) !important;
+  border-radius: var(--gx-radius-sm) !important;
+}
+
+#app .geimser-dashboard-inventory-dot {
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: var(--gx-danger) !important;
+}
+
+#app .geimser-dashboard-inventory-row.is-online .geimser-dashboard-inventory-dot {
+  background: var(--gx-success) !important;
+}
+
+#app .geimser-dashboard-inventory-main,
+#app .geimser-dashboard-inventory-meta {
+  min-width: 0 !important;
+}
+
+#app .geimser-dashboard-inventory-main strong,
+#app .geimser-dashboard-inventory-main small,
+#app .geimser-dashboard-inventory-meta span,
+#app .geimser-dashboard-inventory-meta em {
+  display: block !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+#app .geimser-dashboard-inventory-main strong {
+  color: var(--gx-text) !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+}
+
+#app .geimser-dashboard-inventory-main small,
+#app .geimser-dashboard-inventory-meta span {
+  color: var(--gx-text-3) !important;
+  font-size: 12px !important;
+}
+
+#app .geimser-dashboard-inventory-meta em {
+  color: var(--gx-text-2) !important;
+  font-size: 11px !important;
+  font-style: normal !important;
+  font-weight: 750 !important;
+  text-transform: uppercase !important;
+}
+
+#app .geimser-dashboard-inventory-empty {
+  padding: 16px !important;
+  background: var(--gx-panel-2) !important;
+  background-color: var(--gx-panel-2) !important;
+  border: 1px dashed var(--gx-line-strong) !important;
+  border-radius: var(--gx-radius-sm) !important;
+  color: var(--gx-text-2) !important;
+}
+
+#app .geimser-dashboard-inventory-empty strong,
+#app .geimser-dashboard-inventory-empty span {
+  display: block !important;
+}
+
+#app .geimser-dashboard-inventory-empty strong {
+  color: var(--gx-text) !important;
+  margin-bottom: 4px !important;
+}
+
+#app .geimser-dashboard-inventory-empty.is-error {
+  border-color: var(--gx-danger) !important;
+}
+
+@media (max-width: 900px) {
+  #app .geimser-dashboard-inventory-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #app .geimser-dashboard-inventory-row {
+    grid-template-columns: 10px minmax(0, 1fr) !important;
+  }
+
+  #app .geimser-dashboard-inventory-meta,
+  #app .geimser-dashboard-inventory-row button {
+    grid-column: 2 !important;
+  }
+
+  #app .geimser-dashboard-inventory-row button {
+    justify-self: start !important;
+  }
+}
+
 /* Flujo de actividad (columna derecha del dashboard) */
 #app .content.horizontal > .sidebar.optional,
 #app .geimser-activity-surface {

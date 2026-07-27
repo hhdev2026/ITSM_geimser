@@ -1867,7 +1867,10 @@
   function remoteAssetSessionUrl(asset) {
     asset = asset || {};
     var details = asset.details || {};
-    var nodeId = details.mesh_node_id || asset.mesh_node_id || asset.id;
+    var nodeId = details.mesh_node_id || asset.mesh_node_id || asset.node_id;
+    if (!nodeId && /^node\/\//.test(String(asset.id || ""))) {
+      nodeId = asset.id;
+    }
     if (nodeId) return meshDesktopSessionUrl(nodeId);
 
     return asset.session_url || meshLoginUrl("/");
@@ -1941,7 +1944,12 @@
   }
 
   function remoteAssetStatusLabel(status) {
-    return status === "online" ? "Online" : "Offline";
+    return /^(online|activo)$/i.test(String(status || "")) ? "Online" : "Offline";
+  }
+
+  function remoteAssetOnline(asset) {
+    asset = asset || {};
+    return /^(online|activo)$/i.test(String(asset.raw_status || asset.status || ""));
   }
 
   function remoteAssetLastSeen(asset) {
@@ -2153,7 +2161,7 @@
 
   function remoteAssetSummary(assets) {
     return assets.reduce(function (memo, asset) {
-      if (asset.status === "online") {
+      if (remoteAssetOnline(asset)) {
         memo.online += 1;
       } else {
         memo.offline += 1;
@@ -2265,6 +2273,166 @@
       view.removeAttribute("data-cmdb-loaded");
       content.innerHTML = '<div class="geimser-cmdb-empty is-error"><strong>No pudimos cargar la CMDB.</strong><span>Revisa que MeshCentral esté levantado y vuelve a actualizar.</span></div>';
     });
+  }
+
+  var dashboardInventoryState = {
+    loading: false,
+    loadedAt: 0
+  };
+
+  function isDashboardRoute() {
+    var hash = window.location.hash || "";
+    return hash === "" || /^#dashboard(?:\/|$)/.test(hash);
+  }
+
+  function removeDashboardInventoryPanel() {
+    var panel = document.querySelector(".geimser-dashboard-inventory");
+    if (panel) panel.remove();
+  }
+
+  function dashboardInventoryMount() {
+    if (!isDashboardRoute() || !geimserModuleAccess()) {
+      removeDashboardInventoryPanel();
+      return null;
+    }
+
+    var app = document.querySelector("#app");
+    if (!app) return null;
+
+    var activePane = app.querySelector(".content.active") || app;
+    var dashboard = activePane.querySelector(".dashboard") || activePane.querySelector(".main") || activePane;
+    var rect = dashboard.getBoundingClientRect();
+    if (rect.width < 320 || rect.height < 120) return null;
+
+    return dashboard;
+  }
+
+  function renderDashboardInventory(panel, assets) {
+    assets = assets || [];
+    var summary = remoteAssetSummary(assets);
+    var groupsCount = Object.keys(summary.groups).length;
+    var content = panel.querySelector(".geimser-dashboard-inventory-content");
+
+    panel.querySelector(".geimser-dashboard-inventory-stats").innerHTML = [
+      '<article><span>Total</span><strong>' + assets.length + '</strong></article>',
+      '<article><span>Online</span><strong>' + summary.online + '</strong></article>',
+      '<article><span>Offline</span><strong>' + summary.offline + '</strong></article>',
+      '<article><span>Grupos</span><strong>' + groupsCount + '</strong></article>'
+    ].join("");
+
+    if (!assets.length) {
+      content.innerHTML = [
+        '<div class="geimser-dashboard-inventory-empty">',
+        '  <strong>No hay equipos registrados todavia.</strong>',
+        '  <span>Cuando el inventario sincronice equipos, apareceran aqui automaticamente.</span>',
+        '</div>'
+      ].join("");
+      return;
+    }
+
+    content.innerHTML = [
+      '<div class="geimser-dashboard-inventory-list" role="list">',
+      assets.map(function (asset) {
+        var online = remoteAssetOnline(asset);
+        var name = asset.name || asset.hostname || "Equipo remoto";
+        var detail = [asset.group, asset.hostname].filter(Boolean).join(" | ") || asset.os || "Sin detalle";
+        var assigned = asset.occupant || asset.user || asset.ip || "Sin usuario informado";
+        return [
+          '<article class="geimser-dashboard-inventory-row ' + (online ? 'is-online' : 'is-offline') + '" role="listitem">',
+          '  <span class="geimser-dashboard-inventory-dot" aria-hidden="true"></span>',
+          '  <div class="geimser-dashboard-inventory-main">',
+          '    <strong>' + escapeHtml(name) + '</strong>',
+          '    <small>' + escapeHtml(detail) + '</small>',
+          '  </div>',
+          '  <div class="geimser-dashboard-inventory-meta">',
+          '    <span>' + escapeHtml(assigned) + '</span>',
+          '    <em>' + remoteAssetStatusLabel(asset.raw_status || asset.status) + '</em>',
+          '  </div>',
+          '  <button type="button" data-dashboard-remote-session="' + escapeHtml(remoteAssetSessionUrl(asset)) + '">Tomar control</button>',
+          '</article>'
+        ].join("");
+      }).join(""),
+      '</div>'
+    ].join("");
+
+    content.querySelectorAll("[data-dashboard-remote-session]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var sessionUrl = button.getAttribute("data-dashboard-remote-session") || meshLoginUrl("/");
+        var modal = ensureRemoteModal();
+        openRemoteSession(modal, sessionUrl);
+      });
+    });
+  }
+
+  function loadDashboardInventory(panel, force) {
+    var now = Date.now();
+    if (dashboardInventoryState.loading) return;
+    if (!force && panel.getAttribute("data-dashboard-inventory-loaded") === "true" && now - dashboardInventoryState.loadedAt < 60000) {
+      return;
+    }
+
+    dashboardInventoryState.loading = true;
+    panel.setAttribute("data-dashboard-inventory-loaded", "true");
+    panel.querySelector(".geimser-dashboard-inventory-content").innerHTML = [
+      '<div class="geimser-dashboard-inventory-empty">',
+      '  <strong>Actualizando inventario...</strong>',
+      '  <span>Estamos leyendo los equipos disponibles en la base.</span>',
+      '</div>'
+    ].join("");
+
+    fetch("/api/inventory-map/options", {
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" }
+    }).then(function (response) {
+      if (!response.ok) throw new Error("dashboard inventory failed");
+      return response.json();
+    }).then(function (payload) {
+      dashboardInventoryState.loadedAt = Date.now();
+      renderDashboardInventory(panel, (payload && payload.assets) || []);
+    }).catch(function () {
+      panel.removeAttribute("data-dashboard-inventory-loaded");
+      panel.querySelector(".geimser-dashboard-inventory-content").innerHTML = [
+        '<div class="geimser-dashboard-inventory-empty is-error">',
+        '  <strong>No pudimos cargar los equipos.</strong>',
+        '  <span>Revisa la conexion con el inventario y vuelve a actualizar.</span>',
+        '</div>'
+      ].join("");
+    }).finally(function () {
+      dashboardInventoryState.loading = false;
+    });
+  }
+
+  function ensureDashboardInventoryPanel() {
+    var mount = dashboardInventoryMount();
+    if (!mount) return;
+
+    var panel = document.querySelector(".geimser-dashboard-inventory");
+    if (!panel) {
+      panel = document.createElement("section");
+      panel.className = "geimser-dashboard-inventory";
+      panel.setAttribute("aria-label", "Inventario de equipos");
+      panel.innerHTML = [
+        '<header class="geimser-dashboard-inventory-head">',
+        '  <div>',
+        '    <span>Inventario IT</span>',
+        '    <h2>Equipos registrados</h2>',
+        '  </div>',
+        '  <button type="button" class="geimser-dashboard-inventory-refresh">Actualizar</button>',
+        '</header>',
+        '<div class="geimser-dashboard-inventory-stats" aria-label="Resumen de equipos"></div>',
+        '<div class="geimser-dashboard-inventory-content"></div>'
+      ].join("");
+
+      panel.querySelector(".geimser-dashboard-inventory-refresh").addEventListener("click", function () {
+        loadDashboardInventory(panel, true);
+      });
+    }
+
+    if (panel.parentElement !== mount) {
+      mount.appendChild(panel);
+    }
+
+    loadDashboardInventory(panel);
   }
 
   function escapeHtml(value) {
@@ -2700,6 +2868,7 @@
     hideAgentRestrictedNavigation();
     normalizeSidebarTicketLabels();
     normalizeNewTicketButton();
+    ensureDashboardInventoryPanel();
     ensureTicketRemoteAction();
     checkRemoteInstallFirstRun();
     forcePopupContrast();

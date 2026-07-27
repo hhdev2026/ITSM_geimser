@@ -529,6 +529,8 @@ class GeimserMeshLoginController < ApplicationController
       node_id: record.mesh_node_id,
       name: title,
       hostname: record.hostname,
+      group: record.group_name,
+      os: record.os_name,
       ip: record.ip_address,
       status: inventory_asset_status(record),
       raw_status: record.status,
@@ -536,6 +538,8 @@ class GeimserMeshLoginController < ApplicationController
       session_url: record.session_url,
       brand: details[:manufacturer],
       model: details[:model],
+      last_seen_at: record.last_seen_at&.iso8601,
+      updated_at: record.updated_at&.iso8601,
     }
   end
 
