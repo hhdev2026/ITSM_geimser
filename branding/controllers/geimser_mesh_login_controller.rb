@@ -8,9 +8,9 @@ require 'set'
 require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
-  before_action :authentication_check, except: %i[bot_login demo demo_session search]
+  before_action :authentication_check, except: %i[bot_login demo demo_session search cmdb_assets]
   before_action :allow_bot_session_origin!, only: %i[bot_session]
-  before_action :require_internal_user!, except: %i[access bot_login bot_session demo demo_session search]
+  before_action :require_internal_user!, except: %i[access bot_login bot_session demo demo_session search cmdb_assets]
   before_action :require_admin!, only: %i[show]
   # The signed, short-lived demo ticket is the authorization proof for this
   # endpoint. Zammad replaces Rails' default callback with verify_csrf_token.
@@ -229,6 +229,17 @@ class GeimserMeshLoginController < ApplicationController
     records = GeimserMeshCmdb.filter_records(records, 'query' => query) if query.present?
 
     render json: records.first(20).map { |record| cmdb_search_result(record) }
+  end
+
+  def cmdb_assets
+    return render json: { assets: [] }, status: :unauthorized if !valid_cmdb_token?
+
+    records = GeimserMeshCmdb.sync
+    render json: {
+      synced_at: Time.now.utc.iso8601,
+      count: records.length,
+      assets: records.map { |record| serialize_inventory_asset_option(record) },
+    }
   end
 
   private

@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   post '/geimser/demo/session', to: 'geimser_mesh_login#demo_session'
   get '/geimser/remote/assets', to: 'geimser_mesh_login#assets'
   get '/geimser/cmdb/search', to: 'geimser_mesh_login#search'
+  get '/geimser/cmdb/assets', to: 'geimser_mesh_login#cmdb_assets'
 
   get '/api/inventory-map', to: 'geimser_mesh_login#inventory_map'
   get '/api/inventory-map/csrf', to: 'geimser_mesh_login#inventory_csrf'
