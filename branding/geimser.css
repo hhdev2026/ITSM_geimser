@@ -4479,6 +4479,28 @@ html[data-theme="light"] #app .content span[style*="color: white"] {
   margin-bottom: 12px !important;
 }
 
+#app .geimser-dashboard-inventory-toolbar {
+  margin: 0 0 12px !important;
+}
+
+#app .geimser-dashboard-inventory-search {
+  width: 100% !important;
+  min-height: 38px !important;
+  padding: 0 12px !important;
+  background: var(--gx-input-bg) !important;
+  background-color: var(--gx-input-bg) !important;
+  border: 1px solid var(--gx-input-border) !important;
+  border-radius: var(--gx-radius-sm) !important;
+  color: var(--gx-input-text) !important;
+  font-size: 13px !important;
+  outline: none !important;
+}
+
+#app .geimser-dashboard-inventory-search:focus {
+  border-color: var(--gx-brand) !important;
+  box-shadow: var(--gx-focus-ring) !important;
+}
+
 #app .geimser-dashboard-inventory-stats article {
   min-height: 64px !important;
   padding: 10px 12px !important;
@@ -4592,6 +4614,14 @@ html[data-theme="light"] #app .content span[style*="color: white"] {
 
 #app .geimser-dashboard-inventory-empty.is-error {
   border-color: var(--gx-danger) !important;
+}
+
+#app .geimser-native-inventory-hidden {
+  display: none !important;
+}
+
+#app .geimser-native-inventory-panel {
+  margin: 0 0 18px !important;
 }
 
 @media (max-width: 900px) {

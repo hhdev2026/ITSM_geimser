@@ -2312,6 +2312,24 @@
     var summary = remoteAssetSummary(assets);
     var groupsCount = Object.keys(summary.groups).length;
     var content = panel.querySelector(".geimser-dashboard-inventory-content");
+    var search = panel.querySelector(".geimser-dashboard-inventory-search");
+    var query = search ? search.value.toLowerCase().trim() : "";
+    var visibleAssets = query
+      ? assets.filter(function (asset) {
+          return [
+            asset.name,
+            asset.hostname,
+            asset.group,
+            asset.os,
+            asset.ip,
+            asset.occupant,
+            asset.user,
+            asset.node_id,
+            asset.mesh_node_id,
+            asset.id
+          ].filter(Boolean).join(" ").toLowerCase().indexOf(query) !== -1;
+        })
+      : assets;
 
     panel.querySelector(".geimser-dashboard-inventory-stats").innerHTML = [
       '<article><span>Total</span><strong>' + assets.length + '</strong></article>',
@@ -2330,9 +2348,19 @@
       return;
     }
 
+    if (!visibleAssets.length) {
+      content.innerHTML = [
+        '<div class="geimser-dashboard-inventory-empty">',
+        '  <strong>No encontramos equipos con esa busqueda.</strong>',
+        '  <span>Prueba con hostname, usuario, grupo, IP o sistema operativo.</span>',
+        '</div>'
+      ].join("");
+      return;
+    }
+
     content.innerHTML = [
       '<div class="geimser-dashboard-inventory-list" role="list">',
-      assets.map(function (asset) {
+      visibleAssets.map(function (asset) {
         var online = remoteAssetOnline(asset);
         var name = asset.name || asset.hostname || "Equipo remoto";
         var detail = [asset.group, asset.hostname].filter(Boolean).join(" | ") || asset.os || "Sin detalle";
@@ -2388,7 +2416,8 @@
       return response.json();
     }).then(function (payload) {
       dashboardInventoryState.loadedAt = Date.now();
-      renderDashboardInventory(panel, (payload && payload.assets) || []);
+      panel.GeimserInventoryAssets = (payload && payload.assets) || [];
+      renderDashboardInventory(panel, panel.GeimserInventoryAssets);
     }).catch(function () {
       panel.removeAttribute("data-dashboard-inventory-loaded");
       panel.querySelector(".geimser-dashboard-inventory-content").innerHTML = [
@@ -2402,23 +2431,26 @@
     });
   }
 
-  function ensureDashboardInventoryPanel() {
-    var mount = dashboardInventoryMount();
-    if (!mount) return;
-
-    var panel = document.querySelector(".geimser-dashboard-inventory");
+  function ensureInventoryPanel(mount, options) {
+    options = options || {};
+    if (!mount) return null;
+    var selector = options.selector || ".geimser-dashboard-inventory";
+    var panel = document.querySelector(selector);
     if (!panel) {
       panel = document.createElement("section");
-      panel.className = "geimser-dashboard-inventory";
+      panel.className = options.className || "geimser-dashboard-inventory";
       panel.setAttribute("aria-label", "Inventario de equipos");
       panel.innerHTML = [
         '<header class="geimser-dashboard-inventory-head">',
         '  <div>',
-        '    <span>Inventario IT</span>',
-        '    <h2>Equipos registrados</h2>',
+        '    <span>' + escapeHtml(options.kicker || "Inventario IT") + '</span>',
+        '    <h2>' + escapeHtml(options.title || "Equipos registrados") + '</h2>',
         '  </div>',
         '  <button type="button" class="geimser-dashboard-inventory-refresh">Actualizar</button>',
         '</header>',
+        '<div class="geimser-dashboard-inventory-toolbar">',
+        '  <input type="search" class="geimser-dashboard-inventory-search" placeholder="Buscar equipo, usuario, grupo, IP o sistema operativo">',
+        '</div>',
         '<div class="geimser-dashboard-inventory-stats" aria-label="Resumen de equipos"></div>',
         '<div class="geimser-dashboard-inventory-content"></div>'
       ].join("");
@@ -2426,11 +2458,93 @@
       panel.querySelector(".geimser-dashboard-inventory-refresh").addEventListener("click", function () {
         loadDashboardInventory(panel, true);
       });
+      panel.querySelector(".geimser-dashboard-inventory-search").addEventListener("input", function () {
+        var assets = panel.GeimserInventoryAssets || [];
+        renderDashboardInventory(panel, assets);
+      });
     }
 
     if (panel.parentElement !== mount) {
-      mount.appendChild(panel);
+      if (options.prepend) {
+        mount.insertBefore(panel, mount.firstElementChild || null);
+      } else {
+        mount.appendChild(panel);
+      }
     }
+
+    return panel;
+  }
+
+  function ensureDashboardInventoryPanel() {
+    var mount = dashboardInventoryMount();
+    if (!mount) return;
+
+    var panel = ensureInventoryPanel(mount, {
+      selector: ".geimser-dashboard-inventory",
+      className: "geimser-dashboard-inventory",
+      kicker: "Inventario IT",
+      title: "Equipos registrados"
+    });
+    if (!panel) return;
+
+    loadDashboardInventory(panel);
+  }
+
+  function nativeInventoryPage() {
+    if (!geimserModuleAccess()) return null;
+
+    var app = document.querySelector("#app");
+    if (!app) return null;
+
+    var activePane = app.querySelector(".content.active") || app;
+    var text = (activePane.textContent || "").replace(/\s+/g, " ");
+    var looksLikeInventory = /Consulta r[aá]pida de inventario|Activos TI asignados|No se encontraron activos con esa b[uú]squeda/i.test(text) &&
+      /\bInventario\b/i.test(text);
+
+    return looksLikeInventory ? activePane : null;
+  }
+
+  function hideNativeInventoryEmptyState(root) {
+    var candidates = Array.from(root.querySelectorAll("div, section, article, form")).sort(function (a, b) {
+      var ar = a.getBoundingClientRect();
+      var br = b.getBoundingClientRect();
+      return (ar.width * ar.height) - (br.width * br.height);
+    });
+
+    candidates.forEach(function (el) {
+      if (el === root) return;
+      if (el.classList.contains("geimser-dashboard-inventory")) return;
+      if (el.querySelector(".geimser-dashboard-inventory")) return;
+      if (el.closest(".geimser-native-inventory-hidden")) return;
+
+      var text = (el.textContent || "").replace(/\s+/g, " ");
+      var rect = el.getBoundingClientRect();
+      if (rect.width < 260 || rect.height < 70) return;
+      if (/No se encontraron activos con esa b[uú]squeda|Cuando el ITSM asigne equipos a tu usuario|Consulta r[aá]pida de inventario|Activos TI asignados|Requieren atenci[oó]n|Tipos de activo/i.test(text)) {
+        el.classList.add("geimser-native-inventory-hidden");
+      }
+    });
+  }
+
+  function ensureNativeInventoryPanel() {
+    var page = nativeInventoryPage();
+    var existing = document.querySelector(".geimser-native-inventory-panel");
+    if (!page) {
+      if (existing) existing.remove();
+      return;
+    }
+
+    page.classList.add("geimser-native-inventory-page");
+    hideNativeInventoryEmptyState(page);
+
+    var panel = ensureInventoryPanel(page, {
+      selector: ".geimser-native-inventory-panel",
+      className: "geimser-dashboard-inventory geimser-native-inventory-panel",
+      kicker: "Inventario consolidado",
+      title: "Todos los equipos del ITSM",
+      prepend: true
+    });
+    if (!panel) return;
 
     loadDashboardInventory(panel);
   }
@@ -2869,6 +2983,7 @@
     normalizeSidebarTicketLabels();
     normalizeNewTicketButton();
     ensureDashboardInventoryPanel();
+    ensureNativeInventoryPanel();
     ensureTicketRemoteAction();
     checkRemoteInstallFirstRun();
     forcePopupContrast();
