@@ -2286,8 +2286,15 @@
   }
 
   function removeDashboardInventoryPanel() {
-    var panel = document.querySelector(".geimser-dashboard-inventory");
-    if (panel) panel.remove();
+    document.querySelectorAll(".geimser-dashboard-inventory").forEach(function (panel) {
+      panel.remove();
+    });
+    document.querySelectorAll(".geimser-native-inventory-hidden").forEach(function (el) {
+      el.classList.remove("geimser-native-inventory-hidden");
+    });
+    document.querySelectorAll(".geimser-native-inventory-page").forEach(function (el) {
+      el.classList.remove("geimser-native-inventory-page");
+    });
   }
 
   function dashboardInventoryMount() {
@@ -2982,8 +2989,7 @@
     hideAgentRestrictedNavigation();
     normalizeSidebarTicketLabels();
     normalizeNewTicketButton();
-    ensureDashboardInventoryPanel();
-    ensureNativeInventoryPanel();
+    removeDashboardInventoryPanel();
     ensureTicketRemoteAction();
     checkRemoteInstallFirstRun();
     forcePopupContrast();
