@@ -100,7 +100,7 @@ button {
 
 .floor-switch {
   display: grid;
-  grid-template-columns: repeat(2, minmax(96px, 1fr));
+  grid-template-columns: repeat(3, minmax(96px, 1fr));
   gap: 4px;
   padding: 4px;
   border: 1px solid #334155;
@@ -209,17 +209,6 @@ button {
   color: #93c5fd;
   font-size: 14px;
   font-weight: 800;
-}
-
-.plan-content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-  align-items: start;
-  gap: 18px;
-}
-
-.floor-zone {
-  min-width: 0;
 }
 
 .floor {
@@ -410,13 +399,11 @@ button {
   display: block;
 }
 
-.remote-panel {
-  position: sticky;
-  top: 74px;
+.remote-view {
+  width: min(1060px, 100%);
+  margin: 0 auto;
   display: grid;
   gap: 12px;
-  max-height: calc(100vh - 132px);
-  overflow: hidden;
   border: 1px solid #334155;
   border-radius: 10px;
   background: #0f172a;
@@ -506,7 +493,10 @@ button {
 
 .remote-list {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 8px;
+  max-height: calc(100vh - 360px);
+  min-height: 180px;
   overflow: auto;
   padding-right: 3px;
 }
@@ -822,12 +812,12 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .plan-content {
-    grid-template-columns: 1fr;
+  .remote-view {
+    max-height: none;
   }
 
-  .remote-panel {
-    position: static;
+  .remote-list {
+    grid-template-columns: 1fr;
     max-height: none;
   }
 }

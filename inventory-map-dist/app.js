@@ -14,7 +14,8 @@ let optionsRefreshTimer = null;
 
 const floors = {
   p1: { title: "PISO 1", subtitle: "Sala KREA", cols: 8, rows: 12, width: 560 },
-  p2: { title: "PISO 2", subtitle: "Huerfanos / Merced", cols: 14, rows: 29, width: 1060 }
+  p2: { title: "PISO 2", subtitle: "Huerfanos / Merced", cols: 14, rows: 29, width: 1060 },
+  remote: { title: "REMOTO", subtitle: "Portatiles / Q3E1P61", width: 1060 }
 };
 
 const rooms = [
@@ -129,18 +130,14 @@ function render() {
             <div class="floor-switch floor-switch-floating" role="tablist" aria-label="Seleccion de piso">
               ${renderFloorButton("p1")}
               ${renderFloorButton("p2")}
+              ${renderFloorButton("remote")}
             </div>
           </div>
           <div class="floor-summary">
             <strong>${escapeHtml(current.title)}</strong>
             <span>${escapeHtml(current.subtitle)}</span>
           </div>
-          <div class="plan-content">
-            <div class="floor-zone">
-              ${renderFloor(state.activeFloor)}
-            </div>
-            ${renderRemoteAssetsPanel()}
-          </div>
+          ${state.activeFloor === "remote" ? renderRemoteAssetsView() : renderFloor(state.activeFloor)}
         </div>
       </section>
       ${renderConfigModal()}
@@ -209,30 +206,29 @@ function renderSeat(seat) {
   `;
 }
 
-function assignedAssetIds() {
-  return new Set(state.workspaces
-    .map((workspace) => workspace.asset_id)
-    .filter((assetId) => assetId !== null && assetId !== undefined)
-    .map(String));
-}
-
-function assetLooksMobile(asset) {
-  const haystack = [
+function assetRemoteText(asset) {
+  return [
     asset.name,
     asset.hostname,
+    asset.node_id,
     asset.brand,
     asset.model,
     asset.os,
     asset.type,
-    asset.asset_type
+    asset.asset_type,
+    asset.occupant,
+    asset.user
   ].filter(Boolean).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  return /notebook|laptop|portatil|thinkpad|elitebook|latitude|probook|macbook|surface/.test(haystack);
+}
+
+function assetAllowedInRemoteView(asset) {
+  const text = assetRemoteText(asset);
+  return text.includes("portatil") || text.includes("q3e1p61");
 }
 
 function remotePanelAssets() {
   const assets = state.options?.assets || [];
-  const assigned = assignedAssetIds();
-  return assets.filter((asset) => !assigned.has(String(asset.id)) || assetLooksMobile(asset));
+  return assets.filter(assetAllowedInRemoteView);
 }
 
 function filteredRemotePanelAssets() {
@@ -260,18 +256,18 @@ function remoteControlUrl(asset) {
   return `/geimser/mesh/login?next=${encodeURIComponent(next)}`;
 }
 
-function renderRemoteAssetsPanel() {
+function renderRemoteAssetsView() {
   const assets = filteredRemotePanelAssets();
   const allRemote = remotePanelAssets();
   const online = allRemote.filter((asset) => asset.status === "Activo" || asset.raw_status === "online").length;
   const offline = Math.max(allRemote.length - online, 0);
 
   return `
-    <aside class="remote-panel" aria-label="Equipos remotos y notebooks">
+    <section class="remote-view" aria-label="Equipos remotos">
       <header class="remote-panel-head">
         <div>
-          <span>Equipos remotos</span>
-          <h2>Notebooks / fuera de puesto</h2>
+          <span>Control remoto</span>
+          <h2>Portatiles y Q3E1P61</h2>
         </div>
         <button type="button" class="remote-refresh" data-refresh-remotes title="Actualizar equipos">Actualizar</button>
       </header>
@@ -280,21 +276,21 @@ function renderRemoteAssetsPanel() {
         <article><span>Online</span><strong>${online}</strong></article>
         <article><span>Offline</span><strong>${offline}</strong></article>
       </div>
-      <input class="remote-search" type="search" data-remote-search value="${escapeHtml(state.remoteQuery)}" placeholder="Buscar notebook, usuario, IP o grupo">
+      <input class="remote-search" type="search" data-remote-search value="${escapeHtml(state.remoteQuery)}" placeholder="Buscar portatil, usuario, IP o grupo">
       <div class="remote-list" role="list">
         ${assets.length ? assets.map(renderRemoteAssetCard).join("") : `
           <div class="remote-empty">
             <strong>No hay equipos remotos para mostrar.</strong>
-            <span>Cuando exista un notebook sin puesto o equipo fuera de sala, aparecera aqui.</span>
+            <span>Solo se muestran equipos con PORTATIL en el nombre y el PC Q3E1P61.</span>
           </div>
         `}
       </div>
-    </aside>
+    </section>
   `;
 }
 
 function updateRemoteAssetsPanel() {
-  const panel = document.querySelector(".remote-panel");
+  const panel = document.querySelector(".remote-view");
   if (!panel) return;
   const list = panel.querySelector(".remote-list");
   if (!list) return;
@@ -302,7 +298,7 @@ function updateRemoteAssetsPanel() {
   list.innerHTML = assets.length ? assets.map(renderRemoteAssetCard).join("") : `
     <div class="remote-empty">
       <strong>No hay equipos remotos para mostrar.</strong>
-      <span>Cuando exista un notebook sin puesto o equipo fuera de sala, aparecera aqui.</span>
+      <span>Solo se muestran equipos con PORTATIL en el nombre y el PC Q3E1P61.</span>
     </div>
   `;
 }
