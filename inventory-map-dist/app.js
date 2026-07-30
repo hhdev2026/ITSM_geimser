@@ -6,6 +6,7 @@ const state = {
   selected: null,
   activeFloor: "p1",
   form: { user_id: "", asset_id: "" },
+  remoteQuery: "",
   status: "Cargando plano..."
 };
 
@@ -134,7 +135,12 @@ function render() {
             <strong>${escapeHtml(current.title)}</strong>
             <span>${escapeHtml(current.subtitle)}</span>
           </div>
-          ${renderFloor(state.activeFloor)}
+          <div class="plan-content">
+            <div class="floor-zone">
+              ${renderFloor(state.activeFloor)}
+            </div>
+            ${renderRemoteAssetsPanel()}
+          </div>
         </div>
       </section>
       ${renderConfigModal()}
@@ -200,6 +206,126 @@ function renderSeat(seat) {
       ${dot}
       ${tooltipHtml}
     </button>
+  `;
+}
+
+function assignedAssetIds() {
+  return new Set(state.workspaces
+    .map((workspace) => workspace.asset_id)
+    .filter((assetId) => assetId !== null && assetId !== undefined)
+    .map(String));
+}
+
+function assetLooksMobile(asset) {
+  const haystack = [
+    asset.name,
+    asset.hostname,
+    asset.brand,
+    asset.model,
+    asset.os,
+    asset.type,
+    asset.asset_type
+  ].filter(Boolean).join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return /notebook|laptop|portatil|thinkpad|elitebook|latitude|probook|macbook|surface/.test(haystack);
+}
+
+function remotePanelAssets() {
+  const assets = state.options?.assets || [];
+  const assigned = assignedAssetIds();
+  return assets.filter((asset) => !assigned.has(String(asset.id)) || assetLooksMobile(asset));
+}
+
+function filteredRemotePanelAssets() {
+  const query = state.remoteQuery.trim().toLowerCase();
+  const assets = remotePanelAssets();
+  if (!query) return assets;
+  return assets.filter((asset) => [
+    asset.name,
+    asset.hostname,
+    asset.ip,
+    asset.group,
+    asset.os,
+    asset.occupant,
+    asset.user,
+    asset.brand,
+    asset.model
+  ].filter(Boolean).join(" ").toLowerCase().includes(query));
+}
+
+function remoteControlUrl(asset) {
+  if (!asset || !/^node\/\//.test(String(asset.node_id || ""))) return "";
+  const nodeId = String(asset.node_id);
+  const gotonode = nodeId.split("/").pop();
+  const next = `/?node=${encodeURIComponent(nodeId)}&gotonode=${encodeURIComponent(gotonode)}&viewmode=11&hide=0&geimserautoconnect=1`;
+  return `/geimser/mesh/login?next=${encodeURIComponent(next)}`;
+}
+
+function renderRemoteAssetsPanel() {
+  const assets = filteredRemotePanelAssets();
+  const allRemote = remotePanelAssets();
+  const online = allRemote.filter((asset) => asset.status === "Activo" || asset.raw_status === "online").length;
+  const offline = Math.max(allRemote.length - online, 0);
+
+  return `
+    <aside class="remote-panel" aria-label="Equipos remotos y notebooks">
+      <header class="remote-panel-head">
+        <div>
+          <span>Equipos remotos</span>
+          <h2>Notebooks / fuera de puesto</h2>
+        </div>
+        <button type="button" class="remote-refresh" data-refresh-remotes title="Actualizar equipos">Actualizar</button>
+      </header>
+      <div class="remote-stats" aria-label="Resumen remoto">
+        <article><span>Total</span><strong>${allRemote.length}</strong></article>
+        <article><span>Online</span><strong>${online}</strong></article>
+        <article><span>Offline</span><strong>${offline}</strong></article>
+      </div>
+      <input class="remote-search" type="search" data-remote-search value="${escapeHtml(state.remoteQuery)}" placeholder="Buscar notebook, usuario, IP o grupo">
+      <div class="remote-list" role="list">
+        ${assets.length ? assets.map(renderRemoteAssetCard).join("") : `
+          <div class="remote-empty">
+            <strong>No hay equipos remotos para mostrar.</strong>
+            <span>Cuando exista un notebook sin puesto o equipo fuera de sala, aparecera aqui.</span>
+          </div>
+        `}
+      </div>
+    </aside>
+  `;
+}
+
+function updateRemoteAssetsPanel() {
+  const panel = document.querySelector(".remote-panel");
+  if (!panel) return;
+  const list = panel.querySelector(".remote-list");
+  if (!list) return;
+  const assets = filteredRemotePanelAssets();
+  list.innerHTML = assets.length ? assets.map(renderRemoteAssetCard).join("") : `
+    <div class="remote-empty">
+      <strong>No hay equipos remotos para mostrar.</strong>
+      <span>Cuando exista un notebook sin puesto o equipo fuera de sala, aparecera aqui.</span>
+    </div>
+  `;
+}
+
+function renderRemoteAssetCard(asset) {
+  const online = asset.status === "Activo" || asset.raw_status === "online";
+  const name = asset.name || asset.hostname || asset.node_id || `Equipo ${asset.id}`;
+  const detail = [asset.group, asset.ip].filter(Boolean).join(" | ") || asset.os || "Sin detalle";
+  const user = asset.occupant || asset.user || "Sin usuario informado";
+  const url = remoteControlUrl(asset);
+  return `
+    <article class="remote-card ${online ? "is-online" : "is-offline"}" role="listitem">
+      <span class="remote-dot ${online ? "online" : "offline"}" aria-hidden="true"></span>
+      <div class="remote-card-main">
+        <strong>${escapeHtml(name)}</strong>
+        <small>${escapeHtml(detail)}</small>
+        <span>${escapeHtml(user)}</span>
+      </div>
+      <div class="remote-card-actions">
+        <em>${online ? "Online" : "Offline"}</em>
+        ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">Tomar control</a>` : `<button type="button" disabled>Sin enlace</button>`}
+      </div>
+    </article>
   `;
 }
 
@@ -299,6 +425,14 @@ function bindEvents() {
       state.selected = null;
       render();
     });
+  });
+  document.querySelector("[data-refresh-remotes]")?.addEventListener("click", async () => {
+    await loadOptions();
+    render();
+  });
+  document.querySelector("[data-remote-search]")?.addEventListener("input", (event) => {
+    state.remoteQuery = event.target.value;
+    updateRemoteAssetsPanel();
   });
   document.querySelectorAll("[data-seat]").forEach((button) => {
     button.addEventListener("click", async () => {
