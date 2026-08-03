@@ -11,17 +11,16 @@ USER root
 # coupled to Node.js packages installed on the AWS host.
 RUN if command -v apt-get >/dev/null 2>&1; then \
       apt-get update && \
-      apt-get install -y --no-install-recommends nodejs && \
+      apt-get install -y --no-install-recommends nodejs npm && \
       rm -rf /var/lib/apt/lists/*; \
     elif command -v apk >/dev/null 2>&1; then \
-      apk add --no-cache nodejs; \
+      apk add --no-cache nodejs npm; \
     else \
       echo 'No supported package manager found to install Node.js.' >&2; exit 1; \
     fi
 
 COPY --from=meshcentral-runtime /opt/meshcentral/node_modules/meshcentral/meshctrl.js /opt/geimser-meshctrl/meshctrl.js
-COPY --from=meshcentral-runtime /opt/meshcentral/node_modules/minimist /opt/geimser-meshctrl/node_modules/minimist
-COPY --from=meshcentral-runtime /opt/meshcentral/node_modules/ws /opt/geimser-meshctrl/node_modules/ws
+RUN npm install --prefix /opt/geimser-meshctrl --omit=dev --no-audit --no-fund minimist@1.2.8 ws@8.18.3
 
 ENV GEIMSER_MESHCTRL_PATH=/opt/geimser-meshctrl/meshctrl.js
 
