@@ -229,9 +229,30 @@ class GeimserMeshCmdb
 
     def ip_address(row, sysinfo)
       network = sysinfo.to_h['network'].to_h
-      Array(row['iploc']).first.presence ||
-        Array(network['netif']).filter_map { |iface| iface['ip'].presence }.first ||
-        row['lastaddr'].to_s.split(':').first.presence
+      candidates = [
+        row['ip'],
+        row['addr'],
+        row['lastaddr'],
+        row['iploc'],
+      ]
+
+      Array(network['netif']).each do |iface|
+        candidates << iface['ip']
+        candidates << iface['addr']
+        candidates << iface['ipv4']
+      end
+
+      candidates.flatten.filter_map { |value| extract_ipv4(value) }.find { |ip| usable_inventory_ip?(ip) }
+    end
+
+    def extract_ipv4(value)
+      value.to_s.scan(/\b(?:\d{1,3}\.){3}\d{1,3}\b/).find do |ip|
+        ip.split('.').all? { |octet| octet.to_i.between?(0, 255) }
+      end
+    end
+
+    def usable_inventory_ip?(ip)
+      ip.present? && ip != '0.0.0.0' && !ip.start_with?('127.')
     end
 
     def time(value)

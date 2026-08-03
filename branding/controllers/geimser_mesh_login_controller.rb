@@ -69,6 +69,7 @@ class GeimserMeshLoginController < ApplicationController
 
   def inventory_map
     GeimserInventoryWorkspace.ensure_table
+    GeimserMeshCmdb.sync
 
     records = GeimserInventoryWorkspace.order(:code).to_a
     users_by_id = User.where(id: records.filter_map(&:user_id)).index_by(&:id)
@@ -650,7 +651,7 @@ class GeimserMeshLoginController < ApplicationController
       user_role: user&.roles&.map(&:name)&.join(', '),
       user_area: user&.organization&.name,
       asset_hostname: asset&.name.presence || asset&.hostname,
-      asset_ip: asset&.ip_address,
+      asset_ip: remote_asset_ip_address(asset),
       asset_status: inventory_asset_status(asset),
       asset_brand: details[:manufacturer],
       asset_model: details[:model],
@@ -678,7 +679,7 @@ class GeimserMeshLoginController < ApplicationController
       hostname: record.hostname,
       group: record.group_name,
       os: record.os_name,
-      ip: record.ip_address,
+      ip: remote_asset_ip_address(record),
       status: inventory_asset_status(record),
       raw_status: record.status,
       occupant: remote_asset_pc_username(record),
@@ -738,6 +739,40 @@ class GeimserMeshLoginController < ApplicationController
     nil
   end
 
+  def remote_asset_ip_address(record)
+    return if record.blank?
+
+    raw = JSON.parse(record.raw.presence || '{}')
+    network = raw.dig('sysinfo', 'network').to_h
+    candidates = [
+      record.ip_address,
+      raw['ip'],
+      raw['addr'],
+      raw['lastaddr'],
+      raw['iploc'],
+    ]
+
+    Array(network['netif']).each do |iface|
+      candidates << iface['ip']
+      candidates << iface['addr']
+      candidates << iface['ipv4']
+    end
+
+    candidates.flatten.filter_map { |value| extract_ipv4(value) }.find { |ip| usable_inventory_ip?(ip) }
+  rescue StandardError
+    record&.ip_address
+  end
+
+  def extract_ipv4(value)
+    value.to_s.scan(/\b(?:\d{1,3}\.){3}\d{1,3}\b/).find do |ip|
+      ip.split('.').all? { |octet| octet.to_i.between?(0, 255) }
+    end
+  end
+
+  def usable_inventory_ip?(ip)
+    ip.present? && ip != '0.0.0.0' && !ip.start_with?('127.')
+  end
+
   def serialize_remote_asset(record)
     {
       id: record.mesh_node_id,
@@ -746,7 +781,7 @@ class GeimserMeshLoginController < ApplicationController
       name: record.name,
       hostname: record.hostname,
       os: record.os_name,
-      ip: record.ip_address,
+      ip: remote_asset_ip_address(record),
       status: record.status,
       last_seen_at: record.last_seen_at&.iso8601,
       session_url: record.session_url,
