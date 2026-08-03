@@ -31,6 +31,7 @@ COPY --chown=zammad:zammad branding/geimser.js /opt/zammad/public/assets/geimser
 COPY --chown=zammad:zammad branding/fonts/ /opt/zammad/public/assets/geimser-fonts/
 COPY --chown=zammad:zammad branding/geimser-logo.png /opt/zammad/public/assets/images/geimser-logo.png
 COPY --chown=zammad:zammad branding/geimser-logo-mark.png /opt/zammad/public/assets/images/geimser-logo-mark.png
+COPY --chown=zammad:zammad branding/geimser-secure-secret-public.css /opt/zammad/public/assets/geimser-secure-secret-public.css
 COPY --chown=zammad:zammad branding/layouts/application.html.erb /opt/zammad/app/views/layouts/application.html.erb
 COPY --chown=zammad:zammad branding/controllers/geimser_mesh_login_controller.rb /opt/zammad/app/controllers/geimser_mesh_login_controller.rb
 COPY --chown=zammad:zammad branding/controllers/geimser_secure_secrets_controller.rb /opt/zammad/app/controllers/geimser_secure_secrets_controller.rb
