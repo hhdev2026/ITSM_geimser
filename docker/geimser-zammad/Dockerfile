@@ -1,5 +1,31 @@
+ARG MESH_VERSION=latest
+FROM ghcr.io/ylianst/meshcentral:${MESH_VERSION} AS meshcentral-runtime
+
 ARG VERSION=7.0.1-0048
 FROM ghcr.io/zammad/zammad:${VERSION}
+
+USER root
+
+# MeshCtrl is used by the ITSM to query agent data and perform the approved
+# remote power actions. Keep its runtime inside the Zammad image so it is not
+# coupled to Node.js packages installed on the AWS host.
+RUN if command -v apt-get >/dev/null 2>&1; then \
+      apt-get update && \
+      apt-get install -y --no-install-recommends nodejs && \
+      rm -rf /var/lib/apt/lists/*; \
+    elif command -v apk >/dev/null 2>&1; then \
+      apk add --no-cache nodejs; \
+    else \
+      echo 'No supported package manager found to install Node.js.' >&2; exit 1; \
+    fi
+
+COPY --from=meshcentral-runtime /opt/meshcentral/node_modules/meshcentral/meshctrl.js /opt/geimser-meshctrl/meshctrl.js
+COPY --from=meshcentral-runtime /opt/meshcentral/node_modules/minimist /opt/geimser-meshctrl/node_modules/minimist
+COPY --from=meshcentral-runtime /opt/meshcentral/node_modules/ws /opt/geimser-meshctrl/node_modules/ws
+
+ENV GEIMSER_MESHCTRL_PATH=/opt/geimser-meshctrl/meshctrl.js
+
+USER zammad
 
 COPY --chown=zammad:zammad branding/geimser.css /opt/zammad/public/assets/geimser.css
 COPY --chown=zammad:zammad branding/geimser.js /opt/zammad/public/assets/geimser.js

@@ -394,7 +394,10 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   def run_meshctrl_power(asset, flag)
-    meshctrl_path = ENV['GEIMSER_MESHCTRL_PATH'].to_s.strip
+    meshctrl_path = [
+      ENV['GEIMSER_MESHCTRL_PATH'].to_s.strip.presence,
+      '/opt/geimser-meshctrl/meshctrl.js',
+    ].find { |path| path.present? && File.file?(path) }
     return if meshctrl_path.blank?
 
     node_id = asset.mesh_node_id.to_s.split('/', 3).last
