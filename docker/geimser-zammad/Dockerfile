@@ -1,7 +1,7 @@
-ARG MESH_VERSION=latest
-FROM ghcr.io/ylianst/meshcentral:${MESH_VERSION} AS meshcentral-runtime
-
 ARG VERSION=7.0.1-0048
+ARG MESH_VERSION=latest
+
+FROM ghcr.io/ylianst/meshcentral:${MESH_VERSION} AS meshcentral-runtime
 FROM ghcr.io/zammad/zammad:${VERSION}
 
 USER root
