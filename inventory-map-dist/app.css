@@ -375,13 +375,23 @@ button {
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 11px;
-  white-space: nowrap;
+  width: max-content;
+  max-width: 260px;
+  white-space: normal;
+  overflow-wrap: anywhere;
   pointer-events: none;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 100;
   line-height: 1.5;
   text-align: left;
   font-weight: 500;
+}
+
+.workspace-tooltip-ip {
+  color: #93c5fd;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-weight: 700;
+  margin-bottom: 2px;
 }
 
 .workspace-tooltip::after {
@@ -557,6 +567,18 @@ button {
   margin-top: 6px;
 }
 
+.quick-actions,
+.remote-quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.remote-quick-actions {
+  margin-top: 8px;
+}
+
 .remote-card-actions em {
   color: #bfdbfe;
   font-size: 11px;
@@ -566,7 +588,9 @@ button {
 }
 
 .remote-card-actions a,
-.remote-card-actions button {
+.remote-card-actions button,
+.remote-control-button,
+.power-button {
   min-height: 30px;
   border: 1px solid #2563eb;
   border-radius: 7px;
@@ -580,7 +604,26 @@ button {
   align-items: center;
 }
 
-.remote-card-actions button:disabled {
+.remote-control-button {
+  gap: 5px;
+  background-color: #f59e0b;
+  border-color: #d97706;
+}
+
+.power-button.is-shutdown {
+  color: #fee2e2;
+  background: #dc2626;
+  border-color: #b91c1c;
+}
+
+.power-button.is-wake {
+  color: #052e16;
+  background: #22c55e;
+  border-color: #16a34a;
+}
+
+.remote-card-actions button:disabled,
+.power-button:disabled {
   cursor: not-allowed;
   color: #cbd5e1;
   background: #334155;

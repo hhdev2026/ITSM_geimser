@@ -187,9 +187,10 @@ function renderSeat(seat) {
     }
   }
   let tooltipHtml = '';
-  if (data && (data.user_name || data.asset_hostname)) {
+  if (data && (data.user_name || data.asset_hostname || data.asset_ip)) {
     tooltipHtml = `
       <div class="workspace-tooltip">
+        ${data.asset_ip ? `<div class="workspace-tooltip-ip">IP: ${escapeHtml(data.asset_ip)}</div>` : ''}
         ${data.user_name ? `<div style="margin-bottom: 2px;">👤 ${escapeHtml(data.user_name)}</div>` : ''}
         ${data.asset_hostname ? `<div>💻 ${escapeHtml(data.asset_hostname)}</div>` : ''}
       </div>
@@ -301,6 +302,7 @@ function updateRemoteAssetsPanel() {
       <span>Solo se muestran equipos con PORTATIL en el nombre y el PC Q3E1P61.</span>
     </div>
   `;
+  bindPowerButtons();
 }
 
 function renderRemoteAssetCard(asset) {
@@ -319,7 +321,10 @@ function renderRemoteAssetCard(asset) {
       </div>
       <div class="remote-card-actions">
         <em>${online ? "Online" : "Offline"}</em>
-        ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">Tomar control</a>` : `<button type="button" disabled>Sin enlace</button>`}
+        <div class="quick-actions">
+          ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">Tomar control</a>` : `<button type="button" disabled>Sin enlace</button>`}
+          ${powerButtonHtml(asset)}
+        </div>
       </div>
     </article>
   `;
@@ -380,9 +385,23 @@ function getRemoteControlHtml(assetId) {
     const gotonode = nodeId.split("/").pop();
     const next = `/?node=${encodeURIComponent(nodeId)}&gotonode=${encodeURIComponent(gotonode)}&viewmode=11&hide=0&geimserautoconnect=1`;
     const url = `/geimser/mesh/login?next=${encodeURIComponent(next)}`;
-    return `<a href="${escapeHtml(url)}" target="_blank" class="button button-primary" style="display:inline-flex; align-items:center; gap:5px; background-color: #f39c12; border-color: #e67e22; padding: 4px 10px; font-size: 13px; text-decoration: none;"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg> Tomar Equipo</a>`;
+    return `
+      <div class="remote-quick-actions">
+        <a href="${escapeHtml(url)}" target="_blank" class="button button-primary remote-control-button"><svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0zM4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H4.5z"/></svg> Tomar Equipo</a>
+        ${powerButtonHtml(asset)}
+      </div>
+    `;
   }
   return '';
+}
+
+function powerButtonHtml(asset) {
+  if (!asset || !asset.id) return "";
+  const online = asset.status === "Activo" || asset.raw_status === "online";
+  const action = online ? "shutdown" : "wake";
+  const label = online ? "Apagar" : "Despertar";
+  const klass = online ? "power-button is-shutdown" : "power-button is-wake";
+  return `<button type="button" class="${klass}" data-power-asset="${escapeHtml(asset.id)}" data-power-action="${action}">${label}</button>`;
 }
 
 function renderEditForm() {
@@ -430,6 +449,7 @@ function bindEvents() {
     state.remoteQuery = event.target.value;
     updateRemoteAssetsPanel();
   });
+  bindPowerButtons();
   document.querySelectorAll("[data-seat]").forEach((button) => {
     button.addEventListener("click", async () => {
       await loadOptions();
@@ -521,6 +541,48 @@ function bindEvents() {
     }
   });
   document.querySelector("[data-form]")?.addEventListener("submit", saveAssignment);
+}
+
+function bindPowerButtons() {
+  document.querySelectorAll("[data-power-asset]").forEach((button) => {
+    if (button.dataset.powerBound === "true") return;
+    button.dataset.powerBound = "true";
+    button.addEventListener("click", () => sendPowerAction(button));
+  });
+}
+
+async function sendPowerAction(button) {
+  const assetId = button.dataset.powerAsset;
+  const action = button.dataset.powerAction;
+  if (!assetId || !action) return;
+  if (action === "shutdown" && !window.confirm("¿Seguro que quieres apagar este equipo?")) return;
+
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = action === "wake" ? "Despertando..." : "Apagando...";
+
+  try {
+    const response = await fetch(`${API_BASE}/inventory-map/power`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": await csrfToken()
+      },
+      credentials: "include",
+      body: JSON.stringify({ asset_id: assetId, action })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.ok) {
+      throw new Error(payload.error || payload.message || `HTTP ${response.status}`);
+    }
+    state.status = payload.message || "Solicitud enviada.";
+    await loadOptions();
+    render();
+  } catch (error) {
+    window.alert(error.message || "No se pudo ejecutar la accion.");
+    button.disabled = false;
+    button.textContent = originalText;
+  }
 }
 
 async function loadInventory() {

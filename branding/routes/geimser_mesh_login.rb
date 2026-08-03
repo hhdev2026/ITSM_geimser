@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   get '/api/inventory-map/recommend-asset/:user_id', to: 'geimser_mesh_login#recommend_asset'
   get '/api/inventory-map/recommend-user/:asset_id', to: 'geimser_mesh_login#recommend_user'
   post '/api/inventory-map/assign', to: 'geimser_mesh_login#assign_inventory_map'
+  post '/api/inventory-map/power', to: 'geimser_mesh_login#power_inventory_asset'
 
   get '/api/secure-secrets', to: 'geimser_secure_secrets#index'
   post '/api/secure-secrets', to: 'geimser_secure_secrets#create'

@@ -2,9 +2,12 @@ require 'base64'
 require 'erb'
 require 'json'
 require 'net/http'
+require 'open3'
 require 'openssl'
 require 'securerandom'
 require 'set'
+require 'socket'
+require 'timeout'
 require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
@@ -139,6 +142,18 @@ class GeimserMeshLoginController < ApplicationController
       user_id.present? ? User.find_by(id: user_id) : nil,
       asset_id.present? ? GeimserMeshCmdb::RemoteAsset.find_by(id: asset_id) : nil,
     )
+  end
+
+  def power_inventory_asset
+    return render json: { error: 'No autorizado.' }, status: :forbidden if !geimser_module_access_allowed?
+
+    asset = GeimserMeshCmdb::RemoteAsset.find_by(id: params[:asset_id])
+    return render json: { error: 'Equipo no encontrado.' }, status: :not_found if asset.blank?
+
+    action = params[:action].to_s
+    result = perform_mesh_power_action(asset, action)
+    status = result[:ok] ? :ok : result.fetch(:status, :service_unavailable)
+    render json: result, status: status
   end
 
   def bot_session
@@ -360,6 +375,127 @@ class GeimserMeshLoginController < ApplicationController
     ActiveSupport::SecurityUtils.secure_compare(token, expected)
   rescue StandardError
     false
+  end
+
+  def perform_mesh_power_action(asset, action)
+    case action
+    when 'wake'
+      run_meshctrl_power(asset, '--wake').presence || wake_asset_by_lan(asset)
+    when 'shutdown'
+      run_meshctrl_power(asset, '--off').presence || {
+        ok: false,
+        error: 'La accion de apagado requiere configurar MeshCtrl en el servidor.',
+        status: :service_unavailable,
+      }
+    else
+      { ok: false, error: 'Accion no valida.', status: :bad_request }
+    end
+  end
+
+  def run_meshctrl_power(asset, flag)
+    meshctrl_path = ENV['GEIMSER_MESHCTRL_PATH'].to_s.strip
+    return if meshctrl_path.blank?
+
+    node_id = asset.mesh_node_id.to_s.split('/', 3).last
+    return if node_id.blank?
+
+    command = [
+      ENV.fetch('GEIMSER_MESHCTRL_NODE', 'node'),
+      meshctrl_path,
+      '--url',
+      meshctrl_url,
+      '--loginuser',
+      ENV.fetch('MESH_LOGIN_USER', 'admin'),
+    ]
+
+    if ENV['MESH_LOGIN_PASS'].present?
+      command += ['--loginpass', ENV['MESH_LOGIN_PASS']]
+    elsif ENV['MESH_LOGIN_KEY'].present?
+      command += ['--loginkey', ENV['MESH_LOGIN_KEY']]
+    else
+      return {
+        ok: false,
+        error: 'Falta MESH_LOGIN_PASS o MESH_LOGIN_KEY para ejecutar MeshCtrl.',
+        status: :service_unavailable,
+      }
+    end
+
+    command += ['devicepower', flag, '--id', node_id]
+
+    stdout = ''
+    stderr = ''
+    process_status = nil
+    Timeout.timeout(20) do
+      stdout, stderr, process_status = Open3.capture3(*command)
+    end
+
+    ok = process_status.success? && [stdout, stderr].join("\n").downcase.include?('ok')
+    {
+      ok: ok,
+      action: flag == '--wake' ? 'wake' : 'shutdown',
+      message: ok ? 'Solicitud enviada a MeshCentral.' : 'MeshCtrl no confirmo la accion.',
+      output: [stdout, stderr].join("\n").strip.truncate(500),
+      status: ok ? :ok : :bad_gateway,
+    }
+  rescue Timeout::Error
+    { ok: false, error: 'MeshCtrl no respondio a tiempo.', status: :gateway_timeout }
+  rescue StandardError => e
+    { ok: false, error: "No se pudo ejecutar MeshCtrl: #{e.message}", status: :bad_gateway }
+  end
+
+  def meshctrl_url
+    explicit = ENV['GEIMSER_MESHCTRL_URL'].to_s.strip
+    return explicit if explicit.present?
+
+    public_url = mesh_public_url
+    uri = URI.parse(public_url)
+    uri.scheme = uri.scheme == 'https' ? 'wss' : 'ws'
+    uri.path = ''
+    uri.query = nil
+    uri.fragment = nil
+    uri.to_s
+  rescue URI::InvalidURIError
+    'wss://remoto.geimser.cl'
+  end
+
+  def wake_asset_by_lan(asset)
+    macs = remote_asset_mac_addresses(asset)
+    return {
+      ok: false,
+      error: 'No hay MAC disponible para despertar el equipo.',
+      status: :service_unavailable,
+    } if macs.blank?
+
+    socket = UDPSocket.new
+    socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_BROADCAST, true)
+    macs.each do |mac|
+      packet = ['ff' * 6 + mac.delete(':-').downcase * 16].pack('H*')
+      socket.send(packet, 0, '255.255.255.255', 9)
+      socket.send(packet, 0, '255.255.255.255', 7)
+    end
+    {
+      ok: true,
+      action: 'wake',
+      message: "Paquete Wake-on-LAN enviado a #{macs.length} interfaz(es).",
+    }
+  rescue StandardError => e
+    { ok: false, error: "No se pudo enviar Wake-on-LAN: #{e.message}", status: :bad_gateway }
+  ensure
+    socket&.close
+  end
+
+  def remote_asset_mac_addresses(asset)
+    raw = JSON.parse(asset.raw.presence || '{}')
+    network = raw.dig('sysinfo', 'network').to_h
+    Array(network['netif']).filter_map do |iface|
+      mac = iface['mac'].to_s.strip
+      next if mac.blank?
+      next if mac !~ /\A(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}\z/i
+
+      mac
+    end.uniq
+  rescue StandardError
+    []
   end
 
   def bot_identity_payload
