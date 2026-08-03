@@ -1,7 +1,4 @@
 ARG VERSION=7.0.1-0048
-ARG MESH_VERSION=latest
-
-FROM ghcr.io/ylianst/meshcentral:${MESH_VERSION} AS meshcentral-runtime
 FROM ghcr.io/zammad/zammad:${VERSION}
 
 USER root
@@ -11,16 +8,19 @@ USER root
 # coupled to Node.js packages installed on the AWS host.
 RUN if command -v apt-get >/dev/null 2>&1; then \
       apt-get update && \
-      apt-get install -y --no-install-recommends nodejs npm && \
+      apt-get install -y --no-install-recommends curl nodejs npm && \
       rm -rf /var/lib/apt/lists/*; \
     elif command -v apk >/dev/null 2>&1; then \
-      apk add --no-cache nodejs npm; \
+      apk add --no-cache curl nodejs npm; \
     else \
       echo 'No supported package manager found to install Node.js.' >&2; exit 1; \
     fi
 
-COPY --from=meshcentral-runtime /opt/meshcentral/node_modules/meshcentral/meshctrl.js /opt/geimser-meshctrl/meshctrl.js
-RUN npm install --prefix /opt/geimser-meshctrl --omit=dev --no-audit --no-fund minimist@1.2.8 ws@8.18.3
+RUN mkdir -p /opt/geimser-meshctrl && \
+    curl --fail --location --retry 3 --silent --show-error \
+      https://raw.githubusercontent.com/Ylianst/MeshCentral/master/meshctrl.js \
+      --output /opt/geimser-meshctrl/meshctrl.js && \
+    npm install --prefix /opt/geimser-meshctrl --omit=dev --no-audit --no-fund minimist@1.2.8 ws@8.18.3
 
 ENV GEIMSER_MESHCTRL_PATH=/opt/geimser-meshctrl/meshctrl.js
 
