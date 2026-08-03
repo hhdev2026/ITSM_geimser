@@ -744,33 +744,48 @@ class GeimserMeshLoginController < ApplicationController
 
     raw = JSON.parse(record.raw.presence || '{}')
     network = raw.dig('sysinfo', 'network').to_h
-    candidates = [
+    # The agent's adapter data represents the IPv4 displayed by ipconfig.
+    # MeshCentral's connection address is only used when the agent has not
+    # reported its network interface information yet.
+    candidates = remote_network_interface_ipv4_addresses(network)
+    candidates.concat([
       record.ip_address,
       raw['ip'],
       raw['addr'],
       raw['lastaddr'],
       raw['iploc'],
-    ]
+    ])
 
-    Array(network['netif']).each do |iface|
-      candidates << iface['ip']
-      candidates << iface['addr']
-      candidates << iface['ipv4']
-    end
-
-    candidates.flatten.filter_map { |value| extract_ipv4(value) }.find { |ip| usable_inventory_ip?(ip) }
+    candidates.flat_map { |value| extract_ipv4_addresses(value) }.find { |ip| usable_inventory_ip?(ip) }
   rescue StandardError
     record&.ip_address
   end
 
-  def extract_ipv4(value)
-    value.to_s.scan(/\b(?:\d{1,3}\.){3}\d{1,3}\b/).find do |ip|
+  def remote_network_interface_ipv4_addresses(network)
+    interfaces = network.to_h['netif']
+    interfaces = interfaces.values if interfaces.is_a?(Hash) && interfaces.values.all? { |value| value.is_a?(Hash) }
+
+    Array(interfaces)
+      .sort_by { |iface| virtual_network_interface?(iface) ? 1 : 0 }
+      .flat_map do |iface|
+        data = iface.to_h
+        [data['ipv4'], data['ip'], data['addr']].flat_map { |value| extract_ipv4_addresses(value) }
+      end
+  end
+
+  def virtual_network_interface?(iface)
+    label = [iface.to_h['name'], iface.to_h['desc'], iface.to_h['description']].compact.join(' ')
+    label.match?(/loopback|virtual|vmware|hyper-v|docker|wsl|vpn|tunnel|teredo|bluetooth/i)
+  end
+
+  def extract_ipv4_addresses(value)
+    value.to_s.scan(/\b(?:\d{1,3}\.){3}\d{1,3}\b/).select do |ip|
       ip.split('.').all? { |octet| octet.to_i.between?(0, 255) }
     end
   end
 
   def usable_inventory_ip?(ip)
-    ip.present? && ip != '0.0.0.0' && !ip.start_with?('127.')
+    ip.present? && ip != '0.0.0.0' && !ip.start_with?('127.') && !ip.start_with?('169.254.')
   end
 
   def serialize_remote_asset(record)
