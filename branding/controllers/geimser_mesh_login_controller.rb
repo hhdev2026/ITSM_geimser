@@ -72,10 +72,24 @@ class GeimserMeshLoginController < ApplicationController
     GeimserMeshCmdb.sync
 
     records = GeimserInventoryWorkspace.order(:code).to_a
-    users_by_id = User.where(id: records.filter_map(&:user_id)).index_by(&:id)
+    inventory_users_list = inventory_users
+    users_by_id = inventory_users_list.index_by(&:id)
+    users_by_id.merge!(User.where(id: records.filter_map(&:user_id)).index_by(&:id))
+    users_by_identity = inventory_user_identity_index(inventory_users_list)
     assets_by_id = GeimserMeshCmdb::RemoteAsset.where(id: records.filter_map(&:asset_id)).index_by(&:id)
 
-    render json: records.map { |record| serialize_inventory_workspace(record, users_by_id[record.user_id], assets_by_id[record.asset_id]) }
+    render json: records.map do |record|
+      asset = assets_by_id[record.asset_id]
+      observed_user, observed_user_name = observed_inventory_user_for_asset(asset, users_by_identity)
+
+      serialize_inventory_workspace(
+        record,
+        users_by_id[record.user_id],
+        asset,
+        observed_user: observed_user,
+        observed_user_name: observed_user_name,
+      )
+    end
   end
 
   def inventory_csrf
@@ -640,19 +654,24 @@ class GeimserMeshLoginController < ApplicationController
     base_scope.order(:firstname, :lastname, :login).limit(2_000).to_a
   end
 
-  def serialize_inventory_workspace(record, user, asset)
+  def serialize_inventory_workspace(record, user, asset, observed_user: nil, observed_user_name: nil)
     details = asset.present? ? remote_asset_details(asset) : {}
+    visible_user = observed_user || user
+    visible_user_name = observed_user_name.presence || (visible_user.present? ? inventory_user_name(visible_user) : record.temp_user_name)
     {
       id: record.id,
       code: record.code,
+      updated_at: record.updated_at&.iso8601,
       room: inventory_room_for(record.code),
       seat_label: record.code.to_s.split('-', 2).last,
-      user_id: user&.id,
+      user_id: visible_user&.id,
+      assigned_user_id: user&.id,
       asset_id: asset&.id,
-      user_name: user.present? ? inventory_user_name(user) : record.temp_user_name,
-      user_email: user&.email,
-      user_role: user&.roles&.map(&:name)&.join(', '),
-      user_area: user&.organization&.name,
+      user_name: visible_user_name,
+      user_email: visible_user&.email,
+      user_role: visible_user&.roles&.map(&:name)&.join(', '),
+      user_area: visible_user&.organization&.name,
+      user_source: observed_user_name.present? ? 'mesh' : (user.present? || record.temp_user_name.present? ? 'manual' : nil),
       asset_hostname: asset&.name.presence || asset&.hostname,
       asset_ip: remote_asset_ip_address(asset),
       asset_status: inventory_asset_status(asset),
@@ -696,6 +715,37 @@ class GeimserMeshLoginController < ApplicationController
 
   def inventory_user_name(user)
     [user.firstname, user.lastname].compact_blank.join(' ').presence || user.email.presence || user.login
+  end
+
+  def inventory_user_identity_index(users)
+    users.each_with_object({}) do |user, index|
+      aliases = [
+        user.login,
+        user.email,
+        user.login.to_s.split('@').first,
+        user.email.to_s.split('@').first,
+        [user.firstname, user.lastname].compact_blank.join(' '),
+      ]
+
+      aliases.filter_map { |value| inventory_identity_key(value) }.each do |key|
+        index[key] ||= user
+      end
+    end
+  end
+
+  def observed_inventory_user_for_asset(asset, users_by_identity)
+    return [nil, nil] if asset.blank? || asset.status != 'online'
+
+    observed_name = remote_asset_pc_username(asset)
+    return [nil, nil] if observed_name.blank?
+
+    [users_by_identity[inventory_identity_key(observed_name)], observed_name]
+  end
+
+  def inventory_identity_key(value)
+    identity = value.to_s.strip.tr('\\', '/').split('/').last.to_s.split('@').first.to_s
+    identity = I18n.transliterate(identity).downcase.gsub(/[^a-z0-9]/, '')
+    identity.length >= 3 ? identity : nil
   end
 
   def inventory_room_for(code)

@@ -13,6 +13,7 @@ const state = {
 let optionsRefreshTimer = null;
 let mapRefreshTimer = null;
 let mapRefreshInFlight = false;
+let inventoryRequestSequence = 0;
 
 const floors = {
   p1: { title: "PISO 1", subtitle: "Sala KREA", cols: 8, rows: 12, width: 560 },
@@ -588,21 +589,51 @@ async function sendPowerAction(button) {
 }
 
 async function loadInventory() {
+  const requestSequence = ++inventoryRequestSequence;
   try {
-    const response = await fetch(`${API_BASE}/inventory-map`, { credentials: "include" });
+    const response = await fetch(`${API_BASE}/inventory-map`, {
+      credentials: "include",
+      cache: "no-store"
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    state.workspaces = await response.json();
+    const records = await response.json();
+    if (requestSequence !== inventoryRequestSequence) return false;
+
+    state.workspaces = normalizeWorkspaceRecords(records);
     state.status = "";
+    return true;
   } catch (error) {
+    if (requestSequence !== inventoryRequestSequence) return false;
     console.error("Fetch failed", error);
     state.workspaces = [];
     state.status = "Backend no disponible: se muestra el plano base para ordenar puestos.";
+    return false;
   }
+}
+
+function normalizeWorkspaceRecords(records) {
+  const byWorkspaceCode = new Map();
+
+  for (const record of Array.isArray(records) ? records : []) {
+    if (!record?.code) continue;
+    const previous = byWorkspaceCode.get(record.code);
+    const previousUpdatedAt = Date.parse(previous?.updated_at || 0) || 0;
+    const recordUpdatedAt = Date.parse(record.updated_at || 0) || 0;
+
+    if (!previous || recordUpdatedAt >= previousUpdatedAt) {
+      byWorkspaceCode.set(record.code, record);
+    }
+  }
+
+  return [...byWorkspaceCode.values()];
 }
 
 async function loadOptions() {
   try {
-    const response = await fetch(`${API_BASE}/inventory-map/options`, { credentials: "include" });
+    const response = await fetch(`${API_BASE}/inventory-map/options`, {
+      credentials: "include",
+      cache: "no-store"
+    });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     state.options = mergeOptions(await response.json());
   } catch (error) {
@@ -706,10 +737,15 @@ function syncMapRefreshTimer() {
 
     try {
       const selectedCode = state.selected?.code || "";
-      await Promise.all([loadInventory(), loadOptions()]);
+      const [inventoryLoaded] = await Promise.all([loadInventory(), loadOptions()]);
 
-      if (selectedCode) {
-        state.selected = byCode(selectedCode) || state.selected;
+      if (inventoryLoaded && selectedCode) {
+        const updatedSelection = byCode(selectedCode);
+        if (updatedSelection) {
+          state.selected = updatedSelection;
+        } else if (state.selected?.id) {
+          state.selected = null;
+        }
       }
 
       // Do not rebuild the form while the operator is choosing a user/equipment.
