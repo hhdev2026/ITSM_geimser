@@ -82,7 +82,7 @@ class GeimserMeshLoginController < ApplicationController
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
 
-    render json: records.map do |record|
+    payload = records.map do |record|
       asset = assets_by_id[record.asset_id]
       observed_user, observed_user_name = observed_inventory_user_for_asset(asset, users_by_identity)
 
@@ -94,6 +94,11 @@ class GeimserMeshLoginController < ApplicationController
         observed_user_name: observed_user_name,
       )
     end
+
+    sample = payload.find { |workspace| workspace[:code] == 'KREA-P1' }
+    Rails.logger.info("[GeimserInventoryMap] KREA-P1=#{sample.slice(:user_name, :asset_hostname, :asset_ip).to_json}") if sample.present?
+
+    render json: payload
   end
 
   def inventory_csrf
