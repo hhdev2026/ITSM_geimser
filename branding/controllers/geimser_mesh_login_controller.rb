@@ -95,9 +95,6 @@ class GeimserMeshLoginController < ApplicationController
       )
     end
 
-    sample = payload.find { |workspace| workspace[:code] == 'KREA-P1' }
-    Rails.logger.info("[GeimserInventoryMap] KREA-P1=#{sample.slice(:user_name, :asset_hostname, :asset_ip).to_json}") if sample.present?
-
     render json: payload
   end
 
