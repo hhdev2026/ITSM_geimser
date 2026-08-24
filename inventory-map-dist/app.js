@@ -193,6 +193,7 @@ function renderSeat(seat) {
   if (data && (data.user_name || data.asset_hostname || data.asset_ip)) {
     tooltipHtml = `
       <div class="workspace-tooltip">
+        ${data.user_source === "mesh" ? '<div class="workspace-tooltip-source">Sesion actual detectada</div>' : ''}
         ${data.asset_ip ? `<div class="workspace-tooltip-ip">IP: ${escapeHtml(data.asset_ip)}</div>` : ''}
         ${data.user_name ? `<div style="margin-bottom: 2px;">👤 ${escapeHtml(data.user_name)}</div>` : ''}
         ${data.asset_hostname ? `<div>💻 ${escapeHtml(data.asset_hostname)}</div>` : ''}
@@ -200,9 +201,25 @@ function renderSeat(seat) {
     `;
   }
 
+  const titleParts = [
+    `${seat.room} - ${seat.label}`,
+    data?.user_name ? `Usuario: ${data.user_name}` : "Usuario: Sin asignar",
+    data?.asset_hostname ? `Equipo: ${data.asset_hostname}` : "Equipo: Sin asignar",
+    data?.asset_ip ? `IP: ${data.asset_ip}` : "IP: Sin IP reportada"
+  ];
+
+  const inlineDetails = data && (data.user_name || data.asset_hostname || data.asset_ip) ? `
+    <span class="workspace-inline-details">
+      <span class="workspace-inline-user">${escapeHtml(data.user_name || "Sin usuario")}</span>
+      <span class="workspace-inline-host">${escapeHtml(data.asset_hostname || "Sin equipo")}</span>
+      <span class="workspace-inline-ip">${escapeHtml(data.asset_ip || "Sin IP")}</span>
+    </span>
+  ` : "";
+
   return `
-    <button class="${classes.join(" ")}" data-seat="${seat.code}" style="${boxStyle(seat, seat.floor)}" title="${escapeHtml(seat.room)} - ${seat.label}">
+    <button class="${classes.join(" ")}" data-seat="${seat.code}" style="${boxStyle(seat, seat.floor)}" title="${escapeHtml(titleParts.join("\n"))}">
       <span class="workspace-label">${escapeHtml(seat.label)}</span>
+      ${inlineDetails}
       <span class="workspace-action">Configurar</span>
       ${dot}
       ${tooltipHtml}

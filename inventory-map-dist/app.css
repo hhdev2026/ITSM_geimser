@@ -306,6 +306,34 @@ button {
 
 .workspace-label {
   display: block;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.workspace-inline-details {
+  display: grid;
+  width: calc(100% - 8px);
+  gap: 1px;
+  color: #14532d;
+  font-size: 7px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.workspace-inline-details span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-inline-host {
+  color: #166534;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+
+.workspace-inline-ip {
+  color: #1d4ed8;
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 }
 
 .workspace-action {
@@ -334,6 +362,7 @@ button {
 .workspace.has-record {
   color: #064e3b;
   background: #bbf7d0; /* Soft green */
+  border-color: #4ade80;
 }
 
 .workspace.is-online {
@@ -354,6 +383,8 @@ button {
   height: 10px;
   border-radius: 999px;
   background: #9ca3af;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgb(15 23 42 / 35%);
 }
 
 .workspace-dot.online {
@@ -394,6 +425,14 @@ button {
   margin-bottom: 2px;
 }
 
+.workspace-tooltip-source {
+  margin-bottom: 4px;
+  color: #86efac;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .workspace-tooltip::after {
   content: "";
   position: absolute;
@@ -405,7 +444,8 @@ button {
   border-color: #1e293b transparent transparent transparent;
 }
 
-.workspace:hover .workspace-tooltip {
+.workspace:hover .workspace-tooltip,
+.workspace:focus-visible .workspace-tooltip {
   display: block;
 }
 
