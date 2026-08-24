@@ -176,7 +176,9 @@ class GeimserMeshLoginController < ApplicationController
     asset = GeimserMeshCmdb::RemoteAsset.find_by(id: params[:asset_id])
     return render json: { error: 'Equipo no encontrado.' }, status: :not_found if asset.blank?
 
-    action = params[:action].to_s
+    # `action` is reserved by Rails for the controller method name. Keep the
+    # requested power operation in its own parameter.
+    action = params[:power_action].to_s
     result = perform_mesh_power_action(asset, action)
     status = result[:ok] ? :ok : result.fetch(:status, :service_unavailable)
     render json: result, status: status

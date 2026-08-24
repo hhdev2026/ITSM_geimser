@@ -580,7 +580,7 @@ async function sendPowerAction(button) {
         "X-CSRF-Token": await csrfToken()
       },
       credentials: "include",
-      body: JSON.stringify({ asset_id: assetId, action })
+      body: JSON.stringify({ asset_id: assetId, power_action: action })
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok || !payload.ok) {
