@@ -228,10 +228,9 @@ class GeimserMeshCmdb
     end
 
     def ip_address(row, sysinfo)
-      network = sysinfo.to_h['network'].to_h
       # MeshCentral's lastaddr is the address it used to reach the agent. Prefer
       # the IPv4 reported by Windows for its network adapter (the ipconfig value).
-      candidates = network_interface_ipv4_addresses(network)
+      candidates = network_interface_ipv4_addresses(sysinfo, row)
       candidates.concat([
         row['ip'],
         row['addr'],
@@ -242,16 +241,35 @@ class GeimserMeshCmdb
       candidates.flat_map { |value| extract_ipv4_addresses(value) }.find { |ip| usable_inventory_ip?(ip) }
     end
 
-    def network_interface_ipv4_addresses(network)
-      interfaces = network.to_h['netif']
-      interfaces = interfaces.values if interfaces.is_a?(Hash) && interfaces.values.all? { |value| value.is_a?(Hash) }
+    def network_interface_ipv4_addresses(sysinfo, row = {})
+      network_sources = [
+        sysinfo.to_h['network'],
+        sysinfo,
+        row.to_h['network'],
+        row,
+      ].compact
 
-      Array(interfaces)
+      interfaces = network_sources.flat_map { |source| network_interfaces(source) }
+      interfaces
         .sort_by { |iface| virtual_network_interface?(iface) ? 1 : 0 }
         .flat_map do |iface|
           data = iface.to_h
-          [data['ipv4'], data['ip'], data['addr']].flat_map { |value| extract_ipv4_addresses(value) }
+          [data['ipv4'], data['IPv4'], data['ip'], data['addr'], data['address'], data['addresses'], data['ipAddress']]
+            .flat_map { |value| extract_ipv4_addresses(value) }
         end
+    end
+
+    def network_interfaces(source)
+      data = source.to_h
+      candidates = [data['netif'], data['interfaces'], data['networkInterfaces'], data['adapters']]
+      candidates.flat_map do |value|
+        case value
+        when Array then value
+        when Hash
+          value.key?('ip') || value.key?('ipv4') || value.key?('addr') ? [value] : value.values
+        else []
+        end
+      end.select { |value| value.is_a?(Hash) }
     end
 
     def virtual_network_interface?(iface)
