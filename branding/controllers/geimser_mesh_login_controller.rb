@@ -719,6 +719,8 @@ class GeimserMeshLoginController < ApplicationController
 
   def inventory_user_identity_index(users)
     users.each_with_object({}) do |user, index|
+      given_names = user.firstname.to_s.split(/\s+/).reject(&:blank?)
+      family_names = user.lastname.to_s.split(/\s+/).reject(&:blank?)
       aliases = [
         user.login,
         user.email,
@@ -726,6 +728,10 @@ class GeimserMeshLoginController < ApplicationController
         user.email.to_s.split('@').first,
         [user.firstname, user.lastname].compact_blank.join(' '),
       ]
+
+      # Windows accounts commonly use the first given name plus one surname
+      # (for example, ximena.cofre), while Zammad stores full legal names.
+      aliases.concat(given_names.product(family_names).map { |given, family| "#{given}#{family}" })
 
       aliases.filter_map { |value| inventory_identity_key(value) }.each do |key|
         index[key] ||= user
