@@ -375,7 +375,7 @@
         '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></span>',
         '  <span>Mapa Interactivo</span>',
         '</a>',
-        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="assistant" href="https://iabot.geimser.cl/dashboard">',
+        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="assistant" href="#assistant-dashboard">',
         '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 10.7 7.7 6 9l4.7 1.3L12 15l1.3-4.7L18 9l-4.7-1.3z"/><path d="m19 15-.7 2.3L16 18l2.3.7L19 21l.7-2.3L22 18l-2.3-.7z"/><path d="M5 15 4.3 17.3 2 18l2.3.7L5 21l.7-2.3L8 18l-2.3-.7z"/></svg></span>',
         '  <span>Dashboard</span>',
         '</a>',
@@ -450,12 +450,14 @@
     var isTicket = /^#ticket(?:\/|$)/.test(hash);
     var isCmdb = hash === "#system/integration/idoit";
     var isMap = hash === "#inventory-map";
+    var isAssistantDashboard = hash === "#assistant-dashboard";
     var isSecrets = hash === "#secure-secrets";
     app.classList.toggle("geimser-route-profile", isProfile || hasActivityFlow || hasProfileDetail);
     app.classList.toggle("geimser-route-ticket-create", isTicketCreate);
     app.classList.toggle("geimser-route-ticket", isTicket);
     app.classList.toggle("geimser-route-cmdb", isCmdb);
     app.classList.toggle("geimser-route-map", isMap);
+    app.classList.toggle("geimser-route-assistant-dashboard", isAssistantDashboard);
     app.classList.toggle("geimser-route-secrets", isSecrets);
     app.classList.toggle("geimser-route-native", isProfile || hasActivityFlow || hasProfileDetail || isTicketCreate);
     app.classList.toggle("geimser-route-activity-flow", hasActivityFlow);
@@ -3172,6 +3174,102 @@
   // Disparar en el load y periodicamente por si Zammad recarga el main
   window.addEventListener('load', handleMapRoute);
   setInterval(handleMapRoute, 500);
+})();
+
+(function() {
+  var botOrigin = "https://iabot.geimser.cl";
+
+  function moduleAccessAllowed() {
+    if (!window.GeimserAccess || !window.GeimserAccess.known || !window.GeimserAccess.known()) return null;
+    return window.GeimserAccess.moduleAccess && window.GeimserAccess.moduleAccess();
+  }
+
+  function sendIdentity(frame) {
+    if (!frame || !frame.contentWindow) return;
+
+    fetch("/geimser/bot/session", { credentials: "same-origin", cache: "no-store" })
+      .then(function(response) {
+        if (!response.ok) throw new Error("No fue posible validar la sesión ITSM.");
+        return response.json();
+      })
+      .then(function(payload) {
+        if (!payload || !payload.authenticated || !payload.user || !payload.assertion) throw new Error("Sesión ITSM no disponible.");
+        frame.contentWindow.postMessage({
+          type: "geimser:itsm-identity",
+          tenant: "geimser",
+          authenticated: true,
+          user: payload.user,
+          assertion: payload.assertion
+        }, botOrigin);
+      })
+      .catch(function() {
+        var status = document.querySelector("#geimser-assistant-dashboard-container .geimser-assistant-status");
+        if (status) status.textContent = "No fue posible validar la sesión de Geimser ITSM.";
+      });
+  }
+
+  function handleAssistantDashboardRoute() {
+    var isRoute = window.location.hash === "#assistant-dashboard";
+    var container = document.getElementById("geimser-assistant-dashboard-container");
+
+    if (!isRoute) {
+      if (container) container.style.display = "none";
+      return;
+    }
+
+    var allowed = moduleAccessAllowed();
+    if (allowed === null) return;
+    if (!allowed) {
+      if (container) container.style.display = "none";
+      window.location.hash = "#ticket/view";
+      return;
+    }
+
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "geimser-assistant-dashboard-container";
+      container.className = "geimser-assistant-dashboard-container";
+      container.innerHTML = [
+        '<div class="geimser-assistant-shellbar">',
+        '  <div><h3>Dashboard Operacional</h3><span class="geimser-assistant-status">Conectando con Geimser ITSM...</span></div>',
+        '  <div class="geimser-assistant-actions"><a href="https://iabot.geimser.cl/dashboard" target="_blank" rel="noopener noreferrer">Abrir aparte</a><a href="#dashboard">Cerrar</a></div>',
+        '</div>',
+        '<iframe title="Dashboard Operacional Geimser" src="https://iabot.geimser.cl/dashboard?embedded=1" referrerpolicy="strict-origin"></iframe>'
+      ].join("");
+
+      var frame = container.querySelector("iframe");
+      frame.addEventListener("load", function() { sendIdentity(frame); });
+    }
+
+    var mainEl = document.querySelector("#app .content.active") ||
+      document.querySelector("#app .content.horizontal") ||
+      document.querySelector("#app .main-content") ||
+      document.querySelector("#app .content") ||
+      document.getElementById("main");
+    if (!mainEl) return;
+
+    if (container.parentElement !== mainEl) {
+      mainEl.style.position = "relative";
+      mainEl.style.overflow = "hidden";
+      mainEl.appendChild(container);
+    }
+
+    container.style.display = "block";
+    var notFound = mainEl.querySelector(".notFound");
+    if (notFound) notFound.style.display = "none";
+    sendIdentity(container.querySelector("iframe"));
+  }
+
+  window.addEventListener("message", function(event) {
+    if (event.origin !== botOrigin || !event.data || event.data.tenant !== "geimser") return;
+    if (event.data.type !== "geimser:dashboard-ready" && event.data.type !== "geimser:request-itsm-identity") return;
+    var frame = document.querySelector("#geimser-assistant-dashboard-container iframe");
+    if (frame && event.source === frame.contentWindow) sendIdentity(frame);
+  });
+
+  window.addEventListener("hashchange", handleAssistantDashboardRoute);
+  window.addEventListener("load", handleAssistantDashboardRoute);
+  setInterval(handleAssistantDashboardRoute, 500);
 })();
 
 (function() {
