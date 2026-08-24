@@ -3177,46 +3177,130 @@
 })();
 
 (function() {
-  var botOrigin = "https://iabot.geimser.cl";
+  var dashboardState = { loading: false, loadedAt: 0 };
 
   function moduleAccessAllowed() {
     if (!window.GeimserAccess || !window.GeimserAccess.known || !window.GeimserAccess.known()) return null;
     return window.GeimserAccess.moduleAccess && window.GeimserAccess.moduleAccess();
   }
 
-  function sendIdentity(frame) {
-    if (!frame || !frame.contentWindow) return;
+  function escapeDashboardHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function(char) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char];
+    });
+  }
 
-    fetch("/geimser/bot/session", { credentials: "same-origin", cache: "no-store" })
-      .then(function(response) {
-        if (!response.ok) throw new Error("No fue posible validar la sesión ITSM.");
-        return response.json();
-      })
-      .then(function(payload) {
-        if (!payload || !payload.authenticated || !payload.user || !payload.assertion) throw new Error("Sesión ITSM no disponible.");
-        frame.contentWindow.postMessage({
-          type: "geimser:itsm-identity",
-          tenant: "geimser",
-          authenticated: true,
-          user: payload.user,
-          assertion: payload.assertion
-        }, botOrigin);
-      })
-      .catch(function() {
-        var status = document.querySelector("#geimser-assistant-dashboard-container .geimser-assistant-status");
-        if (status) status.textContent = "No fue posible validar la sesión de Geimser ITSM.";
-      });
+  function dashboardNumber(value) {
+    return new Intl.NumberFormat("es-CL").format(Number(value) || 0);
+  }
+
+  function dashboardTicketState(ticket) {
+    return String(ticket.state || ticket.state_name || ticket.state_id || "").toLowerCase();
+  }
+
+  function ticketIsClosed(ticket) {
+    var state = dashboardTicketState(ticket);
+    return state === "4" || state === "5" || state === "12" || state === "13" || /cerrad|closed|merged|cancel/.test(state);
+  }
+
+  function ticketPriority(ticket) {
+    var priority = String(ticket.priority || ticket.priority_id || "").toLowerCase();
+    if (priority === "3" || /alta|high/.test(priority)) return "alta";
+    if (priority === "1" || /baja|low/.test(priority)) return "baja";
+    return "normal";
+  }
+
+  function assetIsOnline(asset) {
+    var state = String(asset && (asset.status || asset.raw_status) || "").toLowerCase();
+    return state === "online" || state === "connected" || state === "activo" || state === "active";
+  }
+
+  function dashboardMainElement() {
+    return document.querySelector("#app .content.active") ||
+      document.querySelector("#app .content.horizontal") ||
+      document.querySelector("#app .main-content") ||
+      document.querySelector("#app .content") ||
+      document.getElementById("main");
+  }
+
+  function renderOperationalDashboard(container, assets, tickets) {
+    assets = Array.isArray(assets) ? assets : [];
+    tickets = Array.isArray(tickets) ? tickets : [];
+    var online = assets.filter(assetIsOnline).length;
+    var closed = tickets.filter(ticketIsClosed).length;
+    var open = tickets.length - closed;
+    var availability = assets.length ? Math.round((online / assets.length) * 100) : 0;
+    var high = tickets.filter(function(ticket) { return !ticketIsClosed(ticket) && ticketPriority(ticket) === "alta"; }).length;
+    var normal = tickets.filter(function(ticket) { return !ticketIsClosed(ticket) && ticketPriority(ticket) === "normal"; }).length;
+    var low = tickets.filter(function(ticket) { return !ticketIsClosed(ticket) && ticketPriority(ticket) === "baja"; }).length;
+    var recent = tickets.slice().sort(function(a, b) {
+      return new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0);
+    }).slice(0, 6);
+    var card = function(label, value, detail, tone) {
+      return '<article class="geimser-operational-kpi is-' + tone + '"><span>' + escapeDashboardHtml(label) + '</span><strong>' + escapeDashboardHtml(value) + '</strong><small>' + escapeDashboardHtml(detail) + '</small></article>';
+    };
+
+    container.innerHTML = [
+      '<section class="geimser-operational-dashboard">',
+      '  <header class="geimser-operational-head">',
+      '    <div><span class="geimser-operational-kicker">Geimser ITSM</span><h1>Dashboard Operacional</h1><p>Visión consolidada de tickets y equipos del tenant Geimser.</p></div>',
+      '    <div class="geimser-operational-actions"><span class="geimser-operational-updated">Actualizado ' + new Date().toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }) + '</span><button type="button" data-geimser-operational-refresh>Actualizar</button><a href="#dashboard">Cerrar</a></div>',
+      '  </header>',
+      '  <div class="geimser-operational-kpis">',
+      card("Tickets abiertos", dashboardNumber(open), "requieren seguimiento", "blue"),
+      card("Tickets cerrados", dashboardNumber(closed), "historial disponible", "green"),
+      card("Disponibilidad operativa", availability + "%", dashboardNumber(online) + " equipos online", availability >= 80 ? "green" : "amber"),
+      card("Equipos sin conexión", dashboardNumber(Math.max(assets.length - online, 0)), "de " + dashboardNumber(assets.length) + " registrados", "amber"),
+      card("Prioridad alta", dashboardNumber(high), "tickets abiertos", high ? "red" : "green"),
+      '  </div>',
+      '  <div class="geimser-operational-grid">',
+      '    <section class="geimser-operational-panel geimser-operational-incidents"><header><h2>Incidentes y requerimientos</h2><span>Estado actual</span></header><div class="geimser-operational-split">',
+      '      <div><span>Abiertos</span><strong>' + dashboardNumber(open) + '</strong></div><div><span>Cerrados</span><strong>' + dashboardNumber(closed) + '</strong></div><div><span>Críticos</span><strong>' + dashboardNumber(high) + '</strong></div><div><span>En seguimiento</span><strong>' + dashboardNumber(normal) + '</strong></div>',
+      '    </div></section>',
+      '    <section class="geimser-operational-panel"><header><h2>Distribución por prioridad</h2><span>Tickets abiertos</span></header><div class="geimser-operational-priority">',
+      '      <div><span class="is-high"></span><b>Alta</b><strong>' + dashboardNumber(high) + '</strong></div><div><span class="is-normal"></span><b>Normal</b><strong>' + dashboardNumber(normal) + '</strong></div><div><span class="is-low"></span><b>Baja</b><strong>' + dashboardNumber(low) + '</strong></div>',
+      '    </div></section>',
+      '    <section class="geimser-operational-panel"><header><h2>Equipos administrados</h2><span>Inventario Geimser</span></header><div class="geimser-operational-assets"><strong>' + dashboardNumber(assets.length) + '</strong><div><span>' + dashboardNumber(online) + ' online</span><span>' + dashboardNumber(Math.max(assets.length - online, 0)) + ' offline</span></div><a href="#inventory-map">Ver mapa interactivo</a></div></section>',
+      '  </div>',
+      '  <section class="geimser-operational-panel geimser-operational-table"><header><h2>Actividad reciente</h2><span>Últimos tickets actualizados</span></header>',
+      recent.length ? '<div class="geimser-operational-rows">' + recent.map(function(ticket) {
+        var title = ticket.title || ticket.number || "Ticket sin título";
+        var state = ticket.state || ticket.state_name || "Abierto";
+        return '<a href="#ticket/zoom/' + escapeDashboardHtml(ticket.id || "") + '"><span>' + escapeDashboardHtml(ticket.number || "#") + '</span><strong>' + escapeDashboardHtml(title) + '</strong><em class="' + (ticketIsClosed(ticket) ? "is-closed" : "is-open") + '">' + escapeDashboardHtml(state) + '</em></a>';
+      }).join("") + '</div>' : '<div class="geimser-operational-empty">No hay tickets disponibles para este usuario.</div>',
+      '  </section>',
+      '</section>'
+    ].join("");
+
+    var refresh = container.querySelector("[data-geimser-operational-refresh]");
+    if (refresh) refresh.addEventListener("click", function() { loadOperationalDashboard(container, true); });
+  }
+
+  function loadOperationalDashboard(container, force) {
+    if (dashboardState.loading) return;
+    if (!force && dashboardState.loadedAt && Date.now() - dashboardState.loadedAt < 30000) return;
+    dashboardState.loading = true;
+    container.innerHTML = '<section class="geimser-operational-dashboard"><div class="geimser-operational-loading">Cargando indicadores de Geimser ITSM...</div></section>';
+    Promise.all([
+      fetch("/api/inventory-map/options", { credentials: "same-origin", cache: "no-store", headers: { Accept: "application/json" } }).then(function(response) { return response.ok ? response.json() : { assets: [] }; }),
+      fetch("/api/v1/tickets?expand=true&per_page=100&page=1", { credentials: "same-origin", cache: "no-store", headers: { Accept: "application/json" } }).then(function(response) { return response.ok ? response.json() : []; })
+    ]).then(function(results) {
+      dashboardState.loadedAt = Date.now();
+      renderOperationalDashboard(container, results[0] && results[0].assets, results[1]);
+    }).catch(function() {
+      renderOperationalDashboard(container, [], []);
+    }).finally(function() {
+      dashboardState.loading = false;
+    });
   }
 
   function handleAssistantDashboardRoute() {
     var isRoute = window.location.hash === "#assistant-dashboard";
     var container = document.getElementById("geimser-assistant-dashboard-container");
-
     if (!isRoute) {
       if (container) container.style.display = "none";
       return;
     }
-
     var allowed = moduleAccessAllowed();
     if (allowed === null) return;
     if (!allowed) {
@@ -3224,48 +3308,19 @@
       window.location.hash = "#ticket/view";
       return;
     }
-
+    var mainEl = dashboardMainElement();
+    if (!mainEl) return;
     if (!container) {
       container = document.createElement("div");
       container.id = "geimser-assistant-dashboard-container";
       container.className = "geimser-assistant-dashboard-container";
-      container.innerHTML = [
-        '<div class="geimser-assistant-shellbar">',
-        '  <div><h3>Dashboard Operacional</h3><span class="geimser-assistant-status">Conectando con Geimser ITSM...</span></div>',
-        '  <div class="geimser-assistant-actions"><a href="https://iabot.geimser.cl/dashboard" target="_blank" rel="noopener noreferrer">Abrir aparte</a><a href="#dashboard">Cerrar</a></div>',
-        '</div>',
-        '<iframe title="Dashboard Operacional Geimser" src="https://iabot.geimser.cl/dashboard?embedded=1" referrerpolicy="strict-origin"></iframe>'
-      ].join("");
-
-      var frame = container.querySelector("iframe");
-      frame.addEventListener("load", function() { sendIdentity(frame); });
     }
-
-    var mainEl = document.querySelector("#app .content.active") ||
-      document.querySelector("#app .content.horizontal") ||
-      document.querySelector("#app .main-content") ||
-      document.querySelector("#app .content") ||
-      document.getElementById("main");
-    if (!mainEl) return;
-
-    if (container.parentElement !== mainEl) {
-      mainEl.style.position = "relative";
-      mainEl.style.overflow = "hidden";
-      mainEl.appendChild(container);
-    }
-
+    if (container.parentElement !== mainEl) mainEl.appendChild(container);
     container.style.display = "block";
     var notFound = mainEl.querySelector(".notFound");
     if (notFound) notFound.style.display = "none";
-    sendIdentity(container.querySelector("iframe"));
+    loadOperationalDashboard(container);
   }
-
-  window.addEventListener("message", function(event) {
-    if (event.origin !== botOrigin || !event.data || event.data.tenant !== "geimser") return;
-    if (event.data.type !== "geimser:dashboard-ready" && event.data.type !== "geimser:request-itsm-identity") return;
-    var frame = document.querySelector("#geimser-assistant-dashboard-container iframe");
-    if (frame && event.source === frame.contentWindow) sendIdentity(frame);
-  });
 
   window.addEventListener("hashchange", handleAssistantDashboardRoute);
   window.addEventListener("load", handleAssistantDashboardRoute);

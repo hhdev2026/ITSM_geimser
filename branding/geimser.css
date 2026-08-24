@@ -4434,46 +4434,64 @@ html[data-theme="light"] #app .content span[style*="color: white"] {
   display: block;
   inset: 0 !important;
   min-height: 0 !important;
-  overflow: hidden !important;
+  overflow: auto !important;
+  position: absolute !important;
 }
 
-#geimser-assistant-dashboard-container .geimser-assistant-shellbar {
-  align-items: center;
-  background: #111827;
-  border-bottom: 1px solid #334155;
+#geimser-assistant-dashboard-container .geimser-operational-dashboard {
   box-sizing: border-box;
-  color: #ffffff;
-  display: flex;
-  gap: 16px;
-  height: 54px;
-  justify-content: space-between;
-  padding: 7px 14px;
+  color: #dce9f8;
+  margin: 0 auto;
+  max-width: 1480px;
+  min-height: 100%;
+  padding: 24px;
 }
 
-#geimser-assistant-dashboard-container .geimser-assistant-shellbar h3 {
+#geimser-assistant-dashboard-container .geimser-operational-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+#geimser-assistant-dashboard-container .geimser-operational-kicker {
+  color: #72cdf4;
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+#geimser-assistant-dashboard-container .geimser-operational-head h1 {
   color: #ffffff !important;
-  font-size: 16px;
+  font-size: 25px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
+  margin: 4px 0;
+}
+
+#geimser-assistant-dashboard-container .geimser-operational-head p,
+#geimser-assistant-dashboard-container .geimser-operational-updated {
+  color: #9fb1c8;
+  font-size: 13px;
   margin: 0;
 }
 
-#geimser-assistant-dashboard-container .geimser-assistant-status {
-  color: #9fb1c8;
-  display: block;
-  font-size: 11px;
-  margin-top: 3px;
-}
-
-#geimser-assistant-dashboard-container .geimser-assistant-actions {
+#geimser-assistant-dashboard-container .geimser-operational-actions {
+  align-items: center;
   display: flex;
   gap: 8px;
 }
 
-#geimser-assistant-dashboard-container .geimser-assistant-actions a {
+#geimser-assistant-dashboard-container .geimser-operational-actions a,
+#geimser-assistant-dashboard-container .geimser-operational-actions button {
   border: 1px solid #93c5fd;
   border-radius: 6px;
+  background: #1d4f91;
   color: #bfdbfe !important;
+  cursor: pointer;
   font-size: 13px;
   font-weight: 800;
   line-height: 1;
@@ -4482,13 +4500,79 @@ html[data-theme="light"] #app .content span[style*="color: white"] {
   white-space: nowrap;
 }
 
-#geimser-assistant-dashboard-container iframe {
-  background: #0f1522;
-  border: 0;
+#geimser-assistant-dashboard-container .geimser-operational-kpis {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(5, minmax(135px, 1fr));
+  margin-bottom: 14px;
+}
+
+#geimser-assistant-dashboard-container .geimser-operational-kpi,
+#geimser-assistant-dashboard-container .geimser-operational-panel {
+  background: #162137;
+  border: 1px solid #2e4668;
+  border-radius: 6px;
   box-sizing: border-box;
-  display: block;
-  height: calc(100% - 54px);
-  width: 100%;
+}
+
+#geimser-assistant-dashboard-container .geimser-operational-kpi {
+  border-top: 3px solid #4da8e8;
+  min-height: 112px;
+  padding: 15px;
+}
+
+#geimser-assistant-dashboard-container .geimser-operational-kpi.is-green { border-top-color: #36c278; }
+#geimser-assistant-dashboard-container .geimser-operational-kpi.is-amber { border-top-color: #e9a84c; }
+#geimser-assistant-dashboard-container .geimser-operational-kpi.is-red { border-top-color: #ed6a6a; }
+#geimser-assistant-dashboard-container .geimser-operational-kpi span,
+#geimser-assistant-dashboard-container .geimser-operational-kpi small { display: block; }
+#geimser-assistant-dashboard-container .geimser-operational-kpi span { color: #9fb1c8; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+#geimser-assistant-dashboard-container .geimser-operational-kpi strong { color: #fff; display: block; font-size: 28px; line-height: 1.15; margin: 8px 0 4px; }
+#geimser-assistant-dashboard-container .geimser-operational-kpi small { color: #b9c8db; font-size: 12px; }
+
+#geimser-assistant-dashboard-container .geimser-operational-grid { display: grid; gap: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#geimser-assistant-dashboard-container .geimser-operational-panel { min-height: 190px; padding: 16px; }
+#geimser-assistant-dashboard-container .geimser-operational-panel header { align-items: baseline; display: flex; justify-content: space-between; margin-bottom: 15px; }
+#geimser-assistant-dashboard-container .geimser-operational-panel h2 { color: #f5f9ff !important; font-size: 15px; font-weight: 800; margin: 0; }
+#geimser-assistant-dashboard-container .geimser-operational-panel header span { color: #91a5bf; font-size: 11px; }
+#geimser-assistant-dashboard-container .geimser-operational-split { display: grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#geimser-assistant-dashboard-container .geimser-operational-split div { background: #0f192b; border: 1px solid #2b405f; border-radius: 4px; padding: 12px; }
+#geimser-assistant-dashboard-container .geimser-operational-split span { color: #a4b5ca; display: block; font-size: 11px; text-transform: uppercase; }
+#geimser-assistant-dashboard-container .geimser-operational-split strong { color: #fff; display: block; font-size: 24px; margin-top: 6px; }
+#geimser-assistant-dashboard-container .geimser-operational-priority { display: grid; gap: 12px; }
+#geimser-assistant-dashboard-container .geimser-operational-priority div { align-items: center; display: grid; grid-template-columns: 10px 1fr auto; gap: 9px; }
+#geimser-assistant-dashboard-container .geimser-operational-priority span { border-radius: 50%; height: 9px; width: 9px; }
+#geimser-assistant-dashboard-container .geimser-operational-priority .is-high { background: #ef6666; }
+#geimser-assistant-dashboard-container .geimser-operational-priority .is-normal { background: #e6aa49; }
+#geimser-assistant-dashboard-container .geimser-operational-priority .is-low { background: #52b9ec; }
+#geimser-assistant-dashboard-container .geimser-operational-priority b { color: #d9e5f4; font-size: 13px; }
+#geimser-assistant-dashboard-container .geimser-operational-priority strong { color: #fff; font-size: 18px; }
+#geimser-assistant-dashboard-container .geimser-operational-assets strong { color: #fff; font-size: 42px; }
+#geimser-assistant-dashboard-container .geimser-operational-assets div { display: flex; gap: 10px; margin: 9px 0 15px; }
+#geimser-assistant-dashboard-container .geimser-operational-assets span { background: #0f192b; border-radius: 4px; color: #b9c8db; font-size: 12px; padding: 5px 8px; }
+#geimser-assistant-dashboard-container .geimser-operational-assets a { color: #7dd3fc !important; font-size: 13px; font-weight: 700; }
+#geimser-assistant-dashboard-container .geimser-operational-table { grid-column: 1 / -1; min-height: 0; }
+#geimser-assistant-dashboard-container .geimser-operational-rows { display: grid; gap: 7px; }
+#geimser-assistant-dashboard-container .geimser-operational-rows a { align-items: center; background: #101a2c; border: 1px solid #273d5b; border-radius: 4px; color: #dce9f8 !important; display: grid; gap: 12px; grid-template-columns: 84px minmax(0, 1fr) auto; padding: 10px 12px; text-decoration: none !important; }
+#geimser-assistant-dashboard-container .geimser-operational-rows span { color: #72cdf4; font-size: 12px; font-weight: 800; }
+#geimser-assistant-dashboard-container .geimser-operational-rows strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#geimser-assistant-dashboard-container .geimser-operational-rows em { border-radius: 999px; font-size: 11px; font-style: normal; font-weight: 800; padding: 4px 8px; }
+#geimser-assistant-dashboard-container .geimser-operational-rows em.is-open { background: #1e4d80; color: #c9e8ff; }
+#geimser-assistant-dashboard-container .geimser-operational-rows em.is-closed { background: #20583a; color: #baf3d0; }
+#geimser-assistant-dashboard-container .geimser-operational-loading,
+#geimser-assistant-dashboard-container .geimser-operational-empty { color: #b9c8db; padding: 36px 10px; text-align: center; }
+
+@media (max-width: 980px) {
+  #geimser-assistant-dashboard-container .geimser-operational-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #geimser-assistant-dashboard-container .geimser-operational-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 620px) {
+  #geimser-assistant-dashboard-container .geimser-operational-dashboard { padding: 14px; }
+  #geimser-assistant-dashboard-container .geimser-operational-head { align-items: stretch; flex-direction: column; }
+  #geimser-assistant-dashboard-container .geimser-operational-actions { flex-wrap: wrap; }
+  #geimser-assistant-dashboard-container .geimser-operational-kpis { grid-template-columns: 1fr; }
+  #geimser-assistant-dashboard-container .geimser-operational-rows a { grid-template-columns: 1fr; gap: 5px; }
 }
 
 #app .geimser-dashboard-inventory {
