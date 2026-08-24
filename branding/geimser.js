@@ -3106,7 +3106,7 @@
   function handleMapRoute() {
     var isMapRoute = window.location.hash === '#inventory-map';
     var container = document.getElementById('geimser-map-container');
-    var mapVersion = '20260824c';
+    var mapVersion = '20260824d';
     
     if (isMapRoute) {
       var allowed = moduleAccessAllowed();

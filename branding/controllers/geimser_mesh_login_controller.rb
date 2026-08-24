@@ -78,6 +78,10 @@ class GeimserMeshLoginController < ApplicationController
     users_by_identity = inventory_user_identity_index(inventory_users_list)
     assets_by_id = GeimserMeshCmdb::RemoteAsset.where(id: records.filter_map(&:asset_id)).index_by(&:id)
 
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
     render json: records.map do |record|
       asset = assets_by_id[record.asset_id]
       observed_user, observed_user_name = observed_inventory_user_for_asset(asset, users_by_identity)
@@ -98,6 +102,10 @@ class GeimserMeshLoginController < ApplicationController
 
   def inventory_options
     GeimserInventoryWorkspace.ensure_table
+
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
 
     render json: {
       users: inventory_users.map { |user| serialize_inventory_user_option(user) },

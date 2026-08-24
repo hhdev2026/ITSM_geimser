@@ -608,7 +608,7 @@ async function sendPowerAction(button) {
 async function loadInventory() {
   const requestSequence = ++inventoryRequestSequence;
   try {
-    const response = await fetch(`${API_BASE}/inventory-map`, {
+    const response = await fetch(`${API_BASE}/inventory-map?refresh=${Date.now()}`, {
       credentials: "include",
       cache: "no-store"
     });
@@ -647,7 +647,7 @@ function normalizeWorkspaceRecords(records) {
 
 async function loadOptions() {
   try {
-    const response = await fetch(`${API_BASE}/inventory-map/options`, {
+    const response = await fetch(`${API_BASE}/inventory-map/options?refresh=${Date.now()}`, {
       credentials: "include",
       cache: "no-store"
     });
