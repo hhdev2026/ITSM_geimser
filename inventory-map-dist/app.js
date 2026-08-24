@@ -11,6 +11,8 @@ const state = {
 };
 
 let optionsRefreshTimer = null;
+let mapRefreshTimer = null;
+let mapRefreshInFlight = false;
 
 const floors = {
   p1: { title: "PISO 1", subtitle: "Sala KREA", cols: 8, rows: 12, width: 560 },
@@ -695,6 +697,30 @@ function syncOptionsRefreshTimer() {
   }, 5000);
 }
 
+function syncMapRefreshTimer() {
+  if (mapRefreshTimer) return;
+
+  mapRefreshTimer = setInterval(async () => {
+    if (mapRefreshInFlight) return;
+    mapRefreshInFlight = true;
+
+    try {
+      const selectedCode = state.selected?.code || "";
+      await Promise.all([loadInventory(), loadOptions()]);
+
+      if (selectedCode) {
+        state.selected = byCode(selectedCode) || state.selected;
+      }
+
+      // Do not rebuild the form while the operator is choosing a user/equipment.
+      // The next 15-second cycle will apply the fresh assignment safely.
+      if (!selectIsActive()) render();
+    } finally {
+      mapRefreshInFlight = false;
+    }
+  }, 15000);
+}
+
 async function saveAssignment(event) {
   event.preventDefault();
   if (!state.selected) return;
@@ -786,4 +812,5 @@ function monitorIcon() {
 
 await Promise.all([loadInventory(), loadOptions()]);
 render();
+syncMapRefreshTimer();
 connectSocket();

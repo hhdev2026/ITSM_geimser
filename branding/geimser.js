@@ -375,7 +375,7 @@
         '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></span>',
         '  <span>Mapa Interactivo</span>',
         '</a>',
-        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="assistant" href="https://iabot.geimser.cl/dashboard" target="_blank" rel="noopener noreferrer">',
+        '<a class="geimser-sidebar-shortcut" data-geimser-shortcut="assistant" href="https://iabot.geimser.cl/dashboard">',
         '  <span class="geimser-sidebar-shortcut-icon" aria-hidden="true" style="display:inline-flex; align-items:center; justify-content:center;"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 10.7 7.7 6 9l4.7 1.3L12 15l1.3-4.7L18 9l-4.7-1.3z"/><path d="m19 15-.7 2.3L16 18l2.3.7L19 21l.7-2.3L22 18l-2.3-.7z"/><path d="M5 15 4.3 17.3 2 18l2.3.7L5 21l.7-2.3L8 18l-2.3-.7z"/></svg></span>',
         '  <span>Dashboard</span>',
         '</a>',
@@ -1832,6 +1832,32 @@
     return failures;
   }
 
+  function normalizeDashboardMetricIcons() {
+    var dashboard = document.querySelector("#app .dashboard");
+    if (!dashboard) return;
+
+    var metricTitles = /^(tiempo de espera de hoy|animo)$/i;
+    Array.from(dashboard.querySelectorAll("h1, h2, h3, h4, h5, h6, span, p, div")).forEach(function (title) {
+      var label = (title.textContent || "").replace(/\s+/g, " ").trim();
+      if (!metricTitles.test(label)) return;
+
+      var card = title;
+      while (card.parentElement && card !== dashboard) {
+        var rect = card.getBoundingClientRect();
+        if (rect.width >= 220 && rect.height >= 150 && rect.height <= 320) break;
+        card = card.parentElement;
+      }
+
+      if (card === dashboard) return;
+      card.classList.add("geimser-dashboard-metric-blue");
+      Array.from(card.querySelectorAll("svg, .icon, [class*='icon'], [class*='Icon']")).forEach(function (icon) {
+        icon.style.setProperty("color", "#0057a8", "important");
+        icon.style.setProperty("fill", "#0057a8", "important");
+        icon.style.setProperty("stroke", "#0057a8", "important");
+      });
+    });
+  }
+
   function meshUrl() {
     var host = window.location.hostname || "localhost";
     if (host === "itsm.geimser.cl") {
@@ -2996,6 +3022,7 @@
     ensureProfileLogoutFallback();
     normalizeNativeCmdbLabels();
     syncNativeCmdbAssetsPanel();
+    normalizeDashboardMetricIcons();
     ensurePasswordVisibilityToggle();
     ensureTemporaryPasswordUserForm();
     ensureForcedPasswordChange();
