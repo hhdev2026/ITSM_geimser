@@ -1,10 +1,14 @@
 require 'json'
+require 'open3'
 require 'uri'
+require 'timeout'
 
 class GeimserMeshCmdb
   MESH_DB_PATH = '/opt/meshcentral/meshcentral-data/meshcentral.db'
   REMOTE_ASSETS_TABLE = :geimser_remote_assets
   OBJECT_TYPE_ID = '9001'
+  LIVE_NETWORK_CACHE_TTL = 10.minutes
+  LIVE_NETWORK_PARALLELISM = 8
 
   class RemoteAsset < ActiveRecord::Base
     self.table_name = 'geimser_remote_assets'
@@ -18,23 +22,57 @@ class GeimserMeshCmdb
       devices.each do |device|
         record = RemoteAsset.find_or_initialize_by(mesh_node_id: device[:mesh_node_id])
         record.created_at = now if record.new_record?
+        cached_network = cached_live_network(record)
+        resolved_ip = device[:ip_address].presence || live_network_ipv4(cached_network)
+
         record.assign_attributes(
           mesh_group_id: device[:mesh_group_id],
           group_name: device[:group_name],
           name: device[:name],
           hostname: device[:hostname],
           os_name: device[:os_name],
-          ip_address: device[:ip_address],
+          ip_address: resolved_ip,
           status: device[:status],
           last_seen_at: device[:last_seen_at],
           session_url: mesh_login_path_for(device[:mesh_node_id]),
-          raw: device[:raw].to_json,
+          raw: device[:raw].merge('live_network' => cached_network).to_json,
           updated_at: now,
         )
         record.save!
       end
 
       RemoteAsset.order(Arel.sql("CASE WHEN status = 'online' THEN 0 ELSE 1 END"), :group_name, :name).to_a
+    end
+
+    # MeshCentral stores lastaddr in its database, which is often the Docker
+    # relay address. Query its getnetworkinfo API for assigned/visible devices
+    # and retain the answer briefly so map refreshes do not hammer MeshCentral.
+    def refresh_live_network!(records)
+      queue = Queue.new
+      records.each { |record| queue << record if live_network_stale?(record) }
+      return records if queue.empty? || !meshctrl_configured?
+
+      workers = Array.new([LIVE_NETWORK_PARALLELISM, queue.size].min) do
+        Thread.new do
+          loop do
+            record = queue.pop(true)
+            network = live_network_for(record)
+            next if network.blank?
+
+            raw = JSON.parse(record.raw.presence || '{}')
+            raw['live_network'] = network
+            ip = live_network_ipv4(network)
+            record.update!(raw: raw.to_json, ip_address: ip.presence || record.ip_address, updated_at: Time.now.utc)
+          rescue ThreadError
+            break
+          rescue StandardError
+            # An individual offline agent must not prevent the map from loading.
+            next
+          end
+        end
+      end
+      workers.each(&:join)
+      records
     end
 
     def idoit_object_types
@@ -242,6 +280,62 @@ class GeimserMeshCmdb
       ]
 
       candidates.flat_map { |value| extract_ipv4_addresses(value) }
+        .find { |ip| usable_inventory_ip?(ip) && !mesh_internal_ipv4?(ip) }
+    end
+
+    def cached_live_network(record)
+      JSON.parse(record.raw.presence || '{}')['live_network'].to_h
+    rescue JSON::ParserError
+      {}
+    end
+
+    def live_network_stale?(record)
+      network = cached_live_network(record)
+      fetched_at = Time.zone.parse(network['fetched_at'].to_s)
+      network.blank? || fetched_at.blank? || fetched_at < LIVE_NETWORK_CACHE_TTL.ago
+    rescue ArgumentError
+      true
+    end
+
+    def meshctrl_configured?
+      meshctrl_path.present? && meshctrl_url.present? && (ENV['MESH_LOGIN_PASS'].present? || ENV['MESH_LOGIN_KEY'].present?)
+    end
+
+    def meshctrl_path
+      [ENV['GEIMSER_MESHCTRL_PATH'].presence, '/opt/geimser-meshctrl/meshctrl.js']
+        .find { |path| path.present? && File.file?(path) }
+    end
+
+    def meshctrl_url
+      explicit = ENV['GEIMSER_MESHCTRL_URL'].to_s.strip
+      return explicit if explicit.present?
+
+      'wss://remoto.geimser.cl'
+    end
+
+    def live_network_for(record)
+      command = [ENV.fetch('GEIMSER_MESHCTRL_NODE', 'node'), meshctrl_path, '--url', meshctrl_url,
+                 '--loginuser', ENV.fetch('MESH_LOGIN_USER', 'admin')]
+      command += ENV['MESH_LOGIN_PASS'].present? ? ['--loginpass', ENV['MESH_LOGIN_PASS']] : ['--loginkey', ENV['MESH_LOGIN_KEY']]
+      command += ['deviceinfo', '--id', record.mesh_node_id.to_s.split('/', 3).last, '--json']
+
+      stdout, = Timeout.timeout(12) { Open3.capture3(*command) }
+      payload = JSON.parse(stdout)
+      interfaces = payload['Networking'].to_h
+      return {} if interfaces.blank?
+
+      { 'interfaces' => interfaces, 'fetched_at' => Time.now.utc.iso8601 }
+    rescue JSON::ParserError, Timeout::Error
+      {}
+    end
+
+    def live_network_ipv4(network)
+      interfaces = network.to_h['interfaces'].to_h.map do |name, interface|
+        interface.to_h.merge('name' => name)
+      end
+      interfaces.sort_by { |interface| virtual_network_interface?(interface) ? 1 : 0 }
+        .flat_map { |interface| interface.values }
+        .flat_map { |value| extract_ipv4_addresses(value) }
         .find { |ip| usable_inventory_ip?(ip) && !mesh_internal_ipv4?(ip) }
     end
 

@@ -77,6 +77,7 @@ class GeimserMeshLoginController < ApplicationController
     users_by_id.merge!(User.where(id: records.filter_map(&:user_id)).index_by(&:id))
     users_by_identity = inventory_user_identity_index(inventory_users_list)
     assets_by_id = GeimserMeshCmdb::RemoteAsset.where(id: records.filter_map(&:asset_id)).index_by(&:id)
+    GeimserMeshCmdb.refresh_live_network!(assets_by_id.values)
 
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private'
     response.headers['Pragma'] = 'no-cache'
