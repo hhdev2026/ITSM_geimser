@@ -230,15 +230,19 @@ class GeimserMeshCmdb
     def ip_address(row, sysinfo)
       # MeshCentral's lastaddr is the address it used to reach the agent. Prefer
       # the IPv4 reported by Windows for its network adapter (the ipconfig value).
-      candidates = network_interface_ipv4_addresses(sysinfo, row)
-      candidates.concat([
+      agent_ipv4 = network_interface_ipv4_addresses(sysinfo, row)
+        .find { |ip| usable_inventory_ip?(ip) }
+      return agent_ipv4 if agent_ipv4.present?
+
+      candidates = [
         row['ip'],
         row['addr'],
         row['lastaddr'],
         row['iploc'],
-      ])
+      ]
 
-      candidates.flat_map { |value| extract_ipv4_addresses(value) }.find { |ip| usable_inventory_ip?(ip) }
+      candidates.flat_map { |value| extract_ipv4_addresses(value) }
+        .find { |ip| usable_inventory_ip?(ip) && !mesh_internal_ipv4?(ip) }
     end
 
     def network_interface_ipv4_addresses(sysinfo, row = {})
@@ -285,6 +289,12 @@ class GeimserMeshCmdb
 
     def usable_inventory_ip?(ip)
       ip.present? && ip != '0.0.0.0' && !ip.start_with?('127.') && !ip.start_with?('169.254.')
+    end
+
+    # 172.18.0.0/16 is the Docker bridge used by this MeshCentral deployment;
+    # it identifies the relay connection, not the workstation's ipconfig IPv4.
+    def mesh_internal_ipv4?(ip)
+      ip.start_with?('172.18.')
     end
 
     def time(value)

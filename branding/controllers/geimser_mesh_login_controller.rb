@@ -815,18 +815,23 @@ class GeimserMeshLoginController < ApplicationController
     # The agent's adapter data represents the IPv4 displayed by ipconfig.
     # MeshCentral's connection address is only used when the agent has not
     # reported its network interface information yet.
-    candidates = remote_network_interface_ipv4_addresses(raw)
-    candidates.concat([
+    agent_ipv4 = remote_network_interface_ipv4_addresses(raw)
+      .find { |ip| usable_inventory_ip?(ip) }
+    return agent_ipv4 if agent_ipv4.present?
+
+    candidates = [
       record.ip_address,
       raw['ip'],
       raw['addr'],
       raw['lastaddr'],
       raw['iploc'],
-    ])
+    ]
 
-    candidates.flat_map { |value| extract_ipv4_addresses(value) }.find { |ip| usable_inventory_ip?(ip) }
+    candidates.flat_map { |value| extract_ipv4_addresses(value) }
+      .find { |ip| usable_inventory_ip?(ip) && !mesh_internal_ipv4?(ip) }
   rescue StandardError
-    record&.ip_address
+    fallback_ip = record&.ip_address
+    fallback_ip if usable_inventory_ip?(fallback_ip) && !mesh_internal_ipv4?(fallback_ip)
   end
 
   def remote_network_interface_ipv4_addresses(raw)
@@ -868,6 +873,10 @@ class GeimserMeshLoginController < ApplicationController
 
   def usable_inventory_ip?(ip)
     ip.present? && ip != '0.0.0.0' && !ip.start_with?('127.') && !ip.start_with?('169.254.')
+  end
+
+  def mesh_internal_ipv4?(ip)
+    ip.start_with?('172.18.')
   end
 
   def serialize_remote_asset(record)
