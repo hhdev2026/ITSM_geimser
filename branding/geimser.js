@@ -2978,8 +2978,10 @@
     if (!session) return;
 
     var origin;
+    var desktopMode;
     try {
       origin = window.localStorage.getItem("geimserBotReturnOrigin");
+      desktopMode = window.localStorage.getItem("geimserBotReturnMode");
     } catch (_error) {
       origin = "";
     }
@@ -2988,11 +2990,12 @@
 
     try {
       window.localStorage.removeItem("geimserBotReturnOrigin");
+      window.localStorage.removeItem("geimserBotReturnMode");
     } catch (_error) {
       // Best effort only.
     }
 
-    window.location.href = "/geimser/bot/login?return_origin=" + encodeURIComponent(origin);
+    window.location.href = "/geimser/bot/login?return_origin=" + encodeURIComponent(origin) + (desktopMode === "desktop" ? "&desktop=1" : "");
   }
 
   function applyGeimserUi() {

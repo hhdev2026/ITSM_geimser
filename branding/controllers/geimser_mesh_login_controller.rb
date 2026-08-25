@@ -11,9 +11,9 @@ require 'timeout'
 require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
-  before_action :authentication_check, except: %i[bot_login demo demo_session search cmdb_assets]
+  before_action :authentication_check, except: %i[bot_login bot_handoff demo demo_session search cmdb_assets]
   before_action :allow_bot_session_origin!, only: %i[bot_session]
-  before_action :require_internal_user!, except: %i[access bot_login bot_session demo demo_session search cmdb_assets]
+  before_action :require_internal_user!, except: %i[access bot_login bot_session bot_handoff demo demo_session search cmdb_assets]
   before_action :require_admin!, only: %i[show]
   # The signed, short-lived demo ticket is the authorization proof for this
   # endpoint. Zammad replaces Rails' default callback with verify_csrf_token.
@@ -188,11 +188,27 @@ class GeimserMeshLoginController < ApplicationController
     render json: bot_identity_payload
   end
 
+  # Desktop login happens in the user's browser, so it needs a short-lived,
+  # single-use handoff instead of relying on browser cookies.
+  def bot_handoff
+    token = params[:token].to_s
+    unless token.match?(/\A[A-Za-z0-9_-]{64}\z/)
+      return render json: { authenticated: false, error: 'Handoff inválido.' }, status: :bad_request
+    end
+
+    payload = consume_bot_handoff(token)
+    return render json: { authenticated: false, error: 'Handoff expirado.' }, status: :gone if payload.blank?
+
+    render json: payload
+  end
+
   def bot_login
     origin = safe_bot_origin
-    return render_bot_login_redirect(origin) if current_user.blank?
+    desktop_login = params[:desktop].to_s == '1'
+    return render_bot_login_redirect(origin, desktop: desktop_login) if current_user.blank?
 
     payload = bot_identity_payload.merge(type: 'geimser:itsm-identity')
+    handoff = issue_bot_handoff(payload)
     nonce = content_security_policy_nonce
 
     render html: [
@@ -211,7 +227,7 @@ class GeimserMeshLoginController < ApplicationController
       '</head>',
       '<body>',
       '<main class="box">',
-      '<span class="mark">S</span>',
+      '<span class="mark">G</span>',
       '<h1>Login ITSM confirmado</h1>',
       '<p>Volviendo al asistente de soporte.</p>',
       '</main>',
@@ -219,8 +235,14 @@ class GeimserMeshLoginController < ApplicationController
       '(function(){',
       "var origin=#{origin.to_json};",
       "var payload=#{payload.to_json};",
+      "var handoff=#{handoff.to_json};",
+      "var desktop=#{desktop_login.to_json};",
+      'if(desktop){window.location.replace("forumitsm://auth?token="+encodeURIComponent(handoff));return;}',
       'if(window.opener&&!window.opener.closed){window.opener.postMessage(payload,origin);}',
-      'setTimeout(function(){window.close();},650);',
+      'setTimeout(function(){',
+      '  if(window.opener&&!window.opener.closed){window.close();return;}',
+      "  window.location.replace(origin + '/asistente?itsm_handoff=' + encodeURIComponent(handoff));",
+      '},650);',
       '}());',
       '</script>',
       '</body>',
@@ -530,13 +552,52 @@ class GeimserMeshLoginController < ApplicationController
   end
 
   def bot_identity_payload
+    user = current_user
     {
       authenticated: true,
-      user: serialize_bot_user(current_user),
+      tenant: 'geimser',
+      user: serialize_bot_user(user),
+      assertion: issue_bot_assertion(user),
     }
   end
 
-  def render_bot_login_redirect(origin)
+  def bot_session_secret
+    secret = ENV['ITSM_BOT_GEIMSER_SESSION_SECRET'].to_s
+    raise 'ITSM_BOT_GEIMSER_SESSION_SECRET must contain at least 32 characters.' if secret.length < 32
+
+    secret
+  end
+
+  def bot_assertion_roles(user)
+    roles = []
+    roles << 'admin' if user.permissions?('admin')
+    roles << 'agent' if user.permissions?('ticket.agent')
+    roles << 'customer' if roles.empty?
+    roles
+  end
+
+  def issue_bot_assertion(user)
+    now = Time.now.to_i
+    email = (user.email.presence || user.login).to_s.strip.downcase
+    raise 'The authenticated ITSM user has no valid email.' if email !~ /\A[^\s@]+@[^\s@]+\z/
+
+    payload = {
+      v: 1,
+      tenant: 'geimser',
+      sub: user.id.to_s,
+      email: email,
+      name: [user.firstname, user.lastname].compact_blank.join(' ').presence || email,
+      roles: bot_assertion_roles(user),
+      iat: now,
+      exp: now + 120,
+      jti: SecureRandom.hex(20),
+    }
+    encoded = Base64.urlsafe_encode64(payload.to_json, padding: false)
+    signature = OpenSSL::HMAC.digest('SHA256', bot_session_secret, encoded)
+    "#{encoded}.#{Base64.urlsafe_encode64(signature, padding: false)}"
+  end
+
+  def render_bot_login_redirect(origin, desktop: false)
     nonce = content_security_policy_nonce
     render html: [
       '<!doctype html>',
@@ -554,7 +615,7 @@ class GeimserMeshLoginController < ApplicationController
       '</head>',
       '<body>',
       '<main class="box">',
-      '<span class="mark">S</span>',
+      '<span class="mark">G</span>',
       '<h1>Inicia sesión en ITSM</h1>',
       '<p>Después del login volveré automáticamente al asistente.</p>',
       '<a href="/#login">Iniciar sesión</a>',
@@ -562,12 +623,30 @@ class GeimserMeshLoginController < ApplicationController
       "<script#{nonce.present? ? " nonce=\"#{ERB::Util.html_escape(nonce)}\"" : ''}>",
       '(function(){',
       "window.localStorage.setItem('geimserBotReturnOrigin', #{origin.to_json});",
+      "window.localStorage.setItem('geimserBotReturnMode', #{desktop ? '"desktop"' : '"web"'});",
       "window.location.replace('/#login');",
       '}());',
       '</script>',
       '</body>',
       '</html>',
     ].join.html_safe, layout: false
+  end
+
+  def issue_bot_handoff(payload)
+    token = SecureRandom.urlsafe_base64(48)
+    Rails.cache.write("geimser:bot-handoff:#{token}", payload, expires_in: 90.seconds)
+    token
+  end
+
+  def consume_bot_handoff(token)
+    cache_key = "geimser:bot-handoff:#{token}"
+    claim_key = "#{cache_key}:claimed"
+    claimed = Rails.cache.write(claim_key, true, expires_in: 90.seconds, unless_exist: true)
+    return unless claimed
+
+    payload = Rails.cache.read(cache_key)
+    Rails.cache.delete(cache_key)
+    payload
   end
 
   def serialize_bot_user(user)

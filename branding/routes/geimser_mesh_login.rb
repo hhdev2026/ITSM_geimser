@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   get '/geimser/access', to: 'geimser_mesh_login#access'
   get '/geimser/bot/login', to: 'geimser_mesh_login#bot_login'
   get '/geimser/bot/session', to: 'geimser_mesh_login#bot_session'
+  get '/geimser/bot/handoff', to: 'geimser_mesh_login#bot_handoff'
   get '/geimser/demo', to: 'geimser_mesh_login#demo'
   post '/geimser/demo/session', to: 'geimser_mesh_login#demo_session'
   get '/geimser/remote/assets', to: 'geimser_mesh_login#assets'
