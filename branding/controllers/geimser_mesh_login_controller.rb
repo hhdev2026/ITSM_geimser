@@ -112,7 +112,7 @@ class GeimserMeshLoginController < ApplicationController
 
     render json: {
       users: inventory_users.map { |user| serialize_inventory_user_option(user) },
-      assets: GeimserMeshCmdb.sync.map { |record| serialize_inventory_asset_option(record) },
+      assets: GeimserMeshCmdb.cached_records.map { |record| serialize_inventory_asset_option(record) },
     }
   end
 

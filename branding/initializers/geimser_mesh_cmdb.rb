@@ -44,6 +44,14 @@ class GeimserMeshCmdb
       RemoteAsset.order(Arel.sql("CASE WHEN status = 'online' THEN 0 ELSE 1 END"), :group_name, :name).to_a
     end
 
+    # Option lists are refreshed from the already synchronized local cache.
+    # The map refresh performs the MeshCentral synchronization, so repeating it
+    # for both selects only adds latency and concurrent database work.
+    def cached_records
+      ensure_table
+      RemoteAsset.order(Arel.sql("CASE WHEN status = 'online' THEN 0 ELSE 1 END"), :group_name, :name).to_a
+    end
+
     # MeshCentral stores lastaddr in its database, which is often the Docker
     # relay address. Query its getnetworkinfo API for assigned/visible devices
     # and retain the answer briefly so map refreshes do not hammer MeshCentral.

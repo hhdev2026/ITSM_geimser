@@ -733,7 +733,7 @@ function syncOptionsRefreshTimer() {
     if (!state.selected) return;
     await loadOptions();
     if (!selectIsActive()) render();
-  }, 5000);
+  }, 15000);
 }
 
 function syncMapRefreshTimer() {
@@ -768,6 +768,18 @@ function syncMapRefreshTimer() {
 async function saveAssignment(event) {
   event.preventDefault();
   if (!state.selected) return;
+  const selectedCode = state.selected.code;
+  const submitButton = event.currentTarget.querySelector("button[type='submit']");
+  const originalSubmitText = submitButton?.textContent;
+
+  // Avoid a scheduled refresh replacing the selected workspace while its
+  // assignment request is in flight.
+  mapRefreshInFlight = true;
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "Guardando...";
+  }
+
   try {
     const csrf = await csrfToken();
     
@@ -799,14 +811,34 @@ async function saveAssignment(event) {
         temp_user_name: submitTempName || null
       })
     });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    await loadInventory();
-    state.selected = byCode(state.selected.code) || state.selected;
+    const savedWorkspace = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(savedWorkspace.error || `HTTP ${response.status}`);
+
+    const existingIndex = state.workspaces.findIndex((workspace) => workspace.code === selectedCode);
+    if (existingIndex >= 0) state.workspaces[existingIndex] = savedWorkspace;
+    else state.workspaces.push(savedWorkspace);
+
+    state.selected = savedWorkspace.code ? savedWorkspace : state.selected;
+    state.status = "Puesto guardado correctamente.";
     render();
+
+    // Refresh server data in the background. Its failure must never report a
+    // successful assignment as failed.
+    loadInventory().then((inventoryLoaded) => {
+      if (!inventoryLoaded || state.selected?.code !== selectedCode) return;
+      state.selected = byCode(selectedCode) || state.selected;
+      if (!selectIsActive()) render();
+    });
   } catch (error) {
     console.error("Save failed", error);
     state.status = "No se pudo guardar la asignacion. Revisa la conexion con el backend.";
     render();
+  } finally {
+    mapRefreshInFlight = false;
+    if (submitButton && document.body.contains(submitButton)) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalSubmitText;
+    }
   }
 }
 
@@ -854,7 +886,8 @@ function monitorIcon() {
   `;
 }
 
-await Promise.all([loadInventory(), loadOptions()]);
+await loadInventory();
+await loadOptions();
 render();
 syncMapRefreshTimer();
 connectSocket();
