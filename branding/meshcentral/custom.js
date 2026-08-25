@@ -1,4 +1,39 @@
 (function () {
+  function installResponsiveDesktopLayout() {
+    var style = document.createElement('style');
+    style.id = 'geimser-responsive-desktop-layout';
+    style.textContent = [
+      'html,body{width:100%;max-width:100%;min-width:0!important;overflow-x:hidden!important;}',
+      '#container,#column_l,#p11,#deskarea0,#deskarea3x,#DeskParent{max-width:100%;min-width:0;box-sizing:border-box;}',
+      '#deskarea3x,#DeskParent{overflow:hidden!important;}',
+      '#Desk{max-width:100%;}'
+    ].join('');
+    (document.head || document.documentElement).appendChild(style);
+
+    function fitDesktopToViewport() {
+      if (typeof deskAdjust !== 'function' || typeof deskAspectRatio === 'undefined') return;
+
+      // MeshCentral persists a per-browser zoom preference. Zoom mode uses a
+      // scroll container; fixed aspect ratio scales the remote canvas without
+      // cropping it or creating a horizontal scrollbar.
+      if (deskAspectRatio !== 0) {
+        deskAspectRatio = 0;
+        if (typeof putstore === 'function') putstore('deskAspectRatio', '0');
+      }
+      deskAdjust();
+    }
+
+    window.addEventListener('resize', fitDesktopToViewport);
+    var attempts = 0;
+    var waitForDesktop = window.setInterval(function () {
+      attempts += 1;
+      fitDesktopToViewport();
+      if (typeof deskAdjust === 'function' || attempts >= 40) window.clearInterval(waitForDesktop);
+    }, 250);
+  }
+
+  installResponsiveDesktopLayout();
+
   var query = new URLSearchParams(window.location.search);
   if (query.get("geimserautoconnect") !== "1") return;
 
