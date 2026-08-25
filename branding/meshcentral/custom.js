@@ -18,6 +18,11 @@
       '#deskarea0,#deskarea3x,#DeskParent{max-width:100%!important;min-width:0!important;box-sizing:border-box!important;}',
       '#deskarea3x,#DeskParent{overflow:hidden!important;}',
       '#Desk{max-width:100%;}',
+      'body.geimser-remote-desktop #masthead,body.geimser-remote-desktop #topbar,body.geimser-remote-desktop #page_leftbar{display:none!important;}',
+      'body.geimser-remote-desktop #column_l{top:0!important;left:0!important;right:0!important;width:100%!important;max-width:100vw!important;height:100vh!important;padding:0!important;}',
+      'body.geimser-remote-desktop #p11{padding:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;}',
+      'body.geimser-remote-desktop #p11title{min-height:44px!important;padding:7px 12px!important;}',
+      'body.geimser-remote-desktop #deskarea0{margin-top:0!important;border-radius:0!important;border-left:0!important;border-right:0!important;box-shadow:none!important;}',
       '@media(max-width:760px){#topbar,#column_l,#column_r{left:80px!important;max-width:calc(100vw - 80px)!important;}#column_l,#column_r{padding:8px!important;}#p10info{height:calc(100vh - 178px)!important;max-height:calc(100vh - 178px)!important;}#p10info>table{table-layout:auto!important;}#p10info>table td:last-child{display:none!important;}}'
     ].join('');
     (document.head || document.documentElement).appendChild(style);
@@ -40,7 +45,15 @@
       deskAdjust();
     }
 
+    function prioritizeRemoteDesktop() {
+      var isDesktop = typeof xxcurrentView !== 'undefined' && xxcurrentView === 11;
+      var hadDesktopClass = document.body.classList.contains('geimser-remote-desktop');
+      document.body.classList.toggle('geimser-remote-desktop', isDesktop);
+      if (isDesktop !== hadDesktopClass) window.setTimeout(fitDesktopToViewport, 50);
+    }
+
     window.addEventListener('resize', fitDesktopToViewport);
+    window.setInterval(prioritizeRemoteDesktop, 500);
     var attempts = 0;
     var waitForDesktop = window.setInterval(function () {
       attempts += 1;
