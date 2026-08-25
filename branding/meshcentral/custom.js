@@ -4,11 +4,28 @@
     style.id = 'geimser-responsive-desktop-layout';
     style.textContent = [
       'html,body{width:100%;max-width:100%;min-width:0!important;overflow-x:hidden!important;}',
-      '#container,#column_l,#p11,#deskarea0,#deskarea3x,#DeskParent{max-width:100%;min-width:0;box-sizing:border-box;}',
+      '#container{width:100%!important;max-width:100%!important;overflow:hidden!important;}',
+      '#topbar,#column_l,#column_r{position:absolute!important;left:104px!important;right:0!important;width:auto!important;max-width:calc(100vw - 104px)!important;box-sizing:border-box!important;}',
+      '#topbar{top:64px!important;height:34px!important;}',
+      '#column_l,#column_r{top:98px!important;bottom:0!important;height:auto!important;min-width:0!important;padding:12px!important;overflow:hidden!important;}',
+      '#p10,#p11{width:100%!important;height:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;overflow:hidden!important;}',
+      '#p10info{height:calc(100vh - 198px)!important;max-height:calc(100vh - 198px)!important;padding-right:4px!important;box-sizing:border-box!important;overflow-y:auto!important;overflow-x:hidden!important;}',
+      '#p10info>table{width:100%!important;table-layout:fixed!important;}',
+      '#p10html{min-width:0!important;overflow-wrap:anywhere!important;word-break:break-word!important;}',
+      '#p10html2,#p10html3,#p10html4,#p10html5{max-width:100%!important;overflow-x:auto!important;}',
+      '#p10info>table td:last-child{width:150px!important;}',
+      '#MainComputerImage{width:min(150px,14vw)!important;height:auto!important;max-width:100%!important;}',
+      '#deskarea0,#deskarea3x,#DeskParent{max-width:100%!important;min-width:0!important;box-sizing:border-box!important;}',
       '#deskarea3x,#DeskParent{overflow:hidden!important;}',
-      '#Desk{max-width:100%;}'
+      '#Desk{max-width:100%;}',
+      '@media(max-width:760px){#topbar,#column_l,#column_r{left:80px!important;max-width:calc(100vw - 80px)!important;}#column_l,#column_r{padding:8px!important;}#p10info{height:calc(100vh - 178px)!important;max-height:calc(100vh - 178px)!important;}#p10info>table{table-layout:auto!important;}#p10info>table td:last-child{display:none!important;}}'
     ].join('');
     (document.head || document.documentElement).appendChild(style);
+    window.addEventListener('load', function () {
+      // MeshCentral loads its optional custom.css after this script. Moving our
+      // responsive layer to the end keeps the Geimser layout in control.
+      (document.head || document.documentElement).appendChild(style);
+    }, { once: true });
 
     function fitDesktopToViewport() {
       if (typeof deskAdjust !== 'function' || typeof deskAspectRatio === 'undefined') return;
