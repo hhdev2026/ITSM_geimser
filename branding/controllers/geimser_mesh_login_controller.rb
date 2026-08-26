@@ -12,7 +12,11 @@ require 'uri'
 
 class GeimserMeshLoginController < ApplicationController
   before_action :authentication_check, except: %i[bot_login bot_handoff demo demo_session search cmdb_assets]
-  before_action :allow_bot_session_origin!, only: %i[bot_session]
+  # The assistant consumes a short-lived, single-use handoff from its own
+  # origin after the ITSM login completes. It needs the same narrow CORS
+  # response policy as the session probe; the token itself remains signed,
+  # expires quickly, and is invalidated on first read.
+  before_action :allow_bot_session_origin!, only: %i[bot_session bot_handoff]
   before_action :require_internal_user!, except: %i[access bot_login bot_session bot_handoff demo demo_session search cmdb_assets]
   before_action :require_admin!, only: %i[show]
   # The signed, short-lived demo ticket is the authorization proof for this
