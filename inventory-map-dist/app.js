@@ -818,7 +818,7 @@ async function saveAssignment(event) {
     const savedWorkspace = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(savedWorkspace.error || `HTTP ${response.status}`);
 
-    const existingIndex = state.workspaces.findIndex((workspace) => workspace.code === selectedCode);
+    const existingIndex = state.workspaces.findIndex((item) => item.code === workspace.code);
     if (existingIndex >= 0) state.workspaces[existingIndex] = savedWorkspace;
     else state.workspaces.push(savedWorkspace);
 
