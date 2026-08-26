@@ -769,6 +769,7 @@ function syncMapRefreshTimer() {
 async function saveAssignment(event) {
   event.preventDefault();
   if (!state.selected || saveInFlight) return;
+  const workspace = { id: state.selected.id || null, code: state.selected.code };
   const submitButton = event.currentTarget.querySelector("button[type='submit']");
   const originalSubmitText = submitButton?.textContent;
 
@@ -807,8 +808,8 @@ async function saveAssignment(event) {
       },
       credentials: "include",
       body: JSON.stringify({
-        workspace_id: state.selected.id || null,
-        code: state.selected.code,
+        workspace_id: workspace.id,
+        code: workspace.code,
         user_id: submitUserId,
         asset_id: state.form.asset_id ? parseInt(state.form.asset_id, 10) : null,
         temp_user_name: submitTempName || null
