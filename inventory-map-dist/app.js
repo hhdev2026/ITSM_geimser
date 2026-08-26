@@ -13,6 +13,7 @@ const state = {
 let optionsRefreshTimer = null;
 let mapRefreshTimer = null;
 let mapRefreshInFlight = false;
+let saveInFlight = false;
 let inventoryRequestSequence = 0;
 
 const floors = {
@@ -608,7 +609,7 @@ async function loadInventory() {
     if (requestSequence !== inventoryRequestSequence) return false;
 
     state.workspaces = normalizeWorkspaceRecords(records);
-    state.status = "";
+    if (/^(Cargando plano|Backend no disponible)/.test(state.status)) state.status = "";
     return true;
   } catch (error) {
     if (requestSequence !== inventoryRequestSequence) return false;
@@ -740,7 +741,7 @@ function syncMapRefreshTimer() {
   if (mapRefreshTimer) return;
 
   mapRefreshTimer = setInterval(async () => {
-    if (mapRefreshInFlight) return;
+    if (mapRefreshInFlight || saveInFlight) return;
     mapRefreshInFlight = true;
 
     try {
@@ -767,16 +768,18 @@ function syncMapRefreshTimer() {
 
 async function saveAssignment(event) {
   event.preventDefault();
-  if (!state.selected) return;
-  const selectedCode = state.selected.code;
+  if (!state.selected || saveInFlight) return;
   const submitButton = event.currentTarget.querySelector("button[type='submit']");
   const originalSubmitText = submitButton?.textContent;
 
   // Avoid a scheduled refresh replacing the selected workspace while its
   // assignment request is in flight.
   mapRefreshInFlight = true;
+  saveInFlight = true;
+  event.currentTarget.querySelectorAll("select, button").forEach((control) => {
+    control.disabled = true;
+  });
   if (submitButton) {
-    submitButton.disabled = true;
     submitButton.textContent = "Guardando...";
   }
 
@@ -822,22 +825,24 @@ async function saveAssignment(event) {
     state.status = "Puesto guardado correctamente.";
     render();
 
-    // Refresh server data in the background. Its failure must never report a
-    // successful assignment as failed.
-    loadInventory().then((inventoryLoaded) => {
-      if (!inventoryLoaded || state.selected?.code !== selectedCode) return;
-      state.selected = byCode(selectedCode) || state.selected;
-      if (!selectIsActive()) render();
-    });
+    // Only refresh the local option cache here. The full plan reload runs on
+    // its normal interval, so a slow external inventory source cannot turn a
+    // confirmed save into a misleading error in the interface.
+    loadOptions().catch(() => {});
   } catch (error) {
     console.error("Save failed", error);
-    state.status = "No se pudo guardar la asignacion. Revisa la conexion con el backend.";
+    state.status = error.message || "No se pudo confirmar el guardado. Revisa la conexión con el backend.";
     render();
   } finally {
     mapRefreshInFlight = false;
+    saveInFlight = false;
     if (submitButton && document.body.contains(submitButton)) {
-      submitButton.disabled = false;
       submitButton.textContent = originalSubmitText;
+    }
+    if (document.body.contains(event.currentTarget)) {
+      event.currentTarget.querySelectorAll("select, button").forEach((control) => {
+        control.disabled = false;
+      });
     }
   }
 }

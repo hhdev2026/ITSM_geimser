@@ -77,7 +77,12 @@ class GeimserMeshLoginController < ApplicationController
     users_by_id.merge!(User.where(id: records.filter_map(&:user_id)).index_by(&:id))
     users_by_identity = inventory_user_identity_index(inventory_users_list)
     assets_by_id = GeimserMeshCmdb::RemoteAsset.where(id: records.filter_map(&:asset_id)).index_by(&:id)
-    GeimserMeshCmdb.refresh_live_network!(assets_by_id.values)
+
+    # Loading the plan is polled by every open browser. Do not make its response
+    # wait for one MeshCentral network query per workstation: the synchronized
+    # local asset cache already contains the latest known hostname, user and IP.
+    # This keeps assignment saves fast and prevents a slow remote agent from
+    # making the map look as if the save itself had failed.
 
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0, private'
     response.headers['Pragma'] = 'no-cache'
@@ -152,8 +157,12 @@ class GeimserMeshLoginController < ApplicationController
 
     user_id = params[:user_id].presence&.to_i
     asset_id = params[:asset_id].presence&.to_i
-    user_id = nil if user_id.present? && !User.exists?(id: user_id)
-    asset_id = nil if asset_id.present? && !GeimserMeshCmdb::RemoteAsset.exists?(id: asset_id)
+    if user_id.present? && !User.exists?(id: user_id)
+      return render json: { error: 'El usuario seleccionado ya no está disponible.' }, status: :unprocessable_entity
+    end
+    if asset_id.present? && !GeimserMeshCmdb::RemoteAsset.exists?(id: asset_id)
+      return render json: { error: 'El equipo seleccionado ya no está disponible.' }, status: :unprocessable_entity
+    end
 
     record = GeimserInventoryWorkspace.find_or_initialize_by(code: code)
     record.assign_attributes(
