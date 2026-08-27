@@ -270,11 +270,51 @@
   var geimserAccessState = {
     requested: false,
     loaded: false,
-    moduleAccess: false
+    moduleAccess: false,
+    sessionKey: null,
+    retries: 0,
+    retryTimer: null
   };
 
+  function geimserSessionKey(session) {
+    if (!session) return null;
+    return String(session.id || session.login || session.email || "");
+  }
+
+  function resetGeimserAccess(session) {
+    var nextSessionKey = geimserSessionKey(session);
+    if (geimserAccessState.sessionKey === nextSessionKey) return;
+
+    if (geimserAccessState.retryTimer) {
+      window.clearTimeout(geimserAccessState.retryTimer);
+    }
+
+    geimserAccessState.requested = false;
+    geimserAccessState.loaded = false;
+    geimserAccessState.moduleAccess = false;
+    geimserAccessState.sessionKey = nextSessionKey;
+    geimserAccessState.retries = 0;
+    geimserAccessState.retryTimer = null;
+  }
+
+  function retryGeimserAccess() {
+    if (geimserAccessState.retryTimer || geimserAccessState.retries >= 8 || !currentSession()) return;
+
+    var delay = Math.min(2000, 250 * Math.pow(2, geimserAccessState.retries));
+    geimserAccessState.retries += 1;
+    geimserAccessState.retryTimer = window.setTimeout(function () {
+      geimserAccessState.retryTimer = null;
+      geimserAccessState.requested = false;
+      scheduleApply();
+    }, delay);
+  }
+
   function requestGeimserAccess() {
-    if (geimserAccessState.requested || !currentSession()) return;
+    var session = currentSession();
+    if (!session) return;
+
+    resetGeimserAccess(session);
+    if (geimserAccessState.requested || geimserAccessState.loaded) return;
     geimserAccessState.requested = true;
 
     fetch("/geimser/access", {
@@ -286,10 +326,16 @@
     }).then(function (payload) {
       geimserAccessState.loaded = true;
       geimserAccessState.moduleAccess = payload && payload.module_access === true;
+      geimserAccessState.retries = 0;
       scheduleApply();
     }).catch(function () {
-      geimserAccessState.loaded = true;
+      // During login Zammad may render the application before its session
+      // cookie is usable by this request. Do not turn that transient failure
+      // into a permanent denial that requires a manual browser refresh.
+      geimserAccessState.requested = false;
+      geimserAccessState.loaded = false;
       geimserAccessState.moduleAccess = false;
+      retryGeimserAccess();
       scheduleApply();
     });
   }
@@ -3097,6 +3143,7 @@
   window.addEventListener("hashchange", scheduleApply);
   window.addEventListener("resize", scheduleApply);
   window.addEventListener("load", scheduleApply);
+  window.addEventListener("pageshow", scheduleApply);
 
   observer = new MutationObserver(scheduleApply);
   observeChanges();
