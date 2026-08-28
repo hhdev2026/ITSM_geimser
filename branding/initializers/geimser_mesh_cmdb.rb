@@ -41,6 +41,8 @@ class GeimserMeshCmdb
         record.save!
       end
 
+      reconcile_replaced_agent_assignments!
+
       RemoteAsset.order(Arel.sql("CASE WHEN status = 'online' THEN 0 ELSE 1 END"), :group_name, :name).to_a
     end
 
@@ -158,6 +160,27 @@ class GeimserMeshCmdb
       end
 
       records
+    end
+
+    # Reinstalling a Mesh agent generates a new node id. Keep a workstation's
+    # assigned seat attached to the replacement agent when its hostname is the
+    # same and the previous node is no longer online.
+    def reconcile_replaced_agent_assignments!
+      return unless defined?(GeimserInventoryWorkspace)
+      return unless ActiveRecord::Base.connection.table_exists?(GeimserInventoryWorkspace.table_name)
+
+      online_assets = RemoteAsset.where(status: 'online').where.not(name: [nil, '']).to_a
+      now = Time.now.utc
+
+      online_assets.each do |current|
+        stale_assets = RemoteAsset.where(status: 'offline')
+          .where('LOWER(name) = ?', current.name.to_s.downcase)
+          .where.not(id: current.id)
+
+        stale_assets.find_each do |stale|
+          GeimserInventoryWorkspace.where(asset_id: stale.id).update_all(asset_id: current.id, updated_at: now)
+        end
+      end
     end
 
     def ensure_table
