@@ -17,14 +17,16 @@ let saveInFlight = false;
 let inventoryRequestSequence = 0;
 
 const floors = {
-  p1: { title: "PISO 1", subtitle: "Sala KREA", cols: 8, rows: 12, width: 560 },
+  p1: { title: "PISO 1", subtitle: "Sala KREA", cols: 12, rows: 16, width: 820 },
   p2: { title: "PISO 2", subtitle: "Huerfanos / Merced", cols: 14, rows: 29, width: 1060 },
   remote: { title: "REMOTO", subtitle: "Portatiles / Q3E1P61", width: 1060 }
 };
 
 const rooms = [
-  { floor: "p1", label: "SALA KREA (1er Piso)", x: 2, y: 1, w: 4, h: 1, type: "room room-soft room-label" },
-  { floor: "p1", label: "SUP", x: 6, y: 1, w: 1, h: 2, type: "room room-soft room-small" },
+  { floor: "p1", label: "BANO", x: 0, y: 0, w: 2, h: 3, type: "room room-structure room-small", fill: "#e2f0d9" },
+  { floor: "p1", label: "ESCALERA", x: 5, y: 1, w: 7, h: 3, type: "room room-structure room-small" },
+  { floor: "p1", label: "SALA KREA (1er Piso)", x: 0, y: 5, w: 3, h: 2, type: "room room-soft room-label" },
+  { floor: "p1", label: "SUP", x: 9, y: 5, w: 2, h: 2, type: "room room-soft room-small" },
   { floor: "p2", label: "Sala Huerfanos 2do Piso", x: 9, y: 1, w: 3, h: 1, type: "room room-soft room-label" },
   { floor: "p2", label: "SUP", x: 8, y: 3, w: 1, h: 3, type: "room room-soft room-small" },
   { floor: "p2", label: "CASINO", x: 1, y: 2, w: 3, h: 8, type: "room", fill: "#fff2cc" },
@@ -39,10 +41,10 @@ const rooms = [
 ];
 
 const workspaces = [
-  { prefix: "KREA", room: "Recepcion (1er Piso)", floor: "p1", label: "RECEPCION", x: 1, y: 0, h: 1 },
-  ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 2, 3, ["P1", "P2", "P3", "P4"]),
-  ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 2, 5, ["P8", "P7", "P6", "P5"]),
-  ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 2, 8, ["P9", "P10", "P11", "P12"]),
+  { prefix: "KREA", room: "Recepcion (1er Piso)", floor: "p1", label: "RECEPCION", x: 2.3, y: 0.5, w: 1.25, h: 1.5 },
+  ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 3, 8, ["P1", "P2", "P3", "P4"]),
+  ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 3, 10, ["P8", "P7", "P6", "P5"]),
+  ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 3, 13, ["P9", "P10", "P11", "P12"]),
   ...makeRow("HUERFANOS", "Sala Huerfanos 2do Piso", "p2", 10, 2, ["P1", "P2", "P3", "P4"]),
   ...makeRow("HUERFANOS", "Sala Huerfanos 2do Piso", "p2", 10, 4, ["P8", "P7", "P6", "P5"]),
   ...makeRow("MERCED", "SALA MERCED 2do Piso", "p2", 1, 20, ["P25", "P24", null, "P23", "P22", null, "P21", "P20", "P19", "P18"]),
@@ -177,6 +179,7 @@ function renderRoom(room) {
 function renderSeat(seat) {
   const data = byCode(seat.code);
   const classes = ["workspace"];
+  if (seat.label === "RECEPCION") classes.push("workspace-reception");
   let dot = "";
   if (data) classes.push("has-record");
   if (state.selected && state.selected.code === seat.code) classes.push("is-selected");

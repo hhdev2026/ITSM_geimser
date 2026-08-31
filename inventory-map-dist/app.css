@@ -224,8 +224,8 @@ button {
 }
 
 .floor-p1 {
-  --floor-width: 760px;
-  --grid-min-height: 420px;
+  --floor-width: 820px;
+  --grid-min-height: 560px;
 }
 
 .floor-p2 {
@@ -296,6 +296,10 @@ button {
   border-color: transparent;
 }
 
+.room-structure {
+  border-color: #475569;
+}
+
 .workspace {
   flex-direction: column;
   gap: 2px;
@@ -308,6 +312,14 @@ button {
   display: block;
   font-size: 11px;
   line-height: 1;
+}
+
+.workspace-reception .workspace-label {
+  max-width: calc(100% - 6px);
+  color: #7f1d1d;
+  font-size: 9px;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
 }
 
 .workspace-inline-details {
