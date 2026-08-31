@@ -39,6 +39,7 @@ const rooms = [
 ];
 
 const workspaces = [
+  { prefix: "KREA", room: "Recepcion (1er Piso)", floor: "p1", label: "RECEPCION", x: 1, y: 0, h: 1 },
   ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 2, 3, ["P1", "P2", "P3", "P4"]),
   ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 2, 5, ["P8", "P7", "P6", "P5"]),
   ...makeRow("KREA", "SALA KREA (1er Piso)", "p1", 2, 8, ["P9", "P10", "P11", "P12"]),
