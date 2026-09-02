@@ -254,7 +254,7 @@ function normalizedConnectedAgent(asset) {
 }
 
 function assetAllowedInKovacsView(asset) {
-  return normalizedConnectedAgent(asset) === "agente_kovac";
+  return normalizedConnectedAgent(asset) === "agente_kovacs";
 }
 
 function remotePanelAssets(view = "remote") {
