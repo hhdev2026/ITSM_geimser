@@ -19,7 +19,7 @@ class GeimserMeshCmdb
       ensure_table
 
       now = Time.now.utc
-      devices.each do |device|
+      records = devices.map do |device|
         record = RemoteAsset.find_or_initialize_by(mesh_node_id: device[:mesh_node_id])
         record.created_at = now if record.new_record?
         cached_network = cached_live_network(record)
@@ -39,8 +39,12 @@ class GeimserMeshCmdb
           updated_at: now,
         )
         record.save!
+        record
       end
 
+      # Refresh the IPv4 reported by online agents. The MeshCentral relay
+      # address is not the workstation's actual network address.
+      refresh_live_network!(records.select { |record| record.status == 'online' })
       reconcile_replaced_agent_assignments!
 
       RemoteAsset.order(Arel.sql("CASE WHEN status = 'online' THEN 0 ELSE 1 END"), :group_name, :name).to_a
