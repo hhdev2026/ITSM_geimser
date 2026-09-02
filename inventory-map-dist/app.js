@@ -6,7 +6,7 @@ const state = {
   selected: null,
   activeFloor: "p1",
   form: { user_id: "", asset_id: "" },
-  remoteQuery: "",
+  assetQuery: { remote: "", kovacs: "" },
   status: "Cargando plano..."
 };
 
@@ -19,7 +19,8 @@ let inventoryRequestSequence = 0;
 const floors = {
   p1: { title: "PISO 1", subtitle: "Sala KREA", cols: 12, rows: 16, width: 820 },
   p2: { title: "PISO 2", subtitle: "Huerfanos / Merced", cols: 14, rows: 29, width: 1060 },
-  remote: { title: "REMOTO", subtitle: "Portatiles / Q3E1P61", width: 1060 }
+  remote: { title: "REMOTO", subtitle: "Portatiles / Q3E1P61", width: 1060 },
+  kovacs: { title: "KOVACS", subtitle: "Equipos con Agente_Kovacs", width: 1060 }
 };
 
 const rooms = [
@@ -138,13 +139,14 @@ function render() {
               ${renderFloorButton("p1")}
               ${renderFloorButton("p2")}
               ${renderFloorButton("remote")}
+              ${renderFloorButton("kovacs")}
             </div>
           </div>
           <div class="floor-summary">
             <strong>${escapeHtml(current.title)}</strong>
             <span>${escapeHtml(current.subtitle)}</span>
           </div>
-          ${state.activeFloor === "remote" ? renderRemoteAssetsView() : renderFloor(state.activeFloor)}
+          ${["remote", "kovacs"].includes(state.activeFloor) ? renderRemoteAssetsView(state.activeFloor) : renderFloor(state.activeFloor)}
         </div>
       </section>
       ${renderConfigModal()}
@@ -243,14 +245,26 @@ function assetAllowedInRemoteView(asset) {
   return text.includes("portatil") || text.includes("q3e1p61");
 }
 
-function remotePanelAssets() {
-  const assets = state.options?.assets || [];
-  return assets.filter(assetAllowedInRemoteView);
+function normalizedConnectedAgent(asset) {
+  return String(asset.connected_agent || asset.occupant || asset.user || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
-function filteredRemotePanelAssets() {
-  const query = state.remoteQuery.trim().toLowerCase();
-  const assets = remotePanelAssets();
+function assetAllowedInKovacsView(asset) {
+  return normalizedConnectedAgent(asset) === "agente_kovac";
+}
+
+function remotePanelAssets(view = "remote") {
+  const assets = state.options?.assets || [];
+  return assets.filter(view === "kovacs" ? assetAllowedInKovacsView : assetAllowedInRemoteView);
+}
+
+function filteredRemotePanelAssets(view = "remote") {
+  const query = (state.assetQuery[view] || "").trim().toLowerCase();
+  const assets = remotePanelAssets(view);
   if (!query) return assets;
   return assets.filter((asset) => [
     asset.name,
@@ -259,6 +273,7 @@ function filteredRemotePanelAssets() {
     asset.group,
     asset.os,
     asset.occupant,
+    asset.connected_agent,
     asset.user,
     asset.brand,
     asset.model
@@ -273,32 +288,38 @@ function remoteControlUrl(asset) {
   return `/geimser/mesh/login?next=${encodeURIComponent(next)}`;
 }
 
-function renderRemoteAssetsView() {
-  const assets = filteredRemotePanelAssets();
-  const allRemote = remotePanelAssets();
+function renderRemoteAssetsView(view = "remote") {
+  const isKovacs = view === "kovacs";
+  const assets = filteredRemotePanelAssets(view);
+  const allRemote = remotePanelAssets(view);
   const online = allRemote.filter((asset) => asset.status === "Activo" || asset.raw_status === "online").length;
   const offline = Math.max(allRemote.length - online, 0);
+  const heading = isKovacs ? "Equipos con Agente_Kovacs" : "Portatiles y Q3E1P61";
+  const emptyTitle = isKovacs ? "No hay equipos con Agente_Kovacs para mostrar." : "No hay equipos remotos para mostrar.";
+  const emptyDescription = isKovacs
+    ? "Se muestran solo equipos cuyo agente conectado es Agente_Kovacs."
+    : "Solo se muestran equipos con PORTATIL en el nombre y el PC Q3E1P61.";
 
   return `
-    <section class="remote-view" aria-label="Equipos remotos">
+    <section class="remote-view" aria-label="${isKovacs ? "Equipos Kovacs" : "Equipos remotos"}">
       <header class="remote-panel-head">
         <div>
-          <span>Control remoto</span>
-          <h2>Portatiles y Q3E1P61</h2>
+          <span>${isKovacs ? "Agente conectado" : "Control remoto"}</span>
+          <h2>${heading}</h2>
         </div>
-        <button type="button" class="remote-refresh" data-refresh-remotes title="Actualizar equipos">Actualizar</button>
+        <button type="button" class="remote-refresh" data-refresh-assets title="Actualizar equipos">Actualizar</button>
       </header>
       <div class="remote-stats" aria-label="Resumen remoto">
         <article><span>Total</span><strong>${allRemote.length}</strong></article>
         <article><span>Online</span><strong>${online}</strong></article>
         <article><span>Offline</span><strong>${offline}</strong></article>
       </div>
-      <input class="remote-search" type="search" data-remote-search value="${escapeHtml(state.remoteQuery)}" placeholder="Buscar portatil, usuario, IP o grupo">
+      <input class="remote-search" type="search" data-asset-search value="${escapeHtml(state.assetQuery[view] || "")}" placeholder="Buscar equipo, usuario, IP o grupo">
       <div class="remote-list" role="list">
         ${assets.length ? assets.map(renderRemoteAssetCard).join("") : `
           <div class="remote-empty">
-            <strong>No hay equipos remotos para mostrar.</strong>
-            <span>Solo se muestran equipos con PORTATIL en el nombre y el PC Q3E1P61.</span>
+            <strong>${emptyTitle}</strong>
+            <span>${emptyDescription}</span>
           </div>
         `}
       </div>
@@ -306,16 +327,17 @@ function renderRemoteAssetsView() {
   `;
 }
 
-function updateRemoteAssetsPanel() {
+function updateRemoteAssetsPanel(view = state.activeFloor) {
   const panel = document.querySelector(".remote-view");
   if (!panel) return;
   const list = panel.querySelector(".remote-list");
   if (!list) return;
-  const assets = filteredRemotePanelAssets();
+  const assets = filteredRemotePanelAssets(view);
+  const isKovacs = view === "kovacs";
   list.innerHTML = assets.length ? assets.map(renderRemoteAssetCard).join("") : `
     <div class="remote-empty">
-      <strong>No hay equipos remotos para mostrar.</strong>
-      <span>Solo se muestran equipos con PORTATIL en el nombre y el PC Q3E1P61.</span>
+      <strong>${isKovacs ? "No hay equipos con Agente_Kovacs para mostrar." : "No hay equipos remotos para mostrar."}</strong>
+      <span>${isKovacs ? "Se muestran solo equipos cuyo agente conectado es Agente_Kovacs." : "Solo se muestran equipos con PORTATIL en el nombre y el PC Q3E1P61."}</span>
     </div>
   `;
   bindPowerButtons();
@@ -457,12 +479,12 @@ function bindEvents() {
       render();
     });
   });
-  document.querySelector("[data-refresh-remotes]")?.addEventListener("click", async () => {
+  document.querySelector("[data-refresh-assets]")?.addEventListener("click", async () => {
     await loadOptions();
     render();
   });
-  document.querySelector("[data-remote-search]")?.addEventListener("input", (event) => {
-    state.remoteQuery = event.target.value;
+  document.querySelector("[data-asset-search]")?.addEventListener("input", (event) => {
+    state.assetQuery[state.activeFloor] = event.target.value;
     updateRemoteAssetsPanel();
   });
   bindPowerButtons();

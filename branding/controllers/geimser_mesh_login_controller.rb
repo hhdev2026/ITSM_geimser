@@ -799,6 +799,7 @@ class GeimserMeshLoginController < ApplicationController
   def serialize_inventory_asset_option(record)
     details = remote_asset_details(record)
     title = record.name.presence || record.hostname.presence || record.mesh_node_id
+    connected_agent = remote_asset_pc_username(record)
     {
       id: record.id,
       node_id: record.mesh_node_id,
@@ -809,7 +810,8 @@ class GeimserMeshLoginController < ApplicationController
       ip: remote_asset_ip_address(record),
       status: inventory_asset_status(record),
       raw_status: record.status,
-      occupant: remote_asset_pc_username(record),
+      occupant: connected_agent,
+      connected_agent: connected_agent,
       session_url: record.session_url,
       brand: details[:manufacturer],
       model: details[:model],
