@@ -1,0 +1,101 @@
+---
+# Low-demand production profile for a 4 GiB Lightsail instance.
+# Keep limits explicit so the stack cannot silently consume the whole host.
+
+services:
+  zammad-elasticsearch:
+    environment:
+      ES_JAVA_OPTS: ${ELASTICSEARCH_JAVA_OPTS:--Xms512m -Xmx512m}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+  zammad-railsserver:
+    environment:
+      MALLOC_ARENA_MAX: "2"
+      ZAMMAD_WEB_CONCURRENCY: ${ZAMMAD_WEB_CONCURRENCY:-0}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1280M
+
+  zammad-scheduler:
+    environment:
+      MALLOC_ARENA_MAX: "2"
+      ZAMMAD_MANAGE_SESSIONS_JOBS_WORKERS: ${ZAMMAD_MANAGE_SESSIONS_JOBS_WORKERS:-1}
+      ZAMMAD_PROCESS_SESSIONS_JOBS_WORKERS: ${ZAMMAD_PROCESS_SESSIONS_JOBS_WORKERS:-1}
+      ZAMMAD_PROCESS_SCHEDULED_JOBS_WORKERS: ${ZAMMAD_PROCESS_SCHEDULED_JOBS_WORKERS:-1}
+      ZAMMAD_PROCESS_DELAYED_JOBS_WORKERS: ${ZAMMAD_PROCESS_DELAYED_JOBS_WORKERS:-1}
+      ZAMMAD_PROCESS_DELAYED_JOBS_WORKER_THREADS: ${ZAMMAD_PROCESS_DELAYED_JOBS_WORKER_THREADS:-1}
+      ZAMMAD_PROCESS_DELAYED_AI_JOBS_WORKERS: ${ZAMMAD_PROCESS_DELAYED_AI_JOBS_WORKERS:-1}
+      ZAMMAD_PROCESS_DELAYED_AI_JOBS_WORKER_THREADS: ${ZAMMAD_PROCESS_DELAYED_AI_JOBS_WORKER_THREADS:-1}
+      ZAMMAD_PROCESS_DELAYED_COMMUNICATION_INBOUND_JOBS_WORKERS: ${ZAMMAD_PROCESS_DELAYED_COMMUNICATION_INBOUND_JOBS_WORKERS:-1}
+      ZAMMAD_PROCESS_DELAYED_COMMUNICATION_INBOUND_JOBS_WORKER_THREADS: ${ZAMMAD_PROCESS_DELAYED_COMMUNICATION_INBOUND_JOBS_WORKER_THREADS:-1}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1152M
+
+  zammad-websocket:
+    environment:
+      MALLOC_ARENA_MAX: "2"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 384M
+
+  zammad-postgresql:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 384M
+
+  zammad-redis:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 96M
+
+  zammad-memcached:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+
+  zammad-nginx:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+  zammad-backup:
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+
+  zammad-init:
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1280M
+
+  meshcentral:
+    environment:
+      NODE_OPTIONS: ${MESH_NODE_OPTIONS:---max-old-space-size=768}
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
