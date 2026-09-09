@@ -19,8 +19,12 @@ class GeimserMeshCmdb
     def sync
       ensure_table
 
-      records = devices.map do |device|
-        record = RemoteAsset.find_or_initialize_by(mesh_node_id: device[:mesh_node_id])
+      device_rows = devices
+      existing_by_node = RemoteAsset.where(mesh_node_id: device_rows.map { |device| device[:mesh_node_id] })
+        .index_by(&:mesh_node_id)
+
+      records = device_rows.map do |device|
+        record = existing_by_node[device[:mesh_node_id]] || RemoteAsset.new(mesh_node_id: device[:mesh_node_id])
         cached_network = cached_live_network(record)
         resolved_ip = device[:ip_address].presence || live_network_ipv4(cached_network)
 
