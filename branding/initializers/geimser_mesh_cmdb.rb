@@ -9,6 +9,7 @@ class GeimserMeshCmdb
   OBJECT_TYPE_ID = '9001'
   LIVE_NETWORK_CACHE_TTL = 10.minutes
   LIVE_NETWORK_PARALLELISM = 8
+  LIVE_NETWORK_REFRESH_PERIOD = 5.minutes
 
   class RemoteAsset < ActiveRecord::Base
     self.table_name = 'geimser_remote_assets'
@@ -18,10 +19,8 @@ class GeimserMeshCmdb
     def sync
       ensure_table
 
-      now = Time.now.utc
       records = devices.map do |device|
         record = RemoteAsset.find_or_initialize_by(mesh_node_id: device[:mesh_node_id])
-        record.created_at = now if record.new_record?
         cached_network = cached_live_network(record)
         resolved_ip = device[:ip_address].presence || live_network_ipv4(cached_network)
 
@@ -36,15 +35,13 @@ class GeimserMeshCmdb
           last_seen_at: device[:last_seen_at],
           session_url: mesh_login_path_for(device[:mesh_node_id]),
           raw: device[:raw].merge('live_network' => cached_network).to_json,
-          updated_at: now,
         )
-        record.save!
+        # The map is polled regularly. Avoid one database write per asset when
+        # MeshCentral has not reported an actual change.
+        record.save! if record.new_record? || record.changed?
         record
       end
 
-      # Refresh the IPv4 reported by online agents. The MeshCentral relay
-      # address is not the workstation's actual network address.
-      refresh_live_network!(records.select { |record| record.status == 'online' })
       reconcile_replaced_agent_assignments!
 
       RemoteAsset.order(Arel.sql("CASE WHEN status = 'online' THEN 0 ELSE 1 END"), :group_name, :name).to_a
@@ -56,6 +53,26 @@ class GeimserMeshCmdb
     def cached_records
       ensure_table
       RemoteAsset.order(Arel.sql("CASE WHEN status = 'online' THEN 0 ELSE 1 END"), :group_name, :name).to_a
+    end
+
+    # Keep the potentially slow MeshCentral network calls out of web requests.
+    # Zammad's scheduler refreshes this cache while the map serves the most
+    # recent known IPv4 immediately.
+    def refresh_live_network_cache!
+      records = sync
+      refresh_live_network!(records.select { |record| record.status == 'online' })
+    end
+
+    def ensure_scheduler!
+      Scheduler.create_or_update(
+        name:          'Geimser: actualizar IPv4 de activos Mesh',
+        method:        'GeimserMeshCmdb.refresh_live_network_cache!',
+        period:        LIVE_NETWORK_REFRESH_PERIOD,
+        prio:          0,
+        active:        true,
+        updated_by_id: 1,
+        created_by_id: 1,
+      )
     end
 
     # MeshCentral stores lastaddr in its database, which is often the Docker
@@ -506,4 +523,10 @@ Rails.application.config.to_prepare do
   class << Idoit
     prepend GeimserMeshIdoitBridge unless ancestors.include?(GeimserMeshIdoitBridge)
   end
+end
+
+Rails.application.config.after_initialize do
+  GeimserMeshCmdb.ensure_scheduler!
+rescue StandardError => error
+  Rails.logger.warn("Geimser Mesh network refresh scheduler setup skipped: #{error.class}: #{error.message}")
 end
