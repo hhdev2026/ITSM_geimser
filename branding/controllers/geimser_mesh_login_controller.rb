@@ -73,7 +73,10 @@ class GeimserMeshLoginController < ApplicationController
 
   def inventory_map
     GeimserInventoryWorkspace.ensure_table
-    GeimserMeshCmdb.sync
+    # MeshCentral's NeDB database can grow large. The scheduler keeps the
+    # local asset cache current, while this endpoint remains responsive for
+    # every map poll.
+    GeimserMeshCmdb.cached_records
 
     records = GeimserInventoryWorkspace.order(:code).to_a
     inventory_users_list = inventory_users

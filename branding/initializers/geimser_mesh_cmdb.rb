@@ -9,7 +9,7 @@ class GeimserMeshCmdb
   OBJECT_TYPE_ID = '9001'
   LIVE_NETWORK_CACHE_TTL = 10.minutes
   LIVE_NETWORK_PARALLELISM = 8
-  LIVE_NETWORK_REFRESH_PERIOD = 5.minutes
+  LIVE_NETWORK_REFRESH_PERIOD = 1.minute
 
   class RemoteAsset < ActiveRecord::Base
     self.table_name = 'geimser_remote_assets'
